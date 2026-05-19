@@ -3,7 +3,6 @@ const sidebar = document.getElementById('sidebar');
     const topbar = document.getElementById('topbar');
     const toggleBtn = document.getElementById('toggleBtn');
     const mobileBtn = document.getElementById('mobileBtn');
-    const overlay = document.getElementById('overlay');
 
     // Desktop collapse
     if (toggleBtn) {
@@ -16,28 +15,32 @@ const sidebar = document.getElementById('sidebar');
 
     // Mobile sidebar open
     if (mobileBtn) {
-      mobileBtn.addEventListener('click', () => {
+      mobileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         if (sidebar) sidebar.classList.add('mobile-show');
-        if (overlay) overlay.classList.add('show');
       });
     }
 
-    // 🔥 Click outside to close
-    if (overlay) {
-      overlay.addEventListener('click', () => {
-        if (sidebar) sidebar.classList.remove('mobile-show');
-        if (overlay) overlay.classList.remove('show');
-      });
-    }
+    // 🔥 Click outside to close sidebar on mobile
+    document.addEventListener('click', (event) => {
+      if (sidebar && sidebar.classList.contains('mobile-show')) {
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isClickOnMobileBtn = mobileBtn && mobileBtn.contains(event.target);
+        if (!isClickInsideSidebar && !isClickOnMobileBtn) {
+          sidebar.classList.remove('mobile-show');
+        }
+      }
+    });
 
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
     if (navLinks.length > 0) {
       navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === currentPage) {
+        if (link.getAttribute('href') === currentPath) {
           link.classList.add('active');
+        } else {
+          link.classList.remove('active');
         }
       });
     }

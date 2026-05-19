@@ -1,0 +1,83 @@
+extends ../layout.pug
+
+block content
+  div.container-fluid
+    div.row
+      div.col-12
+        div.mb-6.d-flex.justify-content-between.align-items-center
+          div
+            h1.fs-3.mb-1 Staf Laboratorium - Kelola Stok BHP
+            p.text-muted Pantau dan kelola ketersediaan barang habis pakai (BHP) laboratorium secara real-time.
+          button.btn.btn-primary(data-bs-toggle="collapse" data-bs-target="#addBhpForm")
+            i.ti.ti-plus.me-1
+            | Tambah BHP Baru
+
+    //- COLLAPSIBLE FORM
+    div#addBhpForm.collapse.mb-4
+      div.card.p-4.border.border-opacity-25.rounded-2
+        h5.mb-3 Pendaftaran BHP Baru
+        form(action="/staf-lab/bhp/create" method="POST")
+          div.row.g-3
+            div.col-md-3.col-12
+              label.form-label Nama BHP
+              input.form-control(type="text" name="nama_bhp" placeholder="cth. Kertas A4, Spidol" required)
+            div.col-md-3.col-12
+              label.form-label Ruangan Penyimpanan
+              select.form-select(name="ruangan_id" required)
+                each r in ruangan
+                  option(value=r.id)= r.kode_ruangan + ' - ' + r.nama_ruangan
+            div.col-md-2.col-12
+              label.form-label Jumlah Stok Awal
+              input.form-control(type="number" name="stok" placeholder="0" min="0" required)
+            div.col-md-2.col-12
+              label.form-label Satuan
+              input.form-control(type="text" name="satuan" placeholder="cth. rim, box, pcs" required)
+            div.col-md-2.col-12
+              label.form-label Kondisi
+              select.form-select(name="kondisi")
+                option(value="baik") Baik
+                option(value="rusak") Rusak
+          div.mt-3.d-flex.justify-content-end.gap-2
+            button.btn.btn-secondary.btn-sm(type="button" data-bs-toggle="collapse" data-bs-target="#addBhpForm") Batal
+            button.btn.btn-primary.btn-sm(type="submit") Simpan BHP
+
+    //- BHP LIST TABLE
+    div.row
+      div.col-12
+        div.card
+          div.card-header.bg-transparent.px-4.py-3.border-bottom
+            h5.mb-0 Inventori Barang Habis Pakai (BHP)
+          div.table-responsive.p-0
+            table.table.align-items-center.mb-0
+              thead.table-light
+                tr
+                  th.px-4.py-3 ID
+                  th Nama BHP
+                  th Ruangan
+                  th Satuan
+                  th Kondisi
+                  th.text-center Jumlah Stok
+                  th.text-end.px-4 Aksi Perbarui Stok
+              tbody
+                if bhpList && bhpList.length
+                  each bhp in bhpList
+                    tr
+                      td.px-4.py-3= bhp.id
+                      td.fw-semibold= bhp.nama_bhp
+                      td= bhp.nama_ruangan || 'Gudang Utama'
+                      td= bhp.satuan
+                      td
+                        span.badge(class=(bhp.kondisi === 'baik' ? 'bg-success' : 'bg-danger'))
+                          = bhp.kondisi.toUpperCase()
+                      td.text-center.fw-bold: span(class=(bhp.stok <= 5 ? 'text-danger' : 'text-success'))= bhp.stok
+                      td.text-end.px-4
+                        form.d-inline-flex.gap-2.align-items-center.justify-content-end(action="/staf-lab/bhp/update-stock/" + bhp.id method="POST")
+                          input.form-control.form-control-sm(type="number" name="stok" value=bhp.stok min="0" style="max-width:80px;" required)
+                          select.form-select.form-select-sm(name="kondisi" style="max-width:100px;")
+                            option(value="baik" selected=(bhp.kondisi === 'baik')) Baik
+                            option(value="rusak" selected=(bhp.kondisi === 'rusak')) Rusak
+                          button.btn.btn-sm.btn-success(type="submit")
+                            i.ti.ti-device-floppy
+                else
+                  tr
+                    td.text-center.py-4(colspan="7") Belum ada data BHP terdaftar.

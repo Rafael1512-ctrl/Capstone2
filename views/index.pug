@@ -6,7 +6,9 @@ block content
       div.col-12
         div.mb-6
           h1.fs-3.mb-1 Dashboard
-          p Your main content goes here…
+          p Welcome back! Here's what's happening with your inventory.
+
+    //- ── Stat Cards ────────────────────────────────────────────────────────
     div.row.g-3.mb-3
       div.col-lg-3.col-12
         div.card.p-4.bg-primary.bg-opacity-10.border.border-primary.border-opacity-25.rounded-2
@@ -15,43 +17,44 @@ block content
               i.ti.ti-report-analytics.fs-4
             div
               h2.mb-3.fs-6 Total Sales
-              h3.fw-bold.mb-0 $25,000
-              p.text-primary.mb-0.small +5% since last month
+              h3.fw-bold.mb-0= '$' + Number(totalSales || 0).toLocaleString('en-US', {minimumFractionDigits: 2})
+              p.text-primary.mb-0.small Completed orders
       div.col-lg-3.col-12
         div.card.p-4.bg-success.bg-opacity-10.border.border-success.border-opacity-25.rounded-2
           div.d-flex.gap-3
             div.icon-shape.icon-md.bg-success.text-white.rounded-2
-              i.ti.ti-repeat.fs-4
+              i.ti.ti-box-seam.fs-4
             div
-              h2.mb-3.fs-6 Total Purchase
-              h3.fw-bold.mb-0 $18,000
-              p.text-success.mb-0.small +22% since last month
-      div.col-lg-3.col-12
-        div.card.p-4.bg-info.bg-opacity-10.border.border-info.border-opacity-25.rounded-2
-          div.d-flex.gap-3
-            div.icon-shape.icon-md.bg-info.text-white.rounded-2
-              i.ti.ti-currency-dollar.fs-4
-            div
-              h2.mb-3.fs-6 Total Expenses
-              h3.fw-bold.mb-0 $9,000
-              p.text-info.mb-0.small +10% since last month
+              h2.mb-3.fs-6 Total Products
+              h3.fw-bold.mb-0= totalProducts || 0
+              p.text-success.mb-0.small Items in inventory
       div.col-lg-3.col-12
         div.card.p-4.bg-warning.bg-opacity-10.border.border-warning.border-opacity-25.rounded-2
           div.d-flex.gap-3
             div.icon-shape.icon-md.bg-warning.text-white.rounded-2
-              i.ti.ti-notes.fs-4
+              i.ti.ti-alert-triangle.fs-4
             div
-              h2.mb-3.fs-6 Invoice Due
-              h3.fw-bold.mb-0 $25,000
-              p.text-warning.mb-0.small +35% since last month
+              h2.mb-3.fs-6 Low Stock
+              h3.fw-bold.mb-0= lowStock || 0
+              p.text-warning.mb-0.small Items ≤ 10 units
+      div.col-lg-3.col-12
+        div.card.p-4.bg-danger.bg-opacity-10.border.border-danger.border-opacity-25.rounded-2
+          div.d-flex.gap-3
+            div.icon-shape.icon-md.bg-danger.text-white.rounded-2
+              i.ti.ti-package-off.fs-4
+            div
+              h2.mb-3.fs-6 Out of Stock
+              h3.fw-bold.mb-0= outOfStock || 0
+              p.text-danger.mb-0.small Need restock
 
+    //- ── Profit, Refund, Expenses Cards ───────────────────────────────────────
     div.row.g-3.mb-3
       div.col-lg-4.col-12
         div.card
           div.card-body.p-4
             div.d-flex.justify-content-between.border-bottom.pb-5.mb-3
               div
-                h3.fw-bold.h4 $25,458
+                h3.fw-bold.h4= '$' + Number(totalProfit || 0).toLocaleString('en-US', {minimumFractionDigits: 2})
                 span Total Profit
               div
                 i.ti.ti-layers-subtract.fs-1.text-primary
@@ -59,27 +62,27 @@ block content
               div.text-muted
                 span.text-success +35%
                 |  vs Last Month
-              div: a.link-primary.text-decoration-underline(href="#") View
+              div: a.link-primary.text-decoration-underline(href="/reports") View
       div.col-lg-4.col-12
         div.card
           div.card-body.p-4
             div.d-flex.justify-content-between.border-bottom.pb-5.mb-3
               div
-                h3.fw-bold.h4 $45,458
-                span Total Payment Returns
+                h3.fw-bold.h4= '$' + Number(totalRefunds || 0).toLocaleString('en-US', {minimumFractionDigits: 2})
+                span Total Cancelled / Refunds
               div
                 i.ti.ti-credit-card.fs-1.text-danger
             div.d-flex.justify-content-between.align-items-center.small
               div.text-muted
                 span.text-danger -20%
                 |  vs Last Month
-              div: a.link-primary.text-decoration-underline(href="#") View
+              div: a.link-primary.text-decoration-underline(href="/reports") View
       div.col-lg-4.col-12
         div.card
           div.card-body.p-4
             div.d-flex.justify-content-between.border-bottom.pb-5.mb-3
               div
-                h3.fw-bold.h4 $34,458
+                h3.fw-bold.h4= '$' + Number(totalExpenses || 0).toLocaleString('en-US', {minimumFractionDigits: 2})
                 span Total Expenses
               div
                 i.ti.ti-cash-banknote.fs-1.text-warning
@@ -87,8 +90,9 @@ block content
               div.text-muted
                 span.text-warning -20%
                 |  vs Last Month
-              div: a.link-primary.text-decoration-underline(href="#") View
+              div: a.link-primary.text-decoration-underline(href="/reports") View
 
+    //- ── Charts Row ──────────────────────────────────────────────────────────
     div.row.g-3.mb-3
       div.col-12.col-lg-6
         div.card
@@ -133,17 +137,18 @@ block content
                         | 21%
             div.row.text-center.border-top.mt-4.pt-4
               div.col-4.border-end
-                h3.fw-bold.mb-2 6987
+                h3.fw-bold.mb-2 6,987
                 small.text-secondary Suppliers
               div.col-4.border-end
-                h3.fw-bold.mb-2 4896
+                h3.fw-bold.mb-2 4,896
                 small.text-secondary Customers
               div.col-4
                 h3.fw-bold.mb-2 487
                 small.text-secondary Orders
 
+    //- ── Bottom Cards ───────────────────────────────────────────────────────
     div.row.g-3
-      // CARD 1 — Top Selling Products
+      //- CARD 1 — Top Selling Products
       div.col-lg-4
         div.card.h-100
           div.card-header.bg-white.d-flex.justify-content-between.align-items-center.px-4.py-3
@@ -152,102 +157,41 @@ block content
               i.ti.ti-calendar
               |  Today
           ul.list-group.list-group-flush
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-2.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Wireless Earphones
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold $89
-                  small •
-                  small 1,250 Units
-              span.badge.bg-danger-subtle.text-danger.border.border-danger 18%
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-1.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Gaming Joy Stick
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold $49
-                  small •
-                  small 5,420 Units
-              span.badge.bg-primary-subtle.text-primary.border.border-primary 32%
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-3.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Smart Watch Pro
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold $98
-                  small •
-                  small 862 Units
-              span.badge.bg-info-subtle.text-info.border.border-info 22%
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-4.png", width="48")
-              div.flex-grow-1
-                p.mb-1 USB-C Fast Charger
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold $35
-                  small •
-                  small 3,200 Units
-              span.badge.bg-success-subtle.text-success.border.border-success 28%
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-5.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Portable Bluetooth Speaker
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold $65
-                  small •
-                  small 2,890 Units
-              span.badge.bg-warning-subtle.text-warning.border.border-warning 25%
+            if topProducts && topProducts.length
+              each p in topProducts
+                li.list-group-item.d-flex.align-items-center.gap-3
+                  img.rounded(src="/assets/images/" + p.image, width="48")
+                  div.flex-grow-1
+                    p.mb-1= p.name
+                    div.d-flex.align-items-center.gap-2.text-muted
+                      small.fw-semibold= '$' + Number(p.price).toFixed(2)
+                      small •
+                      small= p.units_sold + ' Units'
+            else
+              li.list-group-item.text-muted.text-center No data available
 
-      // CARD 2 — Low Stock Products
+      //- CARD 2 — Low Stock Products
       div.col-lg-4
         div.card.h-100
           div.card-header.bg-white.d-flex.justify-content-between.align-items-center.px-4.py-3
             div.d-flex.align-items-center
               h4.mb-0.h5 Low Stock Products
-            a.small.text-primary.text-decoration-underline(href="#") View All
+            a.small.text-primary.text-decoration-underline(href="/inventory") View All
           ul.list-group.list-group-flush
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-8.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Wireless Headphones
-                small ID: #554433
-              div.d-flex.flex-column.gap-0.align-items-center
-                span.fw-semibold.text-primary 06
-                small.text-muted In Stock
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-4.png", width="48")
-              div.flex-grow-1
-                p.mb-1 USB-C Cable Pack
-                small ID: #887766
-              div.d-flex.flex-column.gap-0.align-items-center
-                span.fw-semibold.text-primary 09
-                small.text-muted In Stock
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-10.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Phone Screen Protector
-                small ID: #332211
-              div.d-flex.flex-column.gap-0.align-items-center
-                span.fw-semibold.text-primary 03
-                small.text-muted In Stock
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-4.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Portable Charger 20000mAh
-                small ID: #998877
-              div.d-flex.flex-column.gap-0.align-items-center
-                span.fw-semibold.text-primary 07
-                small.text-muted In Stock
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-6.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Mechanical Keyboard RGB
-                small ID: #665544
-              div.d-flex.flex-column.gap-0.align-items-center
-                span.fw-semibold.text-primary 02
-                small.text-muted In Stock
+            if lowStockProducts && lowStockProducts.length
+              each p in lowStockProducts
+                li.list-group-item.d-flex.align-items-center.gap-3
+                  img.rounded(src="/assets/images/" + p.image, width="48")
+                  div.flex-grow-1
+                    p.mb-1= p.name
+                    small= 'ID: #' + p.code
+                  div.d-flex.flex-column.gap-0.align-items-center
+                    span.fw-semibold.text-danger= p.quantity < 10 ? '0' + p.quantity : p.quantity
+                    small.text-muted In Stock
+            else
+              li.list-group-item.text-muted.text-center All stock levels are good
 
-      // CARD 3 — Recent Sales
+      //- CARD 3 — Recent Sales
       div.col-lg-4
         div.card.h-100
           div.card-header.bg-white.d-flex.justify-content-between.align-items-center.px-4.py-3
@@ -256,48 +200,17 @@ block content
               i.ti.ti-calendar-event
               |  Weekly
           ul.list-group.list-group-flush
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-7.png", width="48")
-              div.flex-grow-1
-                p.mb-1 MacBook Pro 16"
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold Computers
-                  small •
-                  small $2,499
-              span.badge.bg-success-subtle.text-success Completed
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-9.png", width="48")
-              div.flex-grow-1
-                p.mb-1 AirPods Pro Max
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold Audio
-                  small •
-                  small $549
-              span.badge.bg-primary-subtle.text-primary Processing
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-8.png", width="48")
-              div.flex-grow-1
-                p.mb-1 iPad Air 11"
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold Tablets
-                  small •
-                  small $799
-              span.badge.bg-success-subtle.text-success Completed
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-3.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Apple Watch Ultra
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold Wearables
-                  small •
-                  small $799
-              span.badge.bg-warning-subtle.text-warning Pending
-            li.list-group-item.d-flex.align-items-center.gap-3
-              img.rounded(src="./assets/images/product-6.png", width="48")
-              div.flex-grow-1
-                p.mb-1 Magic Keyboard
-                div.d-flex.align-items-center.gap-2.text-muted
-                  small.fw-semibold Accessories
-                  small •
-                  small $299
-              span.badge.bg-danger-subtle.text-danger Cancelled
+            if recentSales && recentSales.length
+              each s in recentSales
+                li.list-group-item.d-flex.align-items-center.gap-3
+                  img.rounded(src="/assets/images/" + s.image, width="48")
+                  div.flex-grow-1
+                    p.mb-1= s.name
+                    div.d-flex.align-items-center.gap-2.text-muted
+                      small.fw-semibold= s.category
+                      small •
+                      small= '$' + Number(s.total).toFixed(2)
+                  - var badgeClass = s.status === 'Completed' ? 'bg-success-subtle text-success' : s.status === 'Processing' ? 'bg-primary-subtle text-primary' : s.status === 'Pending' ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger'
+                  span(class="badge " + badgeClass)= s.status
+            else
+              li.list-group-item.text-muted.text-center No recent sales

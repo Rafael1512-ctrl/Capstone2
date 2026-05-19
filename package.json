@@ -6,6 +6,10 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "migrate": "node database/runner.js migrate",
+    "migrate:rollback": "node database/runner.js migrate:rollback",
+    "db:seed": "node database/runner.js db:seed",
+    "migrate:fresh": "node database/runner.js migrate:fresh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,8 +17,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "bootstrap": "^5.3.8",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.22.3",
     "pug": "^3.0.4",
     "sass": "^1.99.0"
   },

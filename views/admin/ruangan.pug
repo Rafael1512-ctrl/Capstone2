@@ -1,0 +1,100 @@
+extends ../layout.pug
+
+block content
+  div.container-fluid.px-4.py-4
+    div.row.mb-4
+      div.col-12
+        div.card.border-0.shadow-sm.bg-white.p-4.rounded-3
+          div.d-flex.justify-content-between.align-items-center.flex-wrap.gap-3
+            div
+              h1.h3.fw-bold.text-dark.mb-1 Administrator - Kelola Ruangan
+              p.text-muted.mb-0.small Kelola pendaftaran, kode ruangan, dan lokasi fisik laboratorium dalam sistem.
+            button.btn.btn-primary.px-4.py-2.d-flex.align-items-center.gap-2.shadow-sm(data-bs-toggle="collapse" data-bs-target="#addRoomForm")
+              i.ti.ti-plus.fs-5
+              span.fw-semibold Tambah Ruangan
+
+    //- COLLAPSIBLE FORM
+    div#addRoomForm.collapse.mb-4
+      div.card.border-0.shadow-sm.p-4.rounded-3
+        div.border-bottom.pb-3.mb-4
+          h5.fw-bold.text-dark.mb-0
+            i.ti.ti-layout-grid-add.text-primary.me-2.fs-4
+            | Tambah Ruangan Baru
+        form(action="/admin/ruangan/create" method="POST")
+          div.row.g-3
+            div.col-md-4.col-12
+              label.form-label.fw-semibold.text-secondary.small Kode Ruangan
+              input.form-control.form-control-lg(type="text" name="kode_ruangan" placeholder="cth. R-304" required)
+            div.col-md-4.col-12
+              label.form-label.fw-semibold.text-secondary.small Nama Ruangan
+              input.form-control.form-control-lg(type="text" name="nama_ruangan" placeholder="cth. Lab Jaringan Komputer" required)
+            div.col-md-4.col-12
+              label.form-label.fw-semibold.text-secondary.small Lokasi / Gedung
+              input.form-control.form-control-lg(type="text" name="lokasi" placeholder="cth. Gedung IT Lantai 3" required)
+          div.mt-4.d-flex.justify-content-end.gap-2
+            button.btn.btn-light.px-4(type="button" data-bs-toggle="collapse" data-bs-target="#addRoomForm") Batal
+            button.btn.btn-primary.px-4(type="submit") Simpan Ruangan
+
+    //- ROOMS TABLE
+    div.row
+      div.col-12
+        div.card.border-0.shadow-sm.rounded-3.overflow-hidden
+          div.card-header.bg-white.py-3.px-4.border-bottom
+            h5.fw-bold.text-dark.mb-0 Daftar Ruangan Aktif
+          div.table-responsive
+            table.table.table-hover.align-middle.mb-0
+              thead.table-light.text-secondary.small.text-uppercase.fw-semibold
+                tr
+                  th.px-4.py-3(style="width: 80px;") ID
+                  th.py-3 Kode Ruangan
+                  th.py-3 Nama Ruangan
+                  th.py-3 Lokasi / Gedung
+                  th.text-end.px-4.py-3 Aksi
+              tbody.small
+                if ruangan && ruangan.length
+                  each r in ruangan
+                    tr
+                      td.px-4.py-3.text-secondary= r.id
+                      td.py-3
+                        span.badge.bg-secondary.bg-opacity-10.text-secondary.px-2.py-1.fw-bold= r.kode_ruangan
+                      td.py-3.fw-semibold.text-dark= r.nama_ruangan
+                      td.py-3.text-secondary= r.lokasi
+                      td.text-end.px-4.py-3
+                        div.d-inline-flex.gap-2
+                          button.btn.btn-sm.btn-outline-primary.d-flex.align-items-center.gap-1.px-3(data-bs-toggle="modal" data-bs-target="#editRoomModal-" + r.id)
+                            i.ti.ti-edit
+                            span Edit
+                          form.d-inline(action="/admin/ruangan/delete/" + r.id method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ruangan ini?');")
+                            button.btn.btn-sm.btn-outline-danger.d-flex.align-items-center.gap-1.px-3(type="submit")
+                              i.ti.ti-trash
+                              span Hapus
+                    
+                    //- EDIT MODAL FOR THIS ROOM
+                    div.modal.fade(id="editRoomModal-" + r.id, tabindex="-1", aria-hidden="true")
+                      div.modal-dialog.modal-dialog-centered
+                        div.modal-content.border-0.shadow-lg.rounded-3
+                          div.modal-header.border-bottom.bg-light
+                            h5.modal-title.fw-bold.text-dark
+                              i.ti.ti-edit.text-primary.me-2
+                              | Edit Data Ruangan
+                            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                          form(action="/admin/ruangan/edit/" + r.id method="POST")
+                            div.modal-body.p-4
+                              div.mb-3
+                                label.form-label.fw-semibold.text-secondary.small Kode Ruangan
+                                input.form-control.form-control-lg(type="text" name="kode_ruangan" value=r.kode_ruangan required)
+                              div.mb-3
+                                label.form-label.fw-semibold.text-secondary.small Nama Ruangan
+                                input.form-control.form-control-lg(type="text" name="nama_ruangan" value=r.nama_ruangan required)
+                              div.mb-3
+                                label.form-label.fw-semibold.text-secondary.small Lokasi / Gedung
+                                input.form-control.form-control-lg(type="text" name="lokasi" value=r.lokasi required)
+                            div.modal-footer.border-top.bg-light
+                              button.btn.btn-light.px-4(type="button" data-bs-dismiss="modal") Batal
+                              button.btn.btn-primary.px-4(type="submit") Simpan Perubahan
+                else
+                  tr
+                    td.text-center.py-5.text-muted(colspan="5")
+                      i.ti.ti-package-off.fs-1.d-block.mb-2
+                      | Belum ada ruangan terdaftar.
+

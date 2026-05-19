@@ -38,126 +38,38 @@ block content
                 th Quantity
                 th Action
             tbody
-              tr.align-middle
-                td
-                  a(href="#")
-                    img.avatar.avatar-md.rounded(src="./assets/images/product-1.png", alt="")
-                    span.ms-3 Gaming Joy Stick
-                td PRD001
-                td Electronics
-                td Brand Name
-                td $99.99
-                td pcs
-                td 150
-                td
-                  a(href="#"): i.ti.ti-edit
-                  a.link-danger.ms-2(href="#"): i.ti.ti-trash
-              tr.align-middle
-                td
-                  a(href="#")
-                    img.avatar.avatar-md.rounded(src="./assets/images/product-2.png", alt="")
-                    span.ms-3 Wireless Earphones
-                td PRD002
-                td Electronics
-                td Tech Pro
-                td $89.99
-                td pcs
-                td 320
-                td
-                  a(href="#"): i.ti.ti-edit
-                  a.link-danger.ms-2(href="#"): i.ti.ti-trash
-              tr.align-middle
-                td
-                  a(href="#")
-                    img.avatar.avatar-md.rounded(src="./assets/images/product-3.png", alt="")
-                    span.ms-3 Smart Watch Pro
-                td PRD003
-                td Electronics
-                td Tech Pro
-                td $98.00
-                td pcs
-                td 200
-                td
-                  a(href="#"): i.ti.ti-edit
-                  a.link-danger.ms-2(href="#"): i.ti.ti-trash
-              tr.align-middle
-                td
-                  a(href="#")
-                    img.avatar.avatar-md.rounded(src="./assets/images/product-4.png", alt="")
-                    span.ms-3 USB-C Fast Charger
-                td PRD004
-                td Electronics
-                td Tech Pro
-                td $86.00
-                td pcs
-                td 80
-                td
-                  a(href="#"): i.ti.ti-edit
-                  a.link-danger.ms-2(href="#"): i.ti.ti-trash
-              tr.align-middle
-                td
-                  a(href="#")
-                    img.avatar.avatar-md.rounded(src="./assets/images/product-5.png", alt="")
-                    span.ms-3 Portable Bluetooth Speaker
-                td PRD005
-                td Electronics
-                td Tech Pro
-                td $32.00
-                td pcs
-                td 110
-                td
-                  a(href="#"): i.ti.ti-edit
-                  a.link-danger.ms-2(href="#"): i.ti.ti-trash
-              tr.align-middle
-                td
-                  a(href="#")
-                    img.avatar.avatar-md.rounded(src="./assets/images/product-6.png", alt="")
-                    span.ms-3 Magic Keyboard
-                td PRD006
-                td Electronics
-                td Tech Pro
-                td $49.00
-                td pcs
-                td 10
-                td
-                  a(href="#"): i.ti.ti-edit
-                  a.link-danger.ms-2(href="#"): i.ti.ti-trash
-              tr.align-middle
-                td
-                  a(href="#")
-                    img.avatar.avatar-md.rounded(src="./assets/images/product-7.png", alt="")
-                    span.ms-3 MacBook Pro 16"
-                td PRD007
-                td Electronics
-                td Tech Pro
-                td $99.00
-                td pcs
-                td 10
-                td
-                  a(href="#"): i.ti.ti-edit
-                  a.link-danger.ms-2(href="#"): i.ti.ti-trash
-              tr.align-middle
-                td
-                  a(href="#")
-                    img.avatar.avatar-md.rounded(src="./assets/images/product-8.png", alt="")
-                    span.ms-3 Wireless Earphones
-                td PRD008
-                td Electronics
-                td Tech Pro
-                td $109.00
-                td pcs
-                td 200
-                td
-                  a(href="#"): i.ti.ti-edit
-                  a.link-danger.ms-2(href="#"): i.ti.ti-trash
+              if products && products.length
+                each product in products
+                  tr.align-middle
+                    td
+                      a(href="#")
+                        img.avatar.avatar-md.rounded(src="/assets/images/" + product.image, alt=product.name)
+                        span.ms-3= product.name
+                    td= product.code
+                    td= product.category
+                    td= product.brand
+                    td= '$' + Number(product.price).toFixed(2)
+                    td= product.unit
+                    td
+                      if product.quantity <= 5
+                        span.badge.bg-danger= product.quantity
+                      else if product.quantity <= 10
+                        span.badge.bg-warning= product.quantity
+                      else
+                        = product.quantity
+                    td
+                      a(href="#"): i.ti.ti-edit
+                      a.link-danger.ms-2(href="#"): i.ti.ti-trash
+              else
+                tr
+                  td.text-center.text-muted(colspan="8") No products found.
             tfoot
               tr
-                td.border-bottom-0 Showing product per page
+                td.border-bottom-0
+                  | Showing #{products ? products.length : 0} product(s)
                 td.border-bottom-0(colspan="7")
                   nav(aria-label="Page navigation").d-flex.justify-content-end
                     ul.pagination.mb-0
                       li.page-item.disabled: a.page-link(href="#", tabindex="-1") Previous
                       li.page-item.active: a.page-link(href="#") 1
-                      li.page-item: a.page-link(href="#") 2
-                      li.page-item: a.page-link(href="#") 3
                       li.page-item: a.page-link(href="#") Next

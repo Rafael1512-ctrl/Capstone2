@@ -1,0 +1,81 @@
+extends ../layout.pug
+
+block content
+  div.container-fluid
+    div.row
+      div.col-12
+        div.mb-6.d-flex.justify-content-between.align-items-center
+          div
+            h1.fs-3.mb-1 Review Draf Pengadaan ##{draft.id}
+            p.text-muted Tinjau item pengadaan untuk Tahun Anggaran #{draft.tahun}. Diajukan oleh: #{draft.pengaju}.
+          a.btn.btn-outline-secondary(href="/ketua-prodi/review") Kembali
+
+    div.row.g-3.mb-4
+      div.col-12
+        div.card
+          div.card-body.p-4.d-flex.justify-content-between.align-items-center.bg-light.rounded-2
+            div
+              h5.mb-1 Finalisasi Draf Pengadaan
+              p.text-muted.small.mb-0 Jika Anda telah selesai menyetujui atau menolak semua barang di bawah ini, lakukan finalisasi untuk mengirimkan draf ke Staf Administrasi.
+            if draft.status !== 'finalized'
+              form(action="/ketua-prodi/review/" + draft.id + "/finalize" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin memfinalisasi draf ini? Setelah difinalisasi draf tidak dapat diubah kembali.');")
+                button.btn.btn-success(type="submit")
+                  i.ti.ti-check.me-1
+                  | Finalisasi Draf (Kirim ke Staf Admin)
+            else
+              span.badge.bg-success.fs-6 DRAF TELAH FINALIZED
+
+    div.row
+      div.col-12
+        div.card
+          div.card-header.bg-transparent.px-4.py-3.border-bottom
+            h5.mb-0 Daftar Barang Pengadaan
+          div.table-responsive.p-0
+            table.table.align-items-center.mb-0
+              thead.table-light
+                tr
+                  th.px-4.py-3 Nama Barang
+                  th Tipe
+                  th Harga
+                  th Qty
+                  th Total
+                  th Pengganti
+                  th Status Item
+                  if draft.status !== 'finalized'
+                    th.text-end.px-4 Aksi Tinjauan
+              tbody
+                if items && items.length
+                  each item in items
+                    tr
+                      td.px-4.py-3
+                        div.fw-semibold= item.nama_barang
+                        if item.link_pembelian
+                          a.small.text-decoration-underline(href=item.link_pembelian target="_blank") Link Pembelian
+                      td.text-capitalize= item.tipe_barang
+                      td= '$' + Number(item.harga_satuan).toLocaleString('en-US')
+                      td= item.jumlah
+                      td.fw-semibold= '$' + Number(item.harga_satuan * item.jumlah).toLocaleString('en-US')
+                      td
+                        if item.pengganti_kode
+                          span.badge.bg-danger-subtle.text-danger= 'Ganti ' + item.pengganti_kode
+                        else
+                          span.text-muted -
+                      td
+                        span.badge(class=(item.status_item === 'approved' ? 'bg-success' : item.status_item === 'rejected' ? 'bg-danger' : 'bg-warning'))
+                          = item.status_item.toUpperCase()
+                      if draft.status !== 'finalized'
+                        td.text-end.px-4
+                          div.d-flex.gap-1.justify-content-end
+                            form(action="/ketua-prodi/review/" + draft.id + "/item/" + item.id method="POST")
+                              input(type="hidden" name="status_item" value="approved")
+                              button.btn.btn-sm.btn-success(type="submit" disabled=(item.status_item === 'approved'))
+                                i.ti.ti-check.me-1
+                                | Setujui
+                            form(action="/ketua-prodi/review/" + draft.id + "/item/" + item.id method="POST")
+                              input(type="hidden" name="status_item" value="rejected")
+                              button.btn.btn-sm.btn-danger(type="submit" disabled=(item.status_item === 'rejected'))
+                                i.ti.ti-x.me-1
+                                | Tolak
+                else
+                  tr
+                    td.text-center.py-4(colspan="8") Tidak ada barang pengadaan.

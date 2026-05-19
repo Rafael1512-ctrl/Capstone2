@@ -1,0 +1,53 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    title Signin - InApp Inventory Dashboard
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    link(rel="apple-touch-icon", sizes="180x180", href="/assets/images/favicon_io/apple-touch-icon.png")
+    link(rel="icon", type="image/png", sizes="32x32", href="/assets/images/favicon_io/favicon-32x32.png")
+    link(rel="icon", type="image/png", sizes="16x16", href="/assets/images/favicon_io/favicon-16x16.png")
+    link(rel="manifest", href="/assets/images/favicon_io/site.webmanifest")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css")
+    link(rel="stylesheet", href="/assets/css/style.css")
+  body
+    div.container.d-flex.align-items-center.justify-content-center.min-vh-100
+      div.card(style="max-width:420px; width:100%;")
+        div.card-body.p-5
+          div.text-center.mb-3
+            a.mb-4.d-inline-block(href="/")
+              img(src="/assets/images/logo-icon.svg", alt="", width="36")
+              span.ms-2
+                img(src="/assets/images/logo.svg", alt="")
+            h1.card-title.mb-5.h5 Sign in to your account
+          if error
+            div.alert.alert-danger.small.py-2.text-center.mb-3= error
+          form.needs-validation.mt-3(action="/signin", method="POST")
+            div.mb-3
+              label.form-label(for="email") Email address
+              input#email.form-control(type="email", name="email", placeholder="name@example.com", required, autofocus)
+              div.invalid-feedback Please enter a valid email.
+            div.mb-3
+              label.form-label.d-flex.justify-content-between(for="password")
+                span Password
+                a.small.link-primary(href="#") Forgot Password?
+              input#password.form-control(type="password", name="password", placeholder="Password", required, minlength="6")
+              div.invalid-feedback Please provide a password (min 6 characters).
+            div.d-flex.justify-content-between.align-items-center.mb-3
+              div.form-check
+                input#remember.form-check-input(type="checkbox")
+                label.form-check-label.small(for="remember") Remember me
+            button.btn.btn-primary.w-100(type="submit") Sign in
+          div.text-center.mt-3.small.text-muted
+            | Don't have an account?&nbsp;
+            a.link-primary(href="/signup") Sign up
+            hr.my-3
+            div.text-start
+              span.small.text-secondary.fw-semibold Akun Dummy (Password: password):
+              ul.small.text-secondary.ps-3.mb-0.mt-1
+                li: a.text-decoration-none(href="#", onclick="document.getElementById('email').value='admin@mail.com';document.getElementById('password').value='password';") admin@mail.com (Admin)
+                li: a.text-decoration-none(href="#", onclick="document.getElementById('email').value='kepala@mail.com';document.getElementById('password').value='password';") kepala@mail.com (Kepala Lab)
+                li: a.text-decoration-none(href="#", onclick="document.getElementById('email').value='prodi@mail.com';document.getElementById('password').value='password';") prodi@mail.com (Ketua Prodi)
+                li: a.text-decoration-none(href="#", onclick="document.getElementById('email').value='stafadmin@mail.com';document.getElementById('password').value='password';") stafadmin@mail.com (Staf Admin)
+                li: a.text-decoration-none(href="#", onclick="document.getElementById('email').value='staflab@mail.com';document.getElementById('password').value='password';") staflab@mail.com (Staf Lab)
+

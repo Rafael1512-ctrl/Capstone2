@@ -1,0 +1,50 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    title Signup - InApp Inventory Dashboard
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    link(rel="apple-touch-icon", sizes="180x180", href="/assets/images/favicon_io/apple-touch-icon.png")
+    link(rel="icon", type="image/png", sizes="32x32", href="/assets/images/favicon_io/favicon-32x32.png")
+    link(rel="icon", type="image/png", sizes="16x16", href="/assets/images/favicon_io/favicon-16x16.png")
+    link(rel="manifest", href="/assets/images/favicon_io/site.webmanifest")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css")
+    link(rel="stylesheet", href="/assets/css/style.css")
+  body
+    div.container.d-flex.align-items-center.justify-content-center.min-vh-100
+      div.card(style="max-width:420px; width:100%;")
+        div.card-body.p-5
+          div.text-center.mb-3
+            a.mb-4.d-inline-block(href="/")
+              img(src="/assets/images/logo-icon.svg", alt="", width="36")
+              span.ms-2
+                img(src="/assets/images/logo.svg", alt="")
+            h1.card-title.mb-5.h5 Create your account
+          form.needs-validation.mt-3(novalidate)
+            div.mb-3
+              label.form-label(for="fullName") Full name
+              input#fullName.form-control(type="text", placeholder="Jane Doe", required)
+              div.invalid-feedback Please enter your name.
+            div.mb-3
+              label.form-label(for="email") Email address
+              input#email.form-control(type="email", placeholder="name@example.com", required)
+              div.invalid-feedback Please enter a valid email.
+            div.mb-3
+              label.form-label(for="password") Password
+              input#password.form-control(type="password", placeholder="Create a password", required, minlength="6")
+              div.invalid-feedback Please provide a password (min 6 characters).
+            div.mb-3
+              label.form-label(for="confirmPassword") Confirm password
+              input#confirmPassword.form-control(type="password", placeholder="Repeat password", required, oninput="this.setCustomValidity(document.getElementById('password').value !== this.value ? 'Passwords do not match.' : '')")
+              div.invalid-feedback Passwords must match.
+            div.mb-3.form-check
+              input#terms.form-check-input(type="checkbox", required)
+              label.form-check-label.small(for="terms")
+                | I agree to the&nbsp;
+                a.text-decoration-none(href="#") terms and privacy
+              div.invalid-feedback You must agree before continuing.
+            button.btn.btn-primary.w-100(type="submit") Sign up
+          div.text-center.mt-3.small.text-muted
+            | Already have an account?&nbsp;
+            a.link-primary(href="/signin") Sign in
+
