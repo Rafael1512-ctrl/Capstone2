@@ -8,7 +8,7 @@ block content
           h1.fs-3.mb-1 Kepala Lab - Riwayat & Kelola Draf
           p.text-muted Kelola item draf pengadaan aktif Anda atau lihat riwayat draf yang sudah dikirim ke Ketua Program Studi.
 
-    if activeDraft
+    if hasActiveDraft
       //- ACTIVE DRAFT SECTION
       div.row.mb-5
         div.col-12
@@ -69,7 +69,7 @@ block content
                     th Total
                     th.text-end.px-4 Aksi
                 tbody
-                  if items && items.length
+                  if hasItems
                     each item in items
                       tr
                         td.px-4.py-3
@@ -106,7 +106,7 @@ block content
                   th Status Draf
                   th.text-end.px-4 Detail
               tbody
-                if drafts && drafts.length
+                if hasDrafts
                   each d in drafts
                     tr
                       td.px-4.py-3= '#' + d.id

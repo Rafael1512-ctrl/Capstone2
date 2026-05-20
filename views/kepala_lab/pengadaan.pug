@@ -8,7 +8,7 @@ block content
           h1.fs-3.mb-1 Kepala Lab - Draf Pengadaan Tahunan
           p.text-muted Buat dan kelola pengadaan barang (inventaris & BHP) baru untuk diajukan ke Ketua Program Studi.
 
-    if !activeDraft
+    if !hasActiveDraft
       //- NO ACTIVE DRAFT: SHOW CREATE BUTTON
       div.row
         div.col-12.col-md-6.mx-auto
@@ -25,7 +25,7 @@ block content
                 label.form-label Pilih Ketua Prodi
                 select.form-select.mx-auto(name="ketua_prodi_id" style="max-width:300px;" required)
                   option(value="") -- Pilih Kaprodi --
-                  if kaprodiList && kaprodiList.length
+                  if hasKaprodiList
                     each kaprodi in kaprodiList
                       option(value=kaprodi.id)= kaprodi.nama
               button.btn.btn-primary(type="submit") Buat Draf Baru
@@ -46,7 +46,7 @@ block content
                   label.form-label.text-secondary Pilih Ketua Prodi
                   select.form-select.form-select-sm(name="ketua_prodi_id" required)
                     option(value="") -- Pilih Kaprodi --
-                    if kaprodiList && kaprodiList.length
+                    if hasKaprodiList
                       each kaprodi in kaprodiList
                         option(value=kaprodi.id selected=(activeDraft.ketua_prodi_id == kaprodi.id))= kaprodi.nama
                 div.d-flex.justify-content-between.mb-3
@@ -96,7 +96,7 @@ block content
           div.card
             div.card-header.bg-transparent.px-4.py-3.border-bottom.d-flex.justify-content-between.align-items-center
               h5.mb-0 Detail Draf Pengadaan
-              span.small.text-secondary= items.length + ' item terdaftar'
+              span.small.text-secondary= itemCount + ' item terdaftar'
             div.table-responsive.p-0
               table.table.align-items-center.mb-0
                 thead.table-light
@@ -108,7 +108,7 @@ block content
                     th Total
                     th.text-end.px-4 Aksi
                 tbody
-                  if items && items.length
+                  if hasItems
                     each item in items
                       tr
                         td.px-4.py-3

@@ -157,7 +157,7 @@ block content
               i.ti.ti-calendar
               |  Today
           ul.list-group.list-group-flush
-            if topProducts && topProducts.length
+            if hasTopProducts
               each p in topProducts
                 li.list-group-item.d-flex.align-items-center.gap-3
                   img.rounded(src="/assets/images/" + p.image, width="48")
@@ -178,7 +178,7 @@ block content
               h4.mb-0.h5 Low Stock Products
             a.small.text-primary.text-decoration-underline(href="/inventory") View All
           ul.list-group.list-group-flush
-            if lowStockProducts && lowStockProducts.length
+            if hasLowStockProducts
               each p in lowStockProducts
                 li.list-group-item.d-flex.align-items-center.gap-3
                   img.rounded(src="/assets/images/" + p.image, width="48")
@@ -200,7 +200,7 @@ block content
               i.ti.ti-calendar-event
               |  Weekly
           ul.list-group.list-group-flush
-            if recentSales && recentSales.length
+            if hasRecentSales
               each s in recentSales
                 li.list-group-item.d-flex.align-items-center.gap-3
                   img.rounded(src="/assets/images/" + s.image, width="48")
