@@ -36,7 +36,7 @@ class KepalaLabController {
     try {
       const { tahun, ketua_prodi_id } = req.body;
       await DraftPengadaan.create(req.session.user.id, ketua_prodi_id, tahun);
-      res.redirect('/kepala-lab/history');
+      res.redirect('/kepala-lab/pengadaan');
     } catch (err) {
       console.error(err);
       res.status(500).send('Database error: ' + err.message);
@@ -48,7 +48,7 @@ class KepalaLabController {
     try {
       const { tahun, ketua_prodi_id } = req.body;
       await DraftPengadaan.update(req.params.id, tahun, ketua_prodi_id, req.session.user.id);
-      res.redirect('/kepala-lab/history');
+      res.redirect('/kepala-lab/pengadaan');
     } catch (err) {
       console.error(err);
       res.status(500).send('Database error: ' + err.message);
@@ -59,7 +59,7 @@ class KepalaLabController {
   static async deleteDraft(req, res) {
     try {
       await DraftPengadaan.delete(req.params.id, req.session.user.id);
-      res.redirect('/kepala-lab/history');
+      res.redirect('/kepala-lab/pengadaan');
     } catch (err) {
       console.error(err);
       res.status(500).send('Database error: ' + err.message);
@@ -71,7 +71,7 @@ class KepalaLabController {
     try {
       const { draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian } = req.body;
       await DetailDraft.create(draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian);
-      res.redirect('/kepala-lab/history');
+      res.redirect('/kepala-lab/pengadaan');
     } catch (err) {
       console.error(err);
       res.status(500).send('Database error: ' + err.message);
@@ -82,7 +82,7 @@ class KepalaLabController {
   static async deleteItem(req, res) {
     try {
       await DetailDraft.delete(req.params.id);
-      res.redirect('/kepala-lab/history');
+      res.redirect('/kepala-lab/pengadaan');
     } catch (err) {
       console.error(err);
       res.status(500).send('Database error: ' + err.message);
