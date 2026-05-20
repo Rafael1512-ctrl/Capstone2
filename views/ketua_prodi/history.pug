@@ -5,14 +5,14 @@ block content
     div.row
       div.col-12
         div.mb-6
-          h1.fs-3.mb-1 Ketua Prodi - Review Draf Pengadaan
-          p.text-muted Tinjau pengajuan draf pengadaan tahunan dari Kepala Laboratorium. Setujui atau tolak item barang secara mandiri sebelum melakukan finalisasi.
+          h1.fs-3.mb-1 Ketua Prodi - Riwayat Draf Pengadaan
+          p.text-muted Lihat semua draf pengadaan tahunan dari Kepala Laboratorium yang telah Anda setujui (finalisasi) atau tolak.
 
     div.row
       div.col-12
         div.card
           div.card-header.bg-transparent.px-4.py-3.border-bottom
-            h5.mb-0 Pengajuan Draf Menunggu Review
+            h5.mb-0 Riwayat Keputusan Draf
           div.table-responsive.p-0
             table.table.align-items-center.mb-0.table-hover
               thead.table-light
@@ -21,8 +21,8 @@ block content
                   th Tahun
                   th Pengaju (Kepala Lab)
                   th Total Items
-                  th Status Review
                   th Status Draf
+                  th Catatan Keputusan
                   th.text-end.px-4 Aksi
               tbody
                 if drafts && drafts.length
@@ -33,17 +33,17 @@ block content
                       td= d.pengaju
                       td= d.total_items + ' items'
                       td
-                        if d.pending_items > 0
-                          span.text-danger.fw-semibold= d.pending_items + ' Pending Review'
-                        else
-                          span.text-success.fw-semibold Semua Selesai Direview
+                        span.badge(class=(d.status === 'finalized' ? 'bg-success' : 'bg-danger'))
+                          = d.status === 'finalized' ? 'DISETUJUI' : 'DITOLAK'
                       td
-                        span.badge(class=(d.status === 'submitted' ? 'bg-info' : d.status === 'reviewed' ? 'bg-primary' : d.status === 'finalized' ? 'bg-success' : 'bg-secondary'))
-                          = d.status === 'finalized' ? 'APPROVED' : d.status.toUpperCase()
+                        if d.alasan_penolakan
+                          span.text-muted.small= d.alasan_penolakan
+                        else
+                          span.text-muted.small -
                       td.text-end.px-4
-                        a.btn.btn-sm.btn-primary(href="/ketua-prodi/review/" + d.id)
+                        a.btn.btn-sm.btn-outline-primary(href="/ketua-prodi/review/" + d.id)
                           i.ti.ti-search.me-1
-                          | Tinjau Detail
+                          | Detail
                 else
                   tr
-                    td.text-center.py-4(colspan="7") Tidak ada draf yang perlu ditinjau.
+                    td.text-center.py-4(colspan="7") Tidak ada riwayat draf pengadaan.

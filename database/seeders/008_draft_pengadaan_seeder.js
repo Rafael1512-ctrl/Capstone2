@@ -8,8 +8,8 @@ async function run() {
 
   for (const d of drafts) {
     await db.query(
-      `INSERT INTO draft_pengadaan (id, kepala_lab_id, ketua_prodi_id, tahun, status) VALUES (?, ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE kepala_lab_id=VALUES(kepala_lab_id), ketua_prodi_id=VALUES(ketua_prodi_id), tahun=VALUES(tahun), status=VALUES(status)`,
+      `INSERT INTO draft_pengadaan (id, user_id, ketua_prodi_id, tahun, status) VALUES (?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE user_id=VALUES(user_id), ketua_prodi_id=VALUES(ketua_prodi_id), tahun=VALUES(tahun), status=VALUES(status)`,
       d
     );
   }

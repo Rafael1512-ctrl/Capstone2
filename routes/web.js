@@ -1,7 +1,7 @@
 const express = require('express');
-const router  = express.Router();
-const db      = require('../config/db');
-const bcrypt  = require('bcryptjs');
+const router = express.Router();
+const db = require('../config/db');
+const bcrypt = require('bcryptjs');
 
 // ─── MIDDLEWARES ──────────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
@@ -14,9 +14,9 @@ function requireAuth(req, res, next) {
 function requireRole(role) {
   return (req, res, next) => {
     if (!req.session.user || req.session.user.role !== role) {
-      return res.status(403).render('404-error', { 
-        title: 'Forbidden', 
-        message: 'Anda tidak memiliki hak akses untuk halaman ini.' 
+      return res.status(403).render('404-error', {
+        title: 'Forbidden',
+        message: 'Anda tidak memiliki hak akses untuk halaman ini.'
       });
     }
     next();
@@ -77,12 +77,12 @@ router.get('/signout', (req, res) => {
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const [[{ totalSales }]]    = await db.query(`SELECT COALESCE(SUM(total),0) AS totalSales FROM sales WHERE status='Completed'`);
+    const [[{ totalSales }]] = await db.query(`SELECT COALESCE(SUM(total),0) AS totalSales FROM sales WHERE status='Completed'`);
     const [[{ totalProducts }]] = await db.query(`SELECT COUNT(*) AS totalProducts FROM products`);
-    const [[{ lowStock }]]      = await db.query(`SELECT COUNT(*) AS lowStock FROM products WHERE quantity <= 10`);
-    const [[{ outOfStock }]]    = await db.query(`SELECT COUNT(*) AS outOfStock FROM products WHERE quantity = 0`);
-    
-    const [[{ totalRefunds }]]  = await db.query(`SELECT COALESCE(SUM(total),0) AS totalRefunds FROM sales WHERE status='Cancelled'`);
+    const [[{ lowStock }]] = await db.query(`SELECT COUNT(*) AS lowStock FROM products WHERE quantity <= 10`);
+    const [[{ outOfStock }]] = await db.query(`SELECT COUNT(*) AS outOfStock FROM products WHERE quantity = 0`);
+
+    const [[{ totalRefunds }]] = await db.query(`SELECT COALESCE(SUM(total),0) AS totalRefunds FROM sales WHERE status='Cancelled'`);
     const [[{ totalExpenses }]] = await db.query(`SELECT COALESCE(SUM(jumlah * harga_satuan),0) AS totalExpenses FROM detail_draft WHERE status_item='approved'`);
     const totalProfit = Math.max(0, totalSales - totalExpenses);
 
@@ -174,8 +174,8 @@ router.get('/reports', requireAuth, async (req, res) => {
   try {
     const [[{ totalRevenue }]] = await db.query(`SELECT COALESCE(SUM(total),0) AS totalRevenue FROM sales WHERE status='Completed'`);
     const [[{ productsSold }]] = await db.query(`SELECT COALESCE(SUM(qty),0) AS productsSold FROM sales WHERE status='Completed'`);
-    const [[{ lowStock }]]     = await db.query(`SELECT COUNT(*) AS lowStock FROM products WHERE quantity > 0 AND quantity <= 10`);
-    const [[{ outOfStock }]]   = await db.query(`SELECT COUNT(*) AS outOfStock FROM products WHERE quantity = 0`);
+    const [[{ lowStock }]] = await db.query(`SELECT COUNT(*) AS lowStock FROM products WHERE quantity > 0 AND quantity <= 10`);
+    const [[{ outOfStock }]] = await db.query(`SELECT COUNT(*) AS outOfStock FROM products WHERE quantity = 0`);
 
     const [topProducts] = await db.query(`
       SELECT p.name, p.image,
@@ -358,22 +358,19 @@ router.get('/kepala-lab/pengadaan', requireAuth, requireRole('kepala_lab'), asyn
     if (drafts.length > 0) {
       activeDraft = drafts[0];
       [items] = await db.query(
-        `SELECT d.*, i.kode_inventaris AS pengganti_kode
-         FROM detail_draft d
-         LEFT JOIN inventaris i ON d.barang_pengganti_id = i.id
-         WHERE d.draft_id = ?`,
+        `SELECT * FROM detail_draft WHERE draft_id = ?`,
         [activeDraft.id]
       );
     }
 
-    const [inventaris] = await db.query(`SELECT id, kode_inventaris FROM inventaris`);
+    const [kaprodiList] = await db.query(`SELECT u.id, u.nama FROM users u JOIN user_roles ur ON u.id = ur.user_id JOIN roles r ON ur.role_id = r.id WHERE r.nama = 'ketua_prodi'`);
 
     res.render('kepala_lab/pengadaan', {
       title: 'Draf Pengadaan Baru',
       activePath: '/kepala-lab/pengadaan',
       activeDraft,
       items,
-      inventaris
+      kaprodiList
     });
   } catch (err) {
     console.error(err);
@@ -383,12 +380,36 @@ router.get('/kepala-lab/pengadaan', requireAuth, requireRole('kepala_lab'), asyn
 
 router.post('/kepala-lab/pengadaan/create-draft', requireAuth, requireRole('kepala_lab'), async (req, res) => {
   try {
-    const { tahun } = req.body;
+    const { tahun, ketua_prodi_id } = req.body;
     await db.query(
-      `INSERT INTO draft_pengadaan (user_id, tahun, status) VALUES (?, ?, 'draft')`,
-      [req.session.user.id, tahun || new Date().getFullYear()]
+      `INSERT INTO draft_pengadaan (user_id, ketua_prodi_id, tahun, status) VALUES (?, ?, ?, 'draft')`,
+      [req.session.user.id, ketua_prodi_id || null, tahun || new Date().getFullYear()]
     );
-    res.redirect('/kepala-lab/pengadaan');
+    res.redirect('/kepala-lab/history');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Database error: ' + err.message);
+  }
+});
+
+router.post('/kepala-lab/pengadaan/update-draft/:id', requireAuth, requireRole('kepala_lab'), async (req, res) => {
+  try {
+    const { tahun, ketua_prodi_id } = req.body;
+    await db.query(
+      `UPDATE draft_pengadaan SET tahun = ?, ketua_prodi_id = ? WHERE id = ? AND user_id = ? AND status = 'draft'`,
+      [tahun, ketua_prodi_id || null, req.params.id, req.session.user.id]
+    );
+    res.redirect('/kepala-lab/history');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Database error: ' + err.message);
+  }
+});
+
+router.post('/kepala-lab/pengadaan/delete-draft/:id', requireAuth, requireRole('kepala_lab'), async (req, res) => {
+  try {
+    await db.query(`DELETE FROM draft_pengadaan WHERE id = ? AND user_id = ? AND status = 'draft'`, [req.params.id, req.session.user.id]);
+    res.redirect('/kepala-lab/history');
   } catch (err) {
     console.error(err);
     res.status(500).send('Database error: ' + err.message);
@@ -397,13 +418,13 @@ router.post('/kepala-lab/pengadaan/create-draft', requireAuth, requireRole('kepa
 
 router.post('/kepala-lab/pengadaan/add-item', requireAuth, requireRole('kepala_lab'), async (req, res) => {
   try {
-    const { draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, link_pembelian, barang_pengganti_id } = req.body;
+    const { draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian } = req.body;
     await db.query(
-      `INSERT INTO detail_draft (draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, link_pembelian, barang_pengganti_id, status_item)
+      `INSERT INTO detail_draft (draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian, status_item)
        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`,
-      [draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, link_pembelian || '', barang_pengganti_id || null]
+      [draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi || '', link_pembelian || '']
     );
-    res.redirect('/kepala-lab/pengadaan');
+    res.redirect('/kepala-lab/history');
   } catch (err) {
     console.error(err);
     res.status(500).send('Database error: ' + err.message);
@@ -413,7 +434,7 @@ router.post('/kepala-lab/pengadaan/add-item', requireAuth, requireRole('kepala_l
 router.post('/kepala-lab/pengadaan/delete-item/:id', requireAuth, requireRole('kepala_lab'), async (req, res) => {
   try {
     await db.query(`DELETE FROM detail_draft WHERE id = ?`, [req.params.id]);
-    res.redirect('/kepala-lab/pengadaan');
+    res.redirect('/kepala-lab/history');
   } catch (err) {
     console.error(err);
     res.status(500).send('Database error: ' + err.message);
@@ -439,16 +460,32 @@ router.get('/kepala-lab/history', requireAuth, requireRole('kepala_lab'), async 
        ORDER BY d.id DESC`,
       [req.session.user.id]
     );
+
+    // Load active draft (status=draft) so user can add items here
+    const [activeDrafts] = await db.query(
+      `SELECT * FROM draft_pengadaan WHERE user_id = ? AND status = 'draft' LIMIT 1`,
+      [req.session.user.id]
+    );
+    const activeDraft = activeDrafts.length > 0 ? activeDrafts[0] : null;
+
+    let items = [];
+    if (activeDraft) {
+      [items] = await db.query(`SELECT * FROM detail_draft WHERE draft_id = ?`, [activeDraft.id]);
+    }
+
     res.render('kepala_lab/history', {
       title: 'Riwayat Pengadaan',
       activePath: '/kepala-lab/history',
-      drafts
+      drafts,
+      activeDraft,
+      items
     });
   } catch (err) {
     console.error(err);
     res.status(500).send('Database error: ' + err.message);
   }
 });
+
 
 // ─── ROLE: KETUA PROGRAM STUDI ─────────────────────────────────────────────────
 router.get('/ketua-prodi/review', requireAuth, requireRole('ketua_prodi'), async (req, res) => {
@@ -459,9 +496,9 @@ router.get('/ketua-prodi/review', requireAuth, requireRole('ketua_prodi'), async
              (SELECT COUNT(*) FROM detail_draft WHERE draft_id = d.id AND status_item='pending') AS pending_items
       FROM draft_pengadaan d
       JOIN users u ON d.user_id = u.id
-      WHERE d.status IN ('submitted', 'reviewed', 'finalized')
+      WHERE d.status IN ('submitted', 'reviewed') AND d.ketua_prodi_id = ?
       ORDER BY d.id DESC
-    `);
+    `, [req.session.user.id]);
     res.render('ketua_prodi/review', {
       title: 'Review Draf Pengadaan',
       activePath: '/ketua-prodi/review',
@@ -480,15 +517,13 @@ router.get('/ketua-prodi/review/:id', requireAuth, requireRole('ketua_prodi'), a
       [req.params.id]
     );
     const [items] = await db.query(
-      `SELECT d.*, i.kode_inventaris AS pengganti_kode
-       FROM detail_draft d
-       LEFT JOIN inventaris i ON d.barang_pengganti_id = i.id
-       WHERE d.draft_id = ?`,
+      `SELECT * FROM detail_draft WHERE draft_id = ?`,
       [req.params.id]
     );
+    const activePath = ['finalized', 'rejected'].includes(draft.status) ? '/ketua-prodi/history' : '/ketua-prodi/review';
     res.render('ketua_prodi/detail', {
       title: `Detail Review Draf #${draft.id}`,
-      activePath: '/ketua-prodi/review',
+      activePath,
       draft,
       items
     });
@@ -498,37 +533,58 @@ router.get('/ketua-prodi/review/:id', requireAuth, requireRole('ketua_prodi'), a
   }
 });
 
-router.post('/ketua-prodi/review/:id/item/:itemId', requireAuth, requireRole('ketua_prodi'), async (req, res) => {
+router.post('/ketua-prodi/review/:id/process', requireAuth, requireRole('ketua_prodi'), async (req, res) => {
   try {
-    const { status_item } = req.body; // 'approved' atau 'rejected'
-    await db.query(
-      `UPDATE detail_draft SET status_item = ? WHERE id = ? AND draft_id = ?`,
-      [status_item, req.params.itemId, req.params.id]
-    );
-    // Ubah status draft menjadi reviewed jika belum finalized
-    await db.query(
-      `UPDATE draft_pengadaan SET status = 'reviewed' WHERE id = ? AND status = 'submitted'`,
-      [req.params.id]
-    );
-    res.redirect(`/ketua-prodi/review/${req.params.id}`);
+    const { action, alasan_penolakan } = req.body;
+    if (action === 'approve') {
+      await db.query(
+        `UPDATE draft_pengadaan SET status = 'finalized', alasan_penolakan = ? WHERE id = ?`,
+        [alasan_penolakan || '', req.params.id]
+      );
+      // Set all items in the draft to approved
+      await db.query(
+        `UPDATE detail_draft SET status_item = 'approved' WHERE draft_id = ?`,
+        [req.params.id]
+      );
+    } else if (action === 'reject') {
+      await db.query(
+        `UPDATE draft_pengadaan SET status = 'rejected', alasan_penolakan = ? WHERE id = ?`,
+        [alasan_penolakan || '', req.params.id]
+      );
+      // Set all items in the draft to rejected
+      await db.query(
+        `UPDATE detail_draft SET status_item = 'rejected' WHERE draft_id = ?`,
+        [req.params.id]
+      );
+    }
+    res.redirect('/ketua-prodi/history');
   } catch (err) {
     console.error(err);
     res.status(500).send('Database error: ' + err.message);
   }
 });
 
-router.post('/ketua-prodi/review/:id/finalize', requireAuth, requireRole('ketua_prodi'), async (req, res) => {
+router.get('/ketua-prodi/history', requireAuth, requireRole('ketua_prodi'), async (req, res) => {
   try {
-    await db.query(
-      `UPDATE draft_pengadaan SET status = 'finalized' WHERE id = ?`,
-      [req.params.id]
-    );
-    res.redirect('/ketua-prodi/review');
+    const [drafts] = await db.query(`
+      SELECT d.*, u.nama AS pengaju,
+             (SELECT COUNT(*) FROM detail_draft WHERE draft_id = d.id) AS total_items
+      FROM draft_pengadaan d
+      JOIN users u ON d.user_id = u.id
+      WHERE d.status IN ('finalized', 'rejected') AND d.ketua_prodi_id = ?
+      ORDER BY d.id DESC
+    `, [req.session.user.id]);
+    res.render('ketua_prodi/history', {
+      title: 'Riwayat Draf Pengadaan',
+      activePath: '/ketua-prodi/history',
+      drafts
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send('Database error: ' + err.message);
   }
 });
+
 
 // ─── ROLE: STAF ADMINISTRASI ──────────────────────────────────────────────────
 router.get('/staf-admin/drafts', requireAuth, requireRole('staf_admin'), async (req, res) => {
@@ -593,15 +649,15 @@ router.get('/staf-admin/inventaris', requireAuth, requireRole('staf_admin'), asy
 
 router.post('/staf-admin/inventaris/receive/:itemId', requireAuth, requireRole('staf_admin'), async (req, res) => {
   try {
-    const { kode_inventaris, ruangan_id, tanggal_penerimaan, status_kondisi } = req.body;
-    
+    const { nomor_label, ruangan_id, tanggal_terima, kondisi } = req.body;
+
     // Upload foto qr mockup (disimpan string text aja)
-    const qrMock = `QR-${kode_inventaris}.png`;
+    const qrMock = `QR-${nomor_label}.png`;
 
     await db.query(
-      `INSERT INTO inventaris (ruangan_id, detail_draft_id, kode_inventaris, status, tanggal_penerimaan, foto_qr)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [ruangan_id, req.params.itemId, kode_inventaris, status_kondisi || 'baik', tanggal_penerimaan || new Date(), qrMock]
+      `INSERT INTO inventaris (ruangan_id, detail_draft_id, nama_barang, nomor_label, kondisi, tanggal_terima, barcode_qr)
+       SELECT ?, ?, nama_barang, ?, ?, ?, ? FROM detail_draft WHERE id = ?`,
+      [ruangan_id, req.params.itemId, nomor_label, kondisi || 'baik', tanggal_terima || new Date(), qrMock, req.params.itemId]
     );
 
     res.redirect('/staf-admin/inventaris');
@@ -665,7 +721,7 @@ router.post('/staf-lab/bhp/update-stock/:id', requireAuth, requireRole('staf_lab
 router.get('/staf-lab/maintenance', requireAuth, requireRole('staf_lab'), async (req, res) => {
   try {
     const [logs] = await db.query(`
-      SELECT m.*, i.kode_inventaris, u.nama AS petugas, b.nama_bhp
+      SELECT m.*, i.nomor_label, u.nama AS petugas, b.nama_bhp
       FROM maintenance_log m
       JOIN inventaris i ON m.inventaris_id = i.id
       JOIN users u ON m.user_id = u.id
@@ -678,7 +734,7 @@ router.get('/staf-lab/maintenance', requireAuth, requireRole('staf_lab'), async 
       FROM inventaris iv
       JOIN detail_draft dd ON iv.detail_draft_id = dd.id
     `);
-    
+
     const [bhpList] = await db.query(`SELECT id, nama_bhp, stok FROM bhp WHERE stok > 0`);
 
     res.render('staf_lab/maintenance', {
@@ -714,7 +770,7 @@ router.post('/staf-lab/maintenance/create', requireAuth, requireRole('staf_lab')
 
       // 2. Update status akhir kondisi barang inventaris
       await connection.query(
-        `UPDATE inventaris SET status = ? WHERE id = ?`,
+        `UPDATE inventaris SET kondisi = ? WHERE id = ?`,
         [status_akhir || 'baik', inventaris_id]
       );
 

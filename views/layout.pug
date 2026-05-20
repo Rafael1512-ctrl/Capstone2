@@ -110,13 +110,16 @@ html(lang="en")
               span.nav-text Draf Pengadaan
             li: a.nav-link(class=(activePath === '/kepala-lab/history' ? 'active' : ''), href="/kepala-lab/history")
               i.ti.ti-history
-              span.nav-text Riwayat Draf
+              span.nav-text History Draf
 
           else if user.role === 'ketua_prodi'
             li.px-4.pt-4.pb-2: small.nav-text Ketua Prodi
             li: a.nav-link(class=(activePath === '/ketua-prodi/review' ? 'active' : ''), href="/ketua-prodi/review")
               i.ti.ti-shield-check
               span.nav-text Review Draf
+            li: a.nav-link(class=(activePath === '/ketua-prodi/history' ? 'active' : ''), href="/ketua-prodi/history")
+              i.ti.ti-history
+              span.nav-text History Finalisasi
 
           else if user.role === 'staf_admin'
             li.px-4.pt-4.pb-2: small.nav-text Staf Administrasi

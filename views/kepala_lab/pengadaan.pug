@@ -20,7 +20,14 @@ block content
             form(action="/kepala-lab/pengadaan/create-draft" method="POST")
               div.mb-3
                 label.form-label Tahun Anggaran
-                input.form-control.mx-auto.text-center(type="number" name="tahun" value=new Date().getFullYear() style="max-width:200px;" required)
+                input.form-control.mx-auto.text-center(type="number" name="tahun" value=new Date().getFullYear() style="max-width:300px;" required)
+              div.mb-3
+                label.form-label Pilih Ketua Prodi
+                select.form-select.mx-auto(name="ketua_prodi_id" style="max-width:300px;" required)
+                  option(value="") -- Pilih Kaprodi --
+                  if kaprodiList && kaprodiList.length
+                    each kaprodi in kaprodiList
+                      option(value=kaprodi.id)= kaprodi.nama
               button.btn.btn-primary(type="submit") Buat Draf Baru
     else
       //- ACTIVE DRAFT EXISTS
@@ -31,17 +38,30 @@ block content
             div.card-header.bg-transparent.px-4.py-3.border-bottom
               h5.mb-0 Info Draf Aktif
             div.card-body.p-4
-              div.d-flex.justify-content-between.mb-2
-                span.text-secondary Tahun Anggaran:
-                strong= activeDraft.tahun
-              div.d-flex.justify-content-between.mb-3
-                span.text-secondary Status Draf:
-                span.badge.bg-warning.text-capitalize= activeDraft.status
+              form(action="/kepala-lab/pengadaan/update-draft/" + activeDraft.id method="POST")
+                div.mb-3
+                  label.form-label.text-secondary Tahun Anggaran
+                  input.form-control.form-control-sm(type="number" name="tahun" value=activeDraft.tahun required)
+                div.mb-3
+                  label.form-label.text-secondary Pilih Ketua Prodi
+                  select.form-select.form-select-sm(name="ketua_prodi_id" required)
+                    option(value="") -- Pilih Kaprodi --
+                    if kaprodiList && kaprodiList.length
+                      each kaprodi in kaprodiList
+                        option(value=kaprodi.id selected=(activeDraft.ketua_prodi_id == kaprodi.id))= kaprodi.nama
+                div.d-flex.justify-content-between.mb-3
+                  span.text-secondary Status Draf:
+                  span.badge.bg-warning.text-capitalize= activeDraft.status
+                div.d-flex.gap-2.mb-3
+                  button.btn.btn-sm.btn-primary.flex-grow-1(type="submit") Simpan Draf
+              
+              form.d-flex.gap-2(action="/kepala-lab/pengadaan/delete-draft/" + activeDraft.id method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus seluruh draf ini beserta isinya?');")
+                button.btn.btn-sm.btn-outline-danger.flex-grow-1(type="submit") Hapus Draf
               hr
               form.d-grid(action="/kepala-lab/pengadaan/submit/" + activeDraft.id method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengirim draf ini? Setelah dikirim draf akan dikunci dan tidak dapat diubah lagi.');")
                 button.btn.btn-success(type="submit")
                   i.ti.ti-send.me-1
-                  | Kirim & Kunci Draf
+                  | Kirim ke Kaprodi
 
           div.card
             div.card-header.bg-transparent.px-4.py-3.border-bottom
@@ -64,14 +84,11 @@ block content
                   label.form-label Jumlah
                   input.form-control(type="number" name="jumlah" placeholder="cth. 5" min="1" required)
                 div.mb-3
+                  label.form-label Rasionalisasi Item
+                  textarea.form-control(name="rasionalisasi" rows="2" placeholder="Alasan butuh barang ini..." required)
+                div.mb-3
                   label.form-label Link Pembelian (Opsional)
                   input.form-control(type="url" name="link_pembelian" placeholder="https://tokopedia.com/...")
-                div.mb-3
-                  label.form-label Ganti Barang Rusak? (Opsional)
-                  select.form-select(name="barang_pengganti_id")
-                    option(value="") -- Pilih Barang Inventaris Rusak --
-                    each inv in inventaris
-                      option(value=inv.id)= inv.kode_inventaris
                 button.btn.btn-primary.w-100(type="submit") Tambah ke Draf
 
         //- Table of Items
@@ -84,12 +101,11 @@ block content
               table.table.align-items-center.mb-0
                 thead.table-light
                   tr
-                    th.px-4.py-3 Barang
+                    th Barang & Rasionalisasi
                     th Tipe
                     th Harga
                     th Qty
                     th Total
-                    th Pengganti
                     th.text-end.px-4 Aksi
                 tbody
                   if items && items.length
@@ -97,21 +113,17 @@ block content
                       tr
                         td.px-4.py-3
                           div.fw-semibold= item.nama_barang
+                          div.small.text-muted.mb-1= item.rasionalisasi
                           if item.link_pembelian
                             a.small.text-decoration-underline(href=item.link_pembelian target="_blank") Link Pembelian
                         td.text-capitalize= item.tipe_barang
                         td= '$' + Number(item.harga_satuan).toLocaleString('en-US')
                         td= item.jumlah
                         td.fw-semibold= '$' + Number(item.harga_satuan * item.jumlah).toLocaleString('en-US')
-                        td
-                          if item.pengganti_kode
-                            span.badge.bg-danger-subtle.text-danger= 'Ganti ' + item.pengganti_kode
-                          else
-                            span.text-muted -
                         td.text-end.px-4
                           form.d-inline(action="/kepala-lab/pengadaan/delete-item/" + item.id method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus item ini dari draf?');")
                             button.btn.btn-sm.btn-outline-danger(type="submit")
                               i.ti.ti-trash
                   else
                     tr
-                      td.text-center.py-5(colspan="7") Draf ini belum memiliki item pengadaan. Tambah di panel kiri.
+                      td.text-center.py-5(colspan="6") Draf ini belum memiliki item pengadaan. Tambah di panel kiri.
