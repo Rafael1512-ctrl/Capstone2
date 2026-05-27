@@ -3,7 +3,7 @@ const Sales = require('../models/Sales');
 const DetailDraft = require('../models/DetailDraft');
 
 class DashboardController {
-  // GET /
+  // GET /api/
   static async showDashboard(req, res) {
     try {
       const stats = await Product.getStats();
@@ -15,7 +15,7 @@ class DashboardController {
       const totalExpenses = await DetailDraft.getTotalExpenses();
       const totalProfit = Math.max(0, totalSales - totalExpenses);
 
-      res.render('index', {
+      res.json({
         title: 'Dashboard',
         activePath: '/',
         totalSales,
@@ -28,56 +28,54 @@ class DashboardController {
         topProducts,
         lowStockProducts,
         recentSales,
-        // Helper flags
         hasTopProducts: topProducts.length > 0,
         hasLowStockProducts: lowStockProducts.length > 0,
         hasRecentSales: recentSales.length > 0
       });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Database error: ' + err.message);
+      res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
 
-  // GET /inventory
+  // GET /api/inventory
   static async showInventory(req, res) {
     try {
       const products = await Product.getAll();
-      res.render('inventory', {
+      res.json({
         title: 'Inventory',
         activePath: '/inventory',
         products,
-        // Helper flags
         hasProducts: products.length > 0,
         productCount: products.length
       });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Database error: ' + err.message);
+      res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
 
-  // GET /create-product
+  // GET /api/create-product
   static async showCreateProduct(req, res) {
-    res.render('create-product', {
+    res.json({
       title: 'Add Product',
       activePath: '/create-product'
     });
   }
 
-  // POST /create-product
+  // POST /api/create-product
   static async handleCreateProduct(req, res) {
     try {
       const { productName, productSKU, productPrice, productStock, productCategory, productDescription } = req.body;
       await Product.create(productSKU, productName, productCategory, productPrice, productStock, productDescription);
-      res.redirect('/inventory');
+      res.json({ success: true, message: 'Product created successfully' });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Database error: ' + err.message);
+      res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
 
-  // GET /reports
+  // GET /api/reports
   static async showReports(req, res) {
     try {
       const totalRevenue = await Sales.getTotalRevenue();
@@ -85,7 +83,7 @@ class DashboardController {
       const reportStats = await Product.getReportStats();
       const topProducts = await Sales.getTopProductsForReport();
 
-      res.render('reports', {
+      res.json({
         title: 'Reports',
         activePath: '/reports',
         totalRevenue,
@@ -93,18 +91,17 @@ class DashboardController {
         lowStock: reportStats.lowStock,
         outOfStock: reportStats.outOfStock,
         topProducts,
-        // Helper flags
         hasTopProducts: topProducts.length > 0
       });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Database error: ' + err.message);
+      res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
 
-  // GET /docs
+  // GET /api/docs
   static async showDocs(req, res) {
-    res.render('docs', {
+    res.json({
       title: 'Documentation',
       activePath: '/docs'
     });

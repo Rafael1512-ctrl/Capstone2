@@ -2,32 +2,31 @@ const DraftPengadaan = require('../models/DraftPengadaan');
 const DetailDraft = require('../models/DetailDraft');
 
 class KetuaProdiController {
-  // GET /ketua-prodi/review
+  // GET /api/ketua-prodi/review
   static async showReview(req, res) {
     try {
-      const drafts = await DraftPengadaan.getDraftsForReview(req.session.user.id);
-      res.render('ketua_prodi/review', {
+      const drafts = await DraftPengadaan.getDraftsForReview(req.user.id);
+      res.json({
         title: 'Review Draf Pengadaan',
         activePath: '/ketua-prodi/review',
         drafts,
-        // Helper flags
         hasDrafts: drafts.length > 0,
         draftCount: drafts.length
       });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Database error: ' + err.message);
+      res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
 
-  // GET /ketua-prodi/review/:id
+  // GET /api/ketua-prodi/review/:id
   static async showReviewDetail(req, res) {
     try {
       const draft = await DraftPengadaan.getById(req.params.id);
       const items = await DetailDraft.getByDraftId(req.params.id);
       const activePath = ['finalized', 'rejected'].includes(draft.status) ? '/ketua-prodi/history' : '/ketua-prodi/review';
 
-      res.render('ketua_prodi/detail', {
+      res.json({
         title: `Detail Review Draf #${draft.id}`,
         activePath,
         draft,
@@ -35,11 +34,11 @@ class KetuaProdiController {
       });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Database error: ' + err.message);
+      res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
 
-  // POST /ketua-prodi/review/:id/process
+  // POST /api/ketua-prodi/review/:id/process
   static async processDraft(req, res) {
     try {
       const { action, alasan_penolakan } = req.body;
@@ -50,28 +49,27 @@ class KetuaProdiController {
         await DraftPengadaan.reject(req.params.id, alasan_penolakan);
         await DetailDraft.rejectAllByDraftId(req.params.id);
       }
-      res.redirect('/ketua-prodi/history');
+      res.json({ success: true, message: `Draft status updated to ${action}` });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Database error: ' + err.message);
+      res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
 
-  // GET /ketua-prodi/history
+  // GET /api/ketua-prodi/history
   static async showHistory(req, res) {
     try {
-      const drafts = await DraftPengadaan.getHistoryForKetuaProdi(req.session.user.id);
-      res.render('ketua_prodi/history', {
+      const drafts = await DraftPengadaan.getHistoryForKetuaProdi(req.user.id);
+      res.json({
         title: 'Riwayat Draf Pengadaan',
         activePath: '/ketua-prodi/history',
         drafts,
-        // Helper flags
         hasDrafts: drafts.length > 0,
         draftCount: drafts.length
       });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Database error: ' + err.message);
+      res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
 }
