@@ -55,11 +55,22 @@
     <div class="row">
       <div class="col-12">
         <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-          <div class="card-header bg-white py-3 px-4 border-bottom">
+          <div class="card-header bg-white py-3 px-4 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
             <h5 class="fw-bold text-dark mb-0">Daftar Ruangan Aktif</h5>
+            <!-- Live Filter Elements -->
+            <div class="d-flex gap-2 flex-wrap">
+              <div class="position-relative">
+                <input type="text" id="searchRoom" class="form-control form-control-sm ps-4" placeholder="Cari kode atau nama..." style="width: 220px;">
+                <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y ms-2 text-secondary"></i>
+              </div>
+              <select id="filterLocation" class="form-select form-select-sm" style="width: 180px;">
+                <option value="">Semua Lokasi / Gedung</option>
+                <!-- Locations will be populated dynamically via JavaScript -->
+              </select>
+            </div>
           </div>
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" id="roomsTable">
               <thead class="table-light text-secondary small text-uppercase fw-semibold">
                 <tr>
                   <th class="px-4 py-3" style="width: 80px;">ID</th>
@@ -145,4 +156,53 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchRoom');
+      const filterLocation = document.getElementById('filterLocation');
+      const tableRows = document.querySelectorAll('#roomsTable tbody tr');
+
+      // Dynamically extract unique locations to populate dropdown
+      const locations = new Set();
+      tableRows.forEach(row => {
+        if (row.cells.length === 1) return; // Skip empty row
+        const loc = row.cells[3].textContent.trim();
+        if (loc) locations.add(loc);
+      });
+
+      // Populate dropdown list
+      locations.forEach(loc => {
+        const option = document.createElement('option');
+        option.value = loc;
+        option.textContent = loc;
+        filterLocation.appendChild(option);
+      });
+
+      function filterTable() {
+        const query = searchInput.value.toLowerCase().trim();
+        const selectedLoc = filterLocation.value.toLowerCase().trim();
+
+        tableRows.forEach(row => {
+          if (row.cells.length === 1) return;
+
+          const code = row.cells[1].textContent.toLowerCase();
+          const name = row.cells[2].textContent.toLowerCase();
+          const loc = row.cells[3].textContent.toLowerCase();
+
+          const matchesQuery = code.includes(query) || name.includes(query);
+          const matchesLoc = selectedLoc === "" || loc.includes(selectedLoc);
+
+          if (matchesQuery && matchesLoc) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+
+      searchInput.addEventListener('input', filterTable);
+      filterLocation.addEventListener('change', filterTable);
+    });
+  </script>
 @endsection

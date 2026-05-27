@@ -63,11 +63,24 @@
     <div class="row">
       <div class="col-12">
         <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-          <div class="card-header bg-white py-3 px-4 border-bottom">
+          <div class="card-header bg-white py-3 px-4 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
             <h5 class="fw-bold text-dark mb-0">Daftar Pengguna Aktif</h5>
+            <!-- Live Filter Elements -->
+            <div class="d-flex gap-2 flex-wrap">
+              <div class="position-relative">
+                <input type="text" id="searchUser" class="form-control form-control-sm ps-4" placeholder="Cari nama atau email..." style="width: 220px;">
+                <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y ms-2 text-secondary"></i>
+              </div>
+              <select id="filterRole" class="form-select form-select-sm" style="width: 160px;">
+                <option value="">Semua Peran (Role)</option>
+                @foreach ($roles as $r)
+                  <option value="{{ strtoupper(str_replace('_', ' ', $r['nama'])) }}">{{ strtoupper(str_replace('_', ' ', $r['nama'])) }}</option>
+                @endforeach
+              </select>
+            </div>
           </div>
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" id="usersTable">
               <thead class="table-light text-secondary small text-uppercase fw-semibold">
                 <tr>
                   <th class="px-4 py-3" style="width: 80px;">ID</th>
@@ -172,4 +185,38 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchUser');
+      const filterRole = document.getElementById('filterRole');
+      const tableRows = document.querySelectorAll('#usersTable tbody tr');
+
+      function filterTable() {
+        const query = searchInput.value.toLowerCase().trim();
+        const role = filterRole.value.toLowerCase().trim();
+
+        tableRows.forEach(row => {
+          // Skip the empty state row if present
+          if (row.cells.length === 1) return;
+
+          const name = row.cells[1].textContent.toLowerCase();
+          const email = row.cells[2].textContent.toLowerCase();
+          const userRole = row.cells[3].textContent.toLowerCase().trim();
+
+          const matchesQuery = name.includes(query) || email.includes(query);
+          const matchesRole = role === "" || userRole === role;
+
+          if (matchesQuery && matchesRole) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+
+      searchInput.addEventListener('input', filterTable);
+      filterRole.addEventListener('change', filterTable);
+    });
+  </script>
 @endsection
