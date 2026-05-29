@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Signin - InApp Inventory Dashboard</title>
+    <title>Signin - InLab Inventory Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon_io/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon_io/favicon-32x32.png">
@@ -16,10 +16,11 @@
       <div class="card" style="max-width:420px; width:100%;">
         <div class="card-body p-5">
           <div class="text-center mb-3">
-            <a class="mb-4 d-inline-block" href="/">
-              <img src="/assets/images/logo-icon.svg" alt="" width="36">
-              <span class="ms-2">
-                <img src="/assets/images/logo.svg" alt="">
+            <a class="mb-4 d-inline-flex align-items-center justify-content-center text-decoration-none" href="/">
+              <img src="/assets/images/logo-icon.svg" alt="" width="38" height="38">
+              <span class="ms-2 text-start">
+                <span class="fw-bold text-primary" style="font-size: 26px; line-height: 1; font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">In</span><span class="fw-bold text-dark" style="font-size: 26px; line-height: 1; font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">Lab</span>
+                <span class="text-secondary d-block" style="font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin-top: -2px; font-family: 'Poppins', sans-serif;">Inventory Lab</span>
               </span>
             </a>
             <h1 class="card-title mb-5 h5">Sign in to your account</h1>

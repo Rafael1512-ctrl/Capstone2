@@ -25,7 +25,7 @@
                 <label class="form-label">Pilih Barang Aset / Inventaris</label>
                 <select class="form-select" name="inventaris_id" required>
                   @foreach ($inventaris as $inv)
-                    <option value="{{ $inv['id'] }}">{{ $inv['kode_inventaris'] }} - {{ $inv['nama_barang'] }}</option>
+                    <option value="{{ $inv['id'] }}">{{ $inv['nomor_label'] }} - {{ $inv['nama_barang'] }}</option>
                   @endforeach
                 </select>
               </div>
@@ -85,7 +85,7 @@
                     <tr>
                       <td class="px-4 py-3">{{ \Carbon\Carbon::parse($log['tanggal_maintenance'])->translatedFormat('d M Y') }}</td>
                       <td>
-                        <div class="fw-semibold">{{ $log['kode_inventaris'] }}</div>
+                        <div class="fw-semibold">{{ $log['nomor_label'] }}</div>
                       </td>
                       <td>{{ $log['petugas'] }}</td>
                       <td>{{ $log['deskripsi'] }}</td>

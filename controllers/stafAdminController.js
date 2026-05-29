@@ -49,6 +49,13 @@ class StafAdminController {
   static async receiveItem(req, res) {
     try {
       const { nomor_label, ruangan_id, tanggal_terima, kondisi } = req.body;
+
+      // Check if label already exists to avoid InnoDB auto-increment jump on duplicate key error
+      const labelExists = await Inventaris.checkLabelExists(nomor_label);
+      if (labelExists) {
+        return res.json({ error: `Label "${nomor_label}" sudah terdaftar. Silakan gunakan nomor label lain.` });
+      }
+
       const qrMock = `QR-${nomor_label}.png`;
 
       await Inventaris.receive(ruangan_id, req.params.itemId, nomor_label, kondisi, tanggal_terima, qrMock);

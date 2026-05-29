@@ -28,9 +28,12 @@ class StafAdminController extends Controller
             'nomor_label'   => 'required|string|max:100',
             'ruangan_id'    => 'required|integer',
             'tanggal_terima'=> 'required|date',
-            'kondisi'       => 'required|in:baik,perlu_perbaikan,rusak',
+            'kondisi'       => 'required|in:baik,rusak_ringan,rusak_berat',
         ]);
-        ApiService::post("/staf-admin/inventaris/receive/{$itemId}", $request->all());
+        $res = ApiService::post("/staf-admin/inventaris/receive/{$itemId}", $request->all());
+        if (isset($res['error'])) {
+            return redirect('/staf-admin/inventaris')->with('error', $res['error']);
+        }
         return redirect('/staf-admin/inventaris')->with('success', 'Barang berhasil diterima dan dilabeli.');
     }
 }

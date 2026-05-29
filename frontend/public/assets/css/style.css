@@ -81,8 +81,8 @@
   --bs-body-line-height: 1.5;
   --bs-body-color: #171717;
   --bs-body-color-rgb: 23, 23, 23;
-  --bs-body-bg: #fff;
-  --bs-body-bg-rgb: 255, 255, 255;
+  --bs-body-bg: #f8fafc;
+  --bs-body-bg-rgb: 248, 250, 252;
   --bs-emphasis-color: #000;
   --bs-emphasis-color-rgb: 0, 0, 0;
   --bs-secondary-color: rgba(23, 23, 23, 0.75);
@@ -15964,9 +15964,9 @@ textarea.form-control-lg {
 
 .sidebar {
   width: 240px;
-  background: #fff;
+  background: #0f172a;
   transition: width 0.3s, left 0.3s;
-  border-right: 1px solid #e5e5e5;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
   height: 100vh;
   position: fixed;
   top: 0;
@@ -15974,25 +15974,68 @@ textarea.form-control-lg {
   padding-top: 60px;
   z-index: 1030;
 }
-.sidebar .nav-link {
-  color: #262626;
-  padding: 8px 10px;
+/* Floating Sidebar Toggle Button */
+.toggle-sidebar-btn {
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #94a3b8;
   display: flex;
   align-items: center;
+  justify-content: center;
+  z-index: 1040;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.toggle-sidebar-btn:hover {
+  background-color: #E66239;
+  color: #fff;
+  border-color: #E66239;
+  transform: translateY(-50%) scale(1.1);
+}
+.toggle-sidebar-btn i {
   font-size: 14px;
-  font-weight: 400;
-  gap: 12px;
+  font-weight: bold;
+  transition: transform 0.3s;
+}
+.sidebar.collapsed .toggle-sidebar-btn i {
+  transform: rotate(180deg);
+}
+
+.sidebar .nav-link {
+  color: #94a3b8;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  gap: 14px;
   white-space: nowrap;
-  margin: 1px 12px;
-  border-radius: 8px;
+  margin: 4px 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease-in-out;
 }
 .sidebar .nav-link:hover {
-  color: #E66239;
-  background-color: rgba(230, 98, 57, 0.095);
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+  transform: translateX(3px);
 }
 .sidebar .nav-link.active {
-  color: #E66239;
-  background-color: rgba(230, 98, 57, 0.095);
+  color: #fff;
+  background: linear-gradient(135deg, #E66239 0%, #ff825c 100%);
+  box-shadow: 0 4px 10px rgba(230, 98, 57, 0.25);
+  font-weight: 600;
+}
+.sidebar .nav-link.active .ti {
+  color: #fff;
 }
 .sidebar .nav-link .ti {
   font-size: 18px;
@@ -16006,22 +16049,33 @@ textarea.form-control-lg {
   left: 0;
   height: 60px;
   width: 100%;
-  background: #fff;
+  background: #0f172a;
   display: flex;
   align-items: center;
   gap: 10px;
   padding-left: 17px;
-  color: #262626;
-  border-bottom: 1px solid #e5e5e5;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: padding-left 0.3s;
 }
 
 .sidebar.collapsed {
   width: 60px;
 }
 .sidebar.collapsed .nav-link {
-  margin: 0 0px;
+  margin: 4px 8px;
+  padding: 10px 0;
+  justify-content: center;
   background-color: transparent;
-  padding: 8px 18px;
+}
+.sidebar.collapsed .nav-link:hover {
+  transform: none;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+.sidebar.collapsed .nav-link.active {
+  background: linear-gradient(135deg, #E66239 0%, #ff825c 100%);
+  color: #fff;
 }
 .sidebar.collapsed .nav-text {
   display: none;
@@ -16029,10 +16083,25 @@ textarea.form-control-lg {
 .sidebar.collapsed .logo-text {
   display: none;
 }
+.sidebar.collapsed .logo-area {
+  padding-left: 0;
+  justify-content: center;
+}
+.sidebar.collapsed .nav-header {
+  display: none !important;
+}
+.sidebar .nav-header small {
+  color: #64748b !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+}
 
 .topbar {
   height: 60px;
   margin-left: 240px;
+  transition: margin-left 0.3s ease-in-out;
 }
 
 .topbar.full {
@@ -16041,6 +16110,7 @@ textarea.form-control-lg {
 
 .content {
   margin-left: 240px;
+  transition: margin-left 0.3s ease-in-out;
 }
 
 .content.full {

@@ -40,6 +40,15 @@ class Inventaris {
       [kondisi, id]
     );
   }
+
+  // Check if label exists
+  static async checkLabelExists(nomorLabel) {
+    const [rows] = await db.query(
+      `SELECT COUNT(*) as count FROM inventaris WHERE nomor_label = ?`,
+      [nomorLabel]
+    );
+    return rows[0].count > 0;
+  }
 }
 
 module.exports = Inventaris;

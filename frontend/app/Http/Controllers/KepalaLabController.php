@@ -21,21 +21,30 @@ class KepalaLabController extends Controller
             'tahun'          => 'required|integer|min:2000|max:2099',
             'ketua_prodi_id' => 'required|integer',
         ]);
-        ApiService::post('/kepala-lab/pengadaan/create-draft', $request->all());
+        $res = ApiService::post('/kepala-lab/pengadaan/create-draft', $request->all());
+        if (isset($res['error'])) {
+            return redirect('/kepala-lab/pengadaan')->with('error', $res['error']);
+        }
         return redirect('/kepala-lab/pengadaan')->with('success', 'Draf berhasil dibuat.');
     }
 
     // POST /kepala-lab/pengadaan/update-draft/{id}
     public function updateDraft(Request $request, $id)
     {
-        ApiService::post("/kepala-lab/pengadaan/update-draft/{$id}", $request->all());
+        $res = ApiService::post("/kepala-lab/pengadaan/update-draft/{$id}", $request->all());
+        if (isset($res['error'])) {
+            return redirect('/kepala-lab/pengadaan')->with('error', $res['error']);
+        }
         return redirect('/kepala-lab/pengadaan')->with('success', 'Draf berhasil diperbarui.');
     }
 
     // POST /kepala-lab/pengadaan/delete-draft/{id}
     public function deleteDraft($id)
     {
-        ApiService::post("/kepala-lab/pengadaan/delete-draft/{$id}");
+        $res = ApiService::post("/kepala-lab/pengadaan/delete-draft/{$id}");
+        if (isset($res['error'])) {
+            return redirect('/kepala-lab/pengadaan')->with('error', $res['error']);
+        }
         return redirect('/kepala-lab/pengadaan')->with('success', 'Draf berhasil dihapus.');
     }
 
@@ -50,21 +59,30 @@ class KepalaLabController extends Controller
             'jumlah'       => 'required|integer|min:1',
             'rasionalisasi'=> 'required|string',
         ]);
-        ApiService::post('/kepala-lab/pengadaan/add-item', $request->all());
+        $res = ApiService::post('/kepala-lab/pengadaan/add-item', $request->all());
+        if (isset($res['error'])) {
+            return redirect('/kepala-lab/pengadaan')->with('error', $res['error']);
+        }
         return redirect('/kepala-lab/pengadaan')->with('success', 'Item berhasil ditambahkan ke draf.');
     }
 
     // POST /kepala-lab/pengadaan/delete-item/{id}
     public function deleteItem($id)
     {
-        ApiService::post("/kepala-lab/pengadaan/delete-item/{$id}");
+        $res = ApiService::post("/kepala-lab/pengadaan/delete-item/{$id}");
+        if (isset($res['error'])) {
+            return redirect('/kepala-lab/pengadaan')->with('error', $res['error']);
+        }
         return redirect('/kepala-lab/pengadaan')->with('success', 'Item berhasil dihapus dari draf.');
     }
 
     // POST /kepala-lab/pengadaan/submit/{id}
     public function submitDraft($id)
     {
-        ApiService::post("/kepala-lab/pengadaan/submit/{$id}");
+        $res = ApiService::post("/kepala-lab/pengadaan/submit/{$id}");
+        if (isset($res['error'])) {
+            return redirect('/kepala-lab/pengadaan')->with('error', $res['error']);
+        }
         return redirect('/kepala-lab/history')->with('success', 'Draf berhasil dikirim ke Ketua Prodi.');
     }
 

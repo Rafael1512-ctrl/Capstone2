@@ -13,15 +13,20 @@ class DetailDraft {
   // Get pending items for inventaris
   static async getPendingInventaris() {
     const [rows] = await db.query(
-      `SELECT dd.*, dp.tahun, u.nama AS pengaju
+      `SELECT dd.*, dp.tahun, u.nama AS pengaju,
+              COALESCE(iv_count.cnt, 0) AS received_count
        FROM detail_draft dd
        JOIN draft_pengadaan dp ON dd.draft_id = dp.id
        JOIN users u ON dp.user_id = u.id
-       LEFT JOIN inventaris iv ON iv.detail_draft_id = dd.id
+       LEFT JOIN (
+         SELECT detail_draft_id, COUNT(*) AS cnt 
+         FROM inventaris 
+         GROUP BY detail_draft_id
+       ) iv_count ON iv_count.detail_draft_id = dd.id
        WHERE dp.status = 'finalized' 
          AND dd.status_item = 'approved' 
          AND dd.tipe_barang = 'inventaris'
-         AND iv.id IS NULL`
+         AND COALESCE(iv_count.cnt, 0) < dd.jumlah`
     );
     return rows;
   }

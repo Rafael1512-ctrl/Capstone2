@@ -37,7 +37,10 @@
                         <small class="text-muted">Diajukan oleh: {{ $item['pengaju'] }}</small>
                       </td>
                       <td>{{ $item['tahun'] }}</td>
-                      <td>{{ $item['jumlah'] }}</td>
+                      <td>
+                        <div class="fw-semibold">{{ $item['jumlah'] }} unit</div>
+                        <div class="small text-muted">Diterima: {{ $item['received_count'] ?? 0 }} / {{ $item['jumlah'] }}</div>
+                      </td>
                       <td>
                         <form class="row g-2 align-items-end py-2" action="/staf-admin/inventaris/receive/{{ $item['id'] }}" method="POST">
                           @csrf
@@ -55,14 +58,14 @@
                           </div>
                           <div class="col-md-3 col-12">
                             <label class="form-label small mb-1">Tgl Penerimaan</label>
-                            <input class="form-control form-control-sm" type="date" name="tanggal_terima" required>
+                            <input class="form-control form-control-sm" type="date" name="tanggal_terima" value="{{ date('Y-m-d') }}" required>
                           </div>
                           <div class="col-md-2 col-12">
                             <label class="form-label small mb-1">Kondisi Awal</label>
                             <select class="form-select form-select-sm" name="kondisi">
                               <option value="baik">Baik</option>
-                              <option value="perlu_perbaikan">Perlu Perbaikan</option>
-                              <option value="rusak">Rusak</option>
+                              <option value="rusak_ringan">Rusak Ringan</option>
+                              <option value="rusak_berat">Rusak Berat</option>
                             </select>
                           </div>
                           <div class="col-md-1 col-12 d-grid">
@@ -111,22 +114,22 @@
                   @foreach ($receivedItems as $inv)
                     <tr>
                       <td class="px-4 py-3">{{ $inv['id'] }}</td>
-                      <td><span class="badge bg-primary fs-7">{{ $inv['kode_inventaris'] }}</span></td>
+                      <td><span class="badge bg-primary fs-7">{{ $inv['nomor_label'] }}</span></td>
                       <td class="fw-semibold">{{ $inv['nama_barang'] }}</td>
                       <td>{{ $inv['nama_ruangan'] ?? 'Belum Ditempatkan' }}</td>
-                      <td>{{ \Carbon\Carbon::parse($inv['tanggal_penerimaan'])->translatedFormat('d M Y') }}</td>
+                      <td>{{ \Carbon\Carbon::parse($inv['tanggal_terima'])->translatedFormat('d M Y') }}</td>
                       <td>
                         @php
-                          $badgeClass = $inv['status'] === 'baik' ? 'bg-success' : ($inv['status'] === 'perlu_perbaikan' ? 'bg-warning' : 'bg-danger');
+                          $badgeClass = $inv['kondisi'] === 'baik' ? 'bg-success' : ($inv['kondisi'] === 'rusak_ringan' ? 'bg-warning text-dark' : ($inv['kondisi'] === 'rusak_berat' ? 'bg-danger' : 'bg-secondary'));
                         @endphp
                         <span class="badge {{ $badgeClass }}">
-                          {{ strtoupper($inv['status']) }}
+                          {{ str_replace('_', ' ', strtoupper($inv['kondisi'])) }}
                         </span>
                       </td>
                       <td class="text-end px-4">
-                        <div class="d-inline-flex align-items-center gap-2">
-                          <i class="ti ti-qrcode fs-3 text-secondary"></i>
-                          <span class="small text-muted font-monospace">{{ $inv['foto_qr'] }}</span>
+                        <div class="d-inline-flex align-items-center gap-3">
+                          <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data={{ urlencode($inv['nomor_label']) }}" alt="QR Code" style="width: 40px; height: 40px; border: 1px solid #ddd; padding: 2px; border-radius: 4px;">
+                          <span class="small text-muted font-monospace">{{ $inv['nomor_label'] }}</span>
                         </div>
                       </td>
                     </tr>

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>{{ isset($title) ? $title . ' - InApp Inventory Dashboard' : 'InApp Inventory Dashboard' }}</title>
+    <title>{{ isset($title) ? $title . ' - InLab Inventory Dashboard' : 'InLab Inventory Dashboard' }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon_io/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon_io/favicon-32x32.png">
@@ -22,12 +22,9 @@
   <body>
     <!-- TOPBAR -->
     <nav id="topbar" class="navbar bg-white border-bottom fixed-top topbar px-3">
-      <button id="toggleBtn" class="d-none d-lg-inline-flex btn btn-light btn-icon btn-sm">
-        <i class="ti ti-layout-sidebar-left-expand"></i>
-      </button>
-      <!-- MOBILE -->
+      <!-- MOBILE ONLY TOGGLE -->
       <button id="mobileBtn" class="btn btn-light btn-icon btn-sm d-lg-none me-2">
-        <i class="ti ti-layout-sidebar-left-expand"></i>
+        <i class="ti ti-menu-2"></i>
       </button>
       <div>
         <ul class="list-unstyled d-flex align-items-center mb-0 gap-1">
@@ -119,16 +116,22 @@
 
     <!-- SIDEBAR -->
     <aside id="sidebar" class="sidebar">
+      <!-- Floating Sidebar Toggle for Desktop -->
+      <button id="toggleBtn" class="d-none d-lg-flex btn toggle-sidebar-btn">
+        <i class="ti ti-chevron-left"></i>
+      </button>
+
       <div class="logo-area">
-        <a class="d-inline-flex" href="/">
-          <img src="/assets/images/logo-icon.svg" alt="" width="24">
+        <a class="d-inline-flex align-items-center text-decoration-none" href="/">
+          <img src="/assets/images/logo-icon.svg" alt="" width="26" height="26">
           <span class="logo-text ms-2">
-            <img src="/assets/images/logo.svg" alt="">
+            <span class="fw-bold text-primary" style="font-size: 20px; font-family: 'Poppins', sans-serif;">In</span><span class="fw-bold text-white" style="font-size: 20px; font-family: 'Poppins', sans-serif;">Lab</span>
+            <span class="d-block" style="font-size: 9px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin-top: -3px; font-family: 'Poppins', sans-serif; color: #94a3b8;">Inventory Lab</span>
           </span>
         </a>
       </div>
       <ul class="nav flex-column">
-        <li class="px-4 py-2"><small class="nav-text">Main</small></li>
+        <li class="px-4 py-2 nav-header"><small class="nav-text">Main</small></li>
         <li>
           <a class="nav-link {{ ($activePath ?? '') === '/' ? 'active' : '' }}" href="/">
             <i class="ti ti-home"></i>
@@ -142,7 +145,7 @@
           @endphp
 
           @if ($role === 'admin')
-            <li class="px-4 pt-4 pb-2"><small class="nav-text">Administrator</small></li>
+            <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">Administrator</small></li>
             <li>
               <a class="nav-link {{ ($activePath ?? '') === '/admin/users' ? 'active' : '' }}" href="/admin/users">
                 <i class="ti ti-users"></i>
@@ -156,7 +159,7 @@
               </a>
             </li>
           @elseif ($role === 'kepala_lab')
-            <li class="px-4 pt-4 pb-2"><small class="nav-text">Kepala Lab</small></li>
+            <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">Kepala Lab</small></li>
             <li>
               <a class="nav-link {{ ($activePath ?? '') === '/kepala-lab/pengadaan' ? 'active' : '' }}" href="/kepala-lab/pengadaan">
                 <i class="ti ti-file-plus"></i>
@@ -170,7 +173,7 @@
               </a>
             </li>
           @elseif ($role === 'ketua_prodi')
-            <li class="px-4 pt-4 pb-2"><small class="nav-text">Ketua Prodi</small></li>
+            <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">Ketua Prodi</small></li>
             <li>
               <a class="nav-link {{ ($activePath ?? '') === '/ketua-prodi/review' ? 'active' : '' }}" href="/ketua-prodi/review">
                 <i class="ti ti-shield-check"></i>
@@ -184,7 +187,7 @@
               </a>
             </li>
           @elseif ($role === 'staf_admin')
-            <li class="px-4 pt-4 pb-2"><small class="nav-text">Staf Administrasi</small></li>
+            <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">Staf Administrasi</small></li>
             <li>
               <a class="nav-link {{ ($activePath ?? '') === '/staf-admin/drafts' ? 'active' : '' }}" href="/staf-admin/drafts">
                 <i class="ti ti-clipboard-check"></i>
@@ -198,7 +201,7 @@
               </a>
             </li>
           @elseif ($role === 'staf_lab')
-            <li class="px-4 pt-4 pb-2"><small class="nav-text">Staf Laboratorium</small></li>
+            <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">Staf Laboratorium</small></li>
             <li>
               <a class="nav-link {{ ($activePath ?? '') === '/staf-lab/bhp' ? 'active' : '' }}" href="/staf-lab/bhp">
                 <i class="ti ti-package"></i>
@@ -214,7 +217,7 @@
           @endif
         @endif
 
-        <li class="px-4 pt-4 pb-2"><small class="nav-text">General</small></li>
+        <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">General</small></li>
         <li>
           <a class="nav-link {{ ($activePath ?? '') === '/inventory' ? 'active' : '' }}" href="/inventory">
             <i class="ti ti-box-seam"></i>
@@ -240,7 +243,7 @@
           </a>
         </li>
 
-        <li class="px-4 pt-4 pb-2"><small class="nav-text">Account</small></li>
+        <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">Account</small></li>
         @if (Session::has('user'))
           <li>
             <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -261,12 +264,32 @@
 
     <!-- MAIN CONTENT -->
     <main id="content" class="content py-10">
+      <div class="container-fluid">
+        @if (session('success'))
+          <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="ti ti-circle-check fs-4 me-2"></i>
+              <span>{{ session('success') }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+        @if (session('error'))
+          <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="ti ti-alert-triangle fs-4 me-2"></i>
+              <span>{{ session('error') }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+      </div>
       @yield('content')
       <div class="container-fluid">
         <div class="row">
           <div class="col-12">
             <footer class="text-center py-2 mt-6 text-secondary">
-              <p class="mb-0">Copyright © 2026 InApp Inventory Dashboard. Developed by 
+              <p class="mb-0">Copyright © 2026 InLab Inventory Dashboard. Developed by 
                 <a class="text-primary" href="https://codescandy.com/" target="_blank">CodesCandy</a>
                 • Distributed by 
                 <a class="text-primary" href="https://themewagon.com/" target="_blank">ThemeWagon</a>
