@@ -1,111 +1,194 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12">
-        <div class="mb-6 d-flex justify-content-between align-items-center">
-          <div>
-            <h1 class="fs-3 mb-1">Review Draf Pengadaan #{{ $draft['id'] }}</h1>
-            <p class="text-muted">Tinjau item pengadaan untuk Tahun Anggaran {{ $draft['tahun'] }}. Diajukan oleh: {{ $draft['pengaju'] }}.</p>
-          </div>
-          <a class="btn btn-outline-secondary" href="/ketua-prodi/review">Kembali</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body p-4 d-flex justify-content-between align-items-center bg-light rounded-2">
-            <div class="w-100">
-              <h5 class="mb-1">Keputusan Draf Pengadaan</h5>
-              @if ($draft['status'] !== 'finalized' && $draft['status'] !== 'rejected')
-                <form action="/ketua-prodi/review/{{ $draft['id'] }}/process" method="POST" onsubmit="return confirm('Apakah Anda yakin dengan keputusan ini?');">
-                  @csrf
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Catatan / Alasan Penolakan (Opsional jika disetujui)</label>
-                    <textarea class="form-control" name="alasan_penolakan" rows="2" placeholder="Masukkan catatan atau alasan jika menolak..."></textarea>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-success" type="submit" name="action" value="approve">
-                      <i class="ti ti-check me-1"></i>Setuju
-                    </button>
-                    <button class="btn btn-danger" type="submit" name="action" value="reject">
-                      <i class="ti ti-x me-1"></i>Tolak
-                    </button>
-                  </div>
-                </form>
-              @else
-                <span class="badge fs-6 {{ $draft['status'] === 'finalized' ? 'bg-success' : 'bg-danger' }}">
-                  {{ $draft['status'] === 'finalized' ? 'APPROVED' : strtoupper($draft['status']) }}
-                </span>
-                @if ($draft['alasan_penolakan'])
-                  <div class="mt-2 p-2 bg-white rounded border">
-                    <strong>Catatan Keputusan:</strong>
-                    <p class="mb-0 text-muted">{{ $draft['alasan_penolakan'] }}</p>
-                  </div>
-                @endif
-              @endif
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="mb-6 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="fs-3 mb-1">Review Draf Pengadaan #{{ $draft['id'] }}</h1>
+                        <p class="text-muted">Tinjau item pengadaan untuk Tahun Anggaran {{ $draft['tahun'] }}. Diajukan
+                            oleh: {{ $draft['pengaju'] }}.</p>
+                    </div>
+                    <a class="btn btn-outline-secondary" href="/ketua-prodi/review">Kembali</a>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-header bg-transparent px-4 py-3 border-bottom">
-            <h5 class="mb-0">Daftar Barang Pengadaan</h5>
-          </div>
-          <div class="table-responsive p-0">
-            <table class="table align-items-center mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th class="px-4 py-3">Barang & Rasionalisasi</th>
-                  <th>Tipe</th>
-                  <th>Harga</th>
-                  <th>Qty</th>
-                  <th>Total</th>
-                  <th>Status Item</th>
-                </tr>
-              </thead>
-              <tbody>
-                @if (isset($items) && count($items) > 0)
-                  @foreach ($items as $item)
-                    <tr>
-                      <td class="px-4 py-3">
-                        <div class="fw-semibold">{{ $item['nama_barang'] }}</div>
-                        <div class="small text-muted mb-1">{{ $item['rasionalisasi'] }}</div>
-                        @if ($item['link_pembelian'])
-                          <a class="small text-decoration-underline" href="{{ $item['link_pembelian'] }}" target="_blank">Link Pembelian</a>
-                        @endif
-                      </td>
-                      <td class="text-capitalize">{{ $item['tipe_barang'] }}</td>
-                      <td>${{ number_format($item['harga_satuan'], 2) }}</td>
-                      <td>{{ $item['jumlah'] }}</td>
-                      <td class="fw-semibold">${{ number_format($item['harga_satuan'] * $item['jumlah'], 2) }}</td>
-                      <td>
-                        @php
-                          $badgeClass = $item['status_item'] === 'approved' ? 'bg-success' : ($item['status_item'] === 'rejected' ? 'bg-danger' : 'bg-warning');
-                        @endphp
-                        <span class="badge {{ $badgeClass }}">
-                          {{ strtoupper($item['status_item']) }}
-                        </span>
-                      </td>
-                    </tr>
-                  @endforeach
-                @else
-                  <tr>
-                    <td class="text-center py-4" colspan="6">Tidak ada barang pengadaan.</td>
-                  </tr>
-                @endif
-              </tbody>
-            </table>
-          </div>
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-4 bg-light rounded-2">
+                        <div class="w-100">
+                            <h5 class="mb-3">Keputusan Draf Pengadaan</h5>
+                            @if ($draft['status'] !== 'finalized' && $draft['status'] !== 'rejected')
+                                <form id="itemsReviewForm" action="/ketua-prodi/review/{{ $draft['id'] }}/process"
+                                    method="POST" data-confirm="Apakah Anda yakin dengan keputusan ini?" data-validator="validateReviewForm">
+                                    @csrf
+                                    <div class="alert alert-info" role="alert">
+                                        <i class="ti ti-info-circle me-2"></i>
+                                        <strong>Petunjuk:</strong> Pilih status untuk setiap item barang di bawah. Anda
+                                        dapat menerima atau menolak item secara individual. Tambahkan catatan untuk item
+                                        yang ditolak.
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Catatan Umum (Opsional)</label>
+                                        <textarea class="form-control" name="alasan_penolakan" rows="2"
+                                            placeholder="Masukkan catatan umum untuk draft ini..."></textarea>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-success" type="submit">
+                                            <i class="ti ti-check me-1"></i>Simpan Semua Keputusan
+                                        </button>
+                                        <a class="btn btn-outline-secondary" href="/ketua-prodi/review">Batal</a>
+                                    </div>
+                                </form>
+                            @else
+                                <span
+                                    class="badge fs-6 {{ $draft['status'] === 'finalized' ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $draft['status'] === 'finalized' ? 'APPROVED' : strtoupper($draft['status']) }}
+                                </span>
+                                @if ($draft['alasan_penolakan'])
+                                    <div class="mt-2 p-2 bg-white rounded border">
+                                        <strong>Catatan Keputusan:</strong>
+                                        <p class="mb-0 text-muted">{{ $draft['alasan_penolakan'] }}</p>
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-transparent px-4 py-3 border-bottom">
+                        <h5 class="mb-0">Daftar Barang Pengadaan</h5>
+                    </div>
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-4 py-3" style="width: 30%;">Barang & Rasionalisasi</th>
+                                    <th style="width: 10%;">Tipe</th>
+                                    <th style="width: 11%;">Harga</th>
+                                    <th style="width: 7%;">Qty</th>
+                                    <th style="width: 11%;">Total</th>
+                                    <th style="width: 31%;">Keputusan & Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (isset($items) && count($items) > 0)
+                                    @foreach ($items as $item)
+                                        <tr>
+                                            <td class="px-4 py-3">
+                                                <div class="fw-semibold">{{ $item['nama_barang'] }}</div>
+                                                <div class="small text-muted mb-1">{{ $item['rasionalisasi'] }}</div>
+                                                @if ($item['link_pembelian'])
+                                                    <a class="small text-decoration-underline"
+                                                        href="{{ $item['link_pembelian'] }}" target="_blank">Link
+                                                        Pembelian</a>
+                                                @endif
+                                            </td>
+                                            <td class="text-capitalize">{{ $item['tipe_barang'] }}</td>
+                                            <td>Rp {{ number_format($item['harga_satuan'], 0, ',', '.') }}</td>
+                                            <td>{{ $item['jumlah'] }}</td>
+                                            <td class="fw-semibold">Rp
+                                                {{ number_format($item['harga_satuan'] * $item['jumlah'], 0, ',', '.') }}
+                                            </td>
+                                            <td class="py-3">
+                                                @if ($draft['status'] !== 'finalized' && $draft['status'] !== 'rejected')
+                                                    <div class="btn-group btn-group-sm mb-2 d-flex" role="group"
+                                                        style="gap: 2px;">
+                                                        <input type="radio" class="btn-check"
+                                                            name="decision[{{ $item['id'] }}]"
+                                                            id="approve_{{ $item['id'] }}" value="approved"
+                                                            form="itemsReviewForm"
+                                                            @if ($item['status_item'] === 'approved') checked @endif>
+                                                        <label class="btn btn-outline-success flex-grow-1"
+                                                            for="approve_{{ $item['id'] }}" style="font-size: 12px;">
+                                                            <i class="ti ti-check"></i> Acc
+                                                        </label>
+
+                                                        <input type="radio" class="btn-check"
+                                                            name="decision[{{ $item['id'] }}]"
+                                                            id="reject_{{ $item['id'] }}" value="rejected"
+                                                            form="itemsReviewForm">
+                                                        <label class="btn btn-outline-danger flex-grow-1"
+                                                            for="reject_{{ $item['id'] }}" style="font-size: 12px;">
+                                                            <i class="ti ti-x"></i> Tolak
+                                                        </label>
+
+                                                        <input type="radio" class="btn-check"
+                                                            name="decision[{{ $item['id'] }}]"
+                                                            id="pending_{{ $item['id'] }}" value="pending"
+                                                            form="itemsReviewForm"
+                                                            @if ($item['status_item'] === 'pending') checked @endif>
+                                                        <label class="btn btn-outline-warning flex-grow-1"
+                                                            for="pending_{{ $item['id'] }}" style="font-size: 12px;">
+                                                            <i class="ti ti-help"></i> Pending
+                                                        </label>
+                                                    </div>
+                                                    <textarea class="form-control form-control-sm" name="catatan_item[{{ $item['id'] }}]" form="itemsReviewForm"
+                                                        rows="1" placeholder="Catatan untuk item ini..." style="font-size: 12px;"></textarea>
+                                                @else
+                                                    <span
+                                                        class="badge {{ $item['status_item'] === 'approved' ? 'bg-success' : ($item['status_item'] === 'rejected' ? 'bg-danger' : 'bg-warning') }}">
+                                                        {{ strtoupper($item['status_item']) }}
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td class="text-center py-4" colspan="6">Tidak ada barang pengadaan.</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Validation function for review form
+            function validateReviewForm() {
+                const items = document.querySelectorAll('input[type="radio"][name*="decision"]');
+                const itemIds = new Set();
+
+                items.forEach(item => {
+                    const match = item.name.match(/decision\[(\d+)\]/);
+                    if (match) {
+                        itemIds.add(match[1]);
+                    }
+                });
+
+                let allSelected = true;
+                itemIds.forEach(itemId => {
+                    const selected = document.querySelector(`input[name="decision[${itemId}]"]:checked`);
+                    if (!selected) {
+                        allSelected = false;
+                    }
+                });
+
+                if (!allSelected) {
+                    alert('Harap pilih status untuk semua item barang!');
+                    return false;
+                }
+                
+                return true;
+            }
+
+            // Validate on form submit (for direct submission without modal, if any)
+            document.getElementById('itemsReviewForm')?.addEventListener('submit', function(e) {
+                // Validation will be called by modal confirm, so we don't need to prevent here
+                // Just ensure validation runs if form is somehow submitted directly
+            });
+        </script>
+
     </div>
-  </div>
 @endsection

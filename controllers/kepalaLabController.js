@@ -1,6 +1,6 @@
-const DraftPengadaan = require('../models/DraftPengadaan');
-const DetailDraft = require('../models/DetailDraft');
-const User = require('../models/User');
+const DraftPengadaan = require("../models/DraftPengadaan");
+const DetailDraft = require("../models/DetailDraft");
+const User = require("../models/User");
 
 class KepalaLabController {
   // GET /api/kepala-lab/pengadaan
@@ -14,19 +14,19 @@ class KepalaLabController {
       const kaprodiList = await User.getKetuaProdiList();
 
       res.json({
-        title: 'Draf Pengadaan Baru',
-        activePath: '/kepala-lab/pengadaan',
+        title: "Draf Pengadaan Baru",
+        activePath: "/kepala-lab/pengadaan",
         activeDraft,
         items,
         kaprodiList,
         hasActiveDraft: !!activeDraft,
         hasItems: items.length > 0,
         itemCount: items.length,
-        hasKaprodiList: kaprodiList.length > 0
+        hasKaprodiList: kaprodiList.length > 0,
       });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error: ' + err.message });
+      res.status(500).json({ error: "Database error: " + err.message });
     }
   }
 
@@ -34,11 +34,19 @@ class KepalaLabController {
   static async createDraft(req, res) {
     try {
       const { tahun, ketua_prodi_id } = req.body;
-      await DraftPengadaan.create(req.user.id, ketua_prodi_id, tahun);
-      res.json({ success: true, message: 'Draft created successfully' });
+
+      // Auto-select ketua prodi if not provided or "auto" value
+      let selectedKetuaProdiId = ketua_prodi_id;
+      if (!selectedKetuaProdiId || selectedKetuaProdiId === "auto") {
+        const defaultKaprodi = await User.getKetuaProdiDefault();
+        selectedKetuaProdiId = defaultKaprodi ? defaultKaprodi.id : null;
+      }
+
+      await DraftPengadaan.create(req.user.id, selectedKetuaProdiId, tahun);
+      res.json({ success: true, message: "Draft created successfully" });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error: ' + err.message });
+      res.status(500).json({ error: "Database error: " + err.message });
     }
   }
 
@@ -46,11 +54,16 @@ class KepalaLabController {
   static async updateDraft(req, res) {
     try {
       const { tahun, ketua_prodi_id } = req.body;
-      await DraftPengadaan.update(req.params.id, tahun, ketua_prodi_id, req.user.id);
-      res.json({ success: true, message: 'Draft updated successfully' });
+      await DraftPengadaan.update(
+        req.params.id,
+        tahun,
+        ketua_prodi_id,
+        req.user.id,
+      );
+      res.json({ success: true, message: "Draft updated successfully" });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error: ' + err.message });
+      res.status(500).json({ error: "Database error: " + err.message });
     }
   }
 
@@ -58,22 +71,38 @@ class KepalaLabController {
   static async deleteDraft(req, res) {
     try {
       await DraftPengadaan.delete(req.params.id, req.user.id);
-      res.json({ success: true, message: 'Draft deleted successfully' });
+      res.json({ success: true, message: "Draft deleted successfully" });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error: ' + err.message });
+      res.status(500).json({ error: "Database error: " + err.message });
     }
   }
 
   // POST /api/kepala-lab/pengadaan/add-item
   static async addItem(req, res) {
     try {
-      const { draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian } = req.body;
-      await DetailDraft.create(draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian);
-      res.json({ success: true, message: 'Item added successfully' });
+      const {
+        draft_id,
+        nama_barang,
+        tipe_barang,
+        harga_satuan,
+        jumlah,
+        rasionalisasi,
+        link_pembelian,
+      } = req.body;
+      await DetailDraft.create(
+        draft_id,
+        nama_barang,
+        tipe_barang,
+        harga_satuan,
+        jumlah,
+        rasionalisasi,
+        link_pembelian,
+      );
+      res.json({ success: true, message: "Item added successfully" });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error: ' + err.message });
+      res.status(500).json({ error: "Database error: " + err.message });
     }
   }
 
@@ -81,10 +110,10 @@ class KepalaLabController {
   static async deleteItem(req, res) {
     try {
       await DetailDraft.delete(req.params.id);
-      res.json({ success: true, message: 'Item deleted successfully' });
+      res.json({ success: true, message: "Item deleted successfully" });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error: ' + err.message });
+      res.status(500).json({ error: "Database error: " + err.message });
     }
   }
 
@@ -92,10 +121,10 @@ class KepalaLabController {
   static async submitDraft(req, res) {
     try {
       await DraftPengadaan.submit(req.params.id);
-      res.json({ success: true, message: 'Draft submitted successfully' });
+      res.json({ success: true, message: "Draft submitted successfully" });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error: ' + err.message });
+      res.status(500).json({ error: "Database error: " + err.message });
     }
   }
 
@@ -110,8 +139,8 @@ class KepalaLabController {
       }
 
       res.json({
-        title: 'Riwayat Pengadaan',
-        activePath: '/kepala-lab/history',
+        title: "Riwayat Pengadaan",
+        activePath: "/kepala-lab/history",
         drafts,
         activeDraft,
         items,
@@ -119,11 +148,11 @@ class KepalaLabController {
         hasItems: items.length > 0,
         itemCount: items.length,
         hasDrafts: drafts.length > 0,
-        draftCount: drafts.length
+        draftCount: drafts.length,
       });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error: ' + err.message });
+      res.status(500).json({ error: "Database error: " + err.message });
     }
   }
 }

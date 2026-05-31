@@ -1,5 +1,5 @@
-const db = require('../config/db');
-const bcrypt = require('bcryptjs');
+const db = require("../config/db");
+const bcrypt = require("bcryptjs");
 
 class User {
   // Get user by email with role
@@ -10,7 +10,7 @@ class User {
        JOIN user_roles ur ON ur.user_id = u.id
        JOIN roles r ON ur.role_id = r.id
        WHERE u.email = ?`,
-      [email]
+      [email],
     );
     return rows.length > 0 ? rows[0] : null;
   }
@@ -22,7 +22,7 @@ class User {
        FROM users u
        LEFT JOIN user_roles ur ON ur.user_id = u.id
        LEFT JOIN roles r ON ur.role_id = r.id
-       ORDER BY u.id DESC`
+       ORDER BY u.id DESC`,
     );
     return rows;
   }
@@ -34,44 +34,45 @@ class User {
        LEFT JOIN user_roles ur ON ur.user_id = u.id
        LEFT JOIN roles r ON ur.role_id = r.id
        WHERE u.id = ?`,
-      [id]
+      [id],
     );
     return rows.length > 0 ? rows[0] : null;
   }
 
   // Create new user with role
   static async create(nama, email, password, roleId) {
-    const hashedPassword = bcrypt.hashSync(password || 'password', 10);
+    const hashedPassword = bcrypt.hashSync(password || "password", 10);
     const [result] = await db.query(
       `INSERT INTO users (nama, email, password) VALUES (?, ?, ?)`,
-      [nama, email, hashedPassword]
+      [nama, email, hashedPassword],
     );
-    await db.query(
-      `INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)`,
-      [result.insertId, roleId]
-    );
+    await db.query(`INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)`, [
+      result.insertId,
+      roleId,
+    ]);
     return result.insertId;
   }
 
   // Update user
   static async update(id, nama, email, password, roleId) {
-    if (password && password.trim() !== '') {
+    if (password && password.trim() !== "") {
       const hashedPassword = bcrypt.hashSync(password, 10);
       await db.query(
         `UPDATE users SET nama = ?, email = ?, password = ? WHERE id = ?`,
-        [nama, email, hashedPassword, id]
+        [nama, email, hashedPassword, id],
       );
     } else {
-      await db.query(
-        `UPDATE users SET nama = ?, email = ? WHERE id = ?`,
-        [nama, email, id]
-      );
+      await db.query(`UPDATE users SET nama = ?, email = ? WHERE id = ?`, [
+        nama,
+        email,
+        id,
+      ]);
     }
     await db.query(`DELETE FROM user_roles WHERE user_id = ?`, [id]);
-    await db.query(
-      `INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)`,
-      [id, roleId]
-    );
+    await db.query(`INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)`, [
+      id,
+      roleId,
+    ]);
   }
 
   // Delete user
@@ -97,9 +98,20 @@ class User {
       `SELECT u.id, u.nama FROM users u 
        JOIN user_roles ur ON u.id = ur.user_id 
        JOIN roles r ON ur.role_id = r.id 
-       WHERE r.nama = 'ketua_prodi'`
+       WHERE r.nama = 'ketua_prodi'`,
     );
     return rows;
+  }
+
+  // Get default ketua prodi (first active one)
+  static async getKetuaProdiDefault() {
+    const [rows] = await db.query(
+      `SELECT u.id, u.nama FROM users u 
+       JOIN user_roles ur ON u.id = ur.user_id 
+       JOIN roles r ON ur.role_id = r.id 
+       WHERE r.nama = 'ketua_prodi' LIMIT 1`,
+    );
+    return rows.length > 0 ? rows[0] : null;
   }
 }
 

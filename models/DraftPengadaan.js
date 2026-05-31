@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 class DraftPengadaan {
   // Get draft by ID with user
@@ -6,7 +6,7 @@ class DraftPengadaan {
     const [[draft]] = await db.query(
       `SELECT d.*, u.nama AS pengaju FROM draft_pengadaan d 
        JOIN users u ON d.user_id = u.id WHERE d.id = ?`,
-      [id]
+      [id],
     );
     return draft;
   }
@@ -15,7 +15,7 @@ class DraftPengadaan {
   static async getActiveDraft(userId) {
     const [drafts] = await db.query(
       `SELECT * FROM draft_pengadaan WHERE user_id = ? AND status = 'draft'`,
-      [userId]
+      [userId],
     );
     return drafts.length > 0 ? drafts[0] : null;
   }
@@ -30,7 +30,7 @@ class DraftPengadaan {
        JOIN users u ON d.user_id = u.id
        WHERE d.status IN ('submitted', 'reviewed') AND d.ketua_prodi_id = ?
        ORDER BY d.id DESC`,
-      [ketuaProdiId]
+      [ketuaProdiId],
     );
     return drafts;
   }
@@ -44,7 +44,7 @@ class DraftPengadaan {
        JOIN users u ON d.user_id = u.id
        WHERE d.status IN ('finalized', 'rejected') AND d.ketua_prodi_id = ?
        ORDER BY d.id DESC`,
-      [ketuaProdiId]
+      [ketuaProdiId],
     );
     return drafts;
   }
@@ -57,7 +57,7 @@ class DraftPengadaan {
        FROM draft_pengadaan d
        JOIN users u ON d.user_id = u.id
        WHERE d.status = 'finalized'
-       ORDER BY d.id DESC`
+       ORDER BY d.id DESC`,
     );
     return drafts;
   }
@@ -69,7 +69,7 @@ class DraftPengadaan {
        FROM draft_pengadaan d
        WHERE d.user_id = ? AND d.status != 'draft'
        ORDER BY d.id DESC`,
-      [userId]
+      [userId],
     );
     return drafts;
   }
@@ -78,7 +78,7 @@ class DraftPengadaan {
   static async create(userId, ketuaProdiId, tahun) {
     const [result] = await db.query(
       `INSERT INTO draft_pengadaan (user_id, ketua_prodi_id, tahun, status) VALUES (?, ?, ?, 'draft')`,
-      [userId, ketuaProdiId || null, tahun || new Date().getFullYear()]
+      [userId, ketuaProdiId || null, tahun || new Date().getFullYear()],
     );
     return result.insertId;
   }
@@ -87,7 +87,7 @@ class DraftPengadaan {
   static async update(id, tahun, ketuaProdiId, userId) {
     await db.query(
       `UPDATE draft_pengadaan SET tahun = ?, ketua_prodi_id = ? WHERE id = ? AND user_id = ? AND status = 'draft'`,
-      [tahun, ketuaProdiId || null, id, userId]
+      [tahun, ketuaProdiId || null, id, userId],
     );
   }
 
@@ -95,28 +95,39 @@ class DraftPengadaan {
   static async delete(id, userId) {
     await db.query(
       `DELETE FROM draft_pengadaan WHERE id = ? AND user_id = ? AND status = 'draft'`,
-      [id, userId]
+      [id, userId],
     );
   }
 
   // Submit draft
   static async submit(id) {
-    await db.query(`UPDATE draft_pengadaan SET status = 'submitted' WHERE id = ?`, [id]);
+    await db.query(
+      `UPDATE draft_pengadaan SET status = 'submitted' WHERE id = ?`,
+      [id],
+    );
   }
 
   // Approve draft (finalized)
-  static async approve(id, alasanPenolakan = '') {
+  static async approve(id, alasanPenolakan = "") {
     await db.query(
       `UPDATE draft_pengadaan SET status = 'finalized', alasan_penolakan = ? WHERE id = ?`,
-      [alasanPenolakan, id]
+      [alasanPenolakan, id],
     );
   }
 
   // Reject draft
-  static async reject(id, alasanPenolakan = '') {
+  static async reject(id, alasanPenolakan = "") {
     await db.query(
       `UPDATE draft_pengadaan SET status = 'rejected', alasan_penolakan = ? WHERE id = ?`,
-      [alasanPenolakan, id]
+      [alasanPenolakan, id],
+    );
+  }
+
+  // Update draft status with optional reason
+  static async updateStatus(id, status, alasan = "") {
+    await db.query(
+      `UPDATE draft_pengadaan SET status = ?, alasan_penolakan = ? WHERE id = ?`,
+      [status, alasan || null, id],
     );
   }
 }

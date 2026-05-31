@@ -24,11 +24,33 @@ class KetuaProdiController extends Controller
     // POST /ketua-prodi/review/{id}/process
     public function processDraft(Request $request, $id)
     {
+        // Validate that decisions array exists and has items
         $request->validate([
-            'action' => 'required|in:approve,reject',
+            'decision' => 'required|array',
+            'decision.*' => 'required|in:approved,rejected,pending',
+            'catatan_item' => 'nullable|array',
+            'alasan_penolakan' => 'nullable|string',
         ]);
-        ApiService::post("/ketua-prodi/review/{$id}/process", $request->all());
-        return redirect('/ketua-prodi/history')->with('success', 'Keputusan draf berhasil disimpan.');
+        
+        try {
+            // Forward to API with all data
+            $payload = [
+                'decision' => $request->input('decision', []),
+                'catatan_item' => $request->input('catatan_item', []),
+                'alasan_penolakan' => $request->input('alasan_penolakan', ''),
+            ];
+            
+            $response = ApiService::post("/ketua-prodi/review/{$id}/process", $payload);
+            
+            // Check for API errors
+            if (isset($response['error'])) {
+                return redirect()->back()->with('error', 'API Error: ' . $response['error']);
+            }
+            
+            return redirect('/ketua-prodi/history')->with('success', 'Keputusan draf berhasil disimpan.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     // GET /ketua-prodi/history
