@@ -63,6 +63,7 @@ Route::middleware('auth.jwt')->group(function () {
         Route::get('/staf-admin/drafts', [StafAdminController::class, 'showDrafts'])->name('staf-admin.drafts');
         Route::get('/staf-admin/inventaris', [StafAdminController::class, 'showInventaris'])->name('staf-admin.inventaris');
         Route::post('/staf-admin/inventaris/receive/{itemId}', [StafAdminController::class, 'receiveItem'])->name('staf-admin.receive');
+        Route::post('/staf-admin/inventaris/delete/{id}', [StafAdminController::class, 'deleteInventaris'])->name('staf-admin.delete-inventaris');
     });
 
     // ── STAF LABORATORIUM ─────────────────────────────────────────────────────
@@ -70,6 +71,7 @@ Route::middleware('auth.jwt')->group(function () {
         Route::get('/staf-lab/bhp', [StafLabController::class, 'showBHP'])->name('staf-lab.bhp');
         Route::post('/staf-lab/bhp/create', [StafLabController::class, 'createBHP'])->name('staf-lab.bhp.create');
         Route::post('/staf-lab/bhp/update-stock/{id}', [StafLabController::class, 'updateBHPStock'])->name('staf-lab.bhp.update');
+        Route::get('/staf-lab/bhp/mutasi', [StafLabController::class, 'showBHPMutasi'])->name('staf-lab.bhp.mutasi');
         Route::get('/staf-lab/maintenance', [StafLabController::class, 'showMaintenance'])->name('staf-lab.maintenance');
         Route::post('/staf-lab/maintenance/create', [StafLabController::class, 'createMaintenance'])->name('staf-lab.maintenance.create');
     });

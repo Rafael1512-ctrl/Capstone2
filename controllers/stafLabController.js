@@ -28,8 +28,8 @@ class StafLabController {
   // POST /api/staf-lab/bhp/create
   static async createBHP(req, res) {
     try {
-      const { nama_bhp, ruangan_id, stok, satuan, kondisi } = req.body;
-      await BHP.create(nama_bhp, ruangan_id, stok, satuan, kondisi);
+      const { nama_bhp, ruangan_id, stok, satuan, kondisi, stok_minimum } = req.body;
+      await BHP.create(nama_bhp, ruangan_id, stok, satuan, kondisi, stok_minimum);
       res.json({ success: true, message: 'BHP created successfully' });
     } catch (err) {
       console.error(err);
@@ -40,8 +40,8 @@ class StafLabController {
   // POST /api/staf-lab/bhp/update-stock/:id
   static async updateBHPStock(req, res) {
     try {
-      const { stok, kondisi } = req.body;
-      await BHP.updateStock(req.params.id, stok, kondisi);
+      const { stok, kondisi, stok_minimum } = req.body;
+      await BHP.updateStock(req.params.id, stok, kondisi, stok_minimum);
       res.json({ success: true, message: 'BHP stock updated successfully' });
     } catch (err) {
       console.error(err);
@@ -86,6 +86,21 @@ class StafLabController {
         status_akhir
       );
       res.json({ success: true, message: 'Maintenance log created successfully' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database error: ' + err.message });
+    }
+  }
+
+  // GET /api/staf-lab/bhp/mutasi
+  static async showBHPMutasi(req, res) {
+    try {
+      const mutasiList = await BHP.getMutasiHistory();
+      res.json({
+        title: 'Riwayat Mutasi BHP',
+        activePath: '/staf-lab/bhp/mutasi',
+        mutasiList
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Database error: ' + err.message });

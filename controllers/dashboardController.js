@@ -6,31 +6,108 @@ class DashboardController {
   // GET /api/
   static async showDashboard(req, res) {
     try {
-      const stats = await Product.getStats();
-      const topProducts = await Product.getTopProducts();
-      const lowStockProducts = await Product.getLowStock();
-      const recentSales = await Sales.getRecentSales();
-      const totalSales = await Sales.getTotalSalesCompleted();
-      const totalRefunds = await Sales.getTotalRefunds();
+      const db = require('../config/db');
+
+      // 1. Get Inventory Condition Statistics
+      const [kondisiRows] = await db.query(
+        `SELECT kondisi, COUNT(*) as count 
+         FROM inventaris 
+         WHERE kondisi != 'dihapus' 
+         GROUP BY kondisi`
+      );
+      const conditions = { baik: 0, rusak_ringan: 0, rusak_berat: 0 };
+      kondisiRows.forEach(row => {
+        if (conditions.hasOwnProperty(row.kondisi)) {
+          conditions[row.kondisi] = row.count;
+        }
+      });
+
+      // 2. Get Annual Procurement Expenses
+      const [expenseRows] = await db.query(
+        `SELECT dp.tahun, COALESCE(SUM(dd.jumlah * dd.harga_satuan), 0) as total_expense
+         FROM detail_draft dd
+         JOIN draft_pengadaan dp ON dd.draft_id = dp.id
+         WHERE dd.status_item = 'approved'
+         GROUP BY dp.tahun
+         ORDER BY dp.tahun ASC`
+      );
+      const expenses = {
+        years: expenseRows.map(r => r.tahun.toString()),
+        values: expenseRows.map(r => parseFloat(r.total_expense))
+      };
+
+      // 3. Get Low Stock BHP Alert Count & Items
+      const [lowStockBhpRows] = await db.query(
+        `SELECT b.*, r.nama_ruangan
+         FROM bhp b
+         LEFT JOIN ruangan r ON b.ruangan_id = r.id
+         WHERE b.stok <= b.stok_minimum`
+      );
+
+      // 4. Out of stock BHP count
+      const [[{ count: outOfStockBhp }]] = await db.query(
+        `SELECT COUNT(*) as count FROM bhp WHERE stok = 0`
+      );
+
+      // 5. Total counts
+      const [[{ count: totalAset }]] = await db.query("SELECT COUNT(*) as count FROM inventaris WHERE kondisi != 'dihapus'");
+      const [[{ count: totalBhp }]] = await db.query("SELECT COUNT(*) as count FROM bhp");
+      const [[{ count: totalMaintenance }]] = await db.query("SELECT COUNT(*) as count FROM maintenance_log");
+
+      // 6. Recent assets received
+      const [recentAssets] = await db.query(
+        `SELECT iv.id, iv.nomor_label, iv.kondisi, iv.tanggal_terima, dd.nama_barang, dd.harga_satuan
+         FROM inventaris iv
+         JOIN detail_draft dd ON iv.detail_draft_id = dd.id
+         WHERE iv.kondisi != 'dihapus'
+         ORDER BY iv.id DESC
+         LIMIT 5`
+      );
+
+      // 7. Recent maintenance logs
+      const [recentMaintenance] = await db.query(
+        `SELECT m.id, m.tanggal_maintenance, m.kondisi_sebelum, m.kondisi_sesudah, m.deskripsi,
+                i.nama_barang AS nama_aset, i.nomor_label, u.nama AS petugas
+         FROM maintenance_log m
+         JOIN inventaris i ON m.inventaris_id = i.id
+         JOIN users u ON m.staf_lab_id = u.id
+         ORDER BY m.id DESC
+         LIMIT 5`
+      );
+
+      const DetailDraft = require('../models/DetailDraft');
       const totalExpenses = await DetailDraft.getTotalExpenses();
-      const totalProfit = Math.max(0, totalSales - totalExpenses);
 
       res.json({
         title: 'Dashboard',
         activePath: '/',
-        totalSales,
-        totalProducts: stats.totalProducts,
-        lowStock: stats.lowStock,
-        outOfStock: stats.outOfStock,
-        totalRefunds,
+        totalSales: totalExpenses, // Re-mapped for Card 1
+        totalProducts: totalAset,   // Re-mapped for Card 2
+        lowStock: lowStockBhpRows.length, // Re-mapped for Card 3
+        outOfStock: outOfStockBhp,  // Re-mapped for Card 4
+        totalRefunds: 0,
         totalExpenses,
-        totalProfit,
-        topProducts,
-        lowStockProducts,
-        recentSales,
-        hasTopProducts: topProducts.length > 0,
-        hasLowStockProducts: lowStockProducts.length > 0,
-        hasRecentSales: recentSales.length > 0
+        totalProfit: 0,
+        topProducts: [],
+        lowStockProducts: [],
+        recentSales: [],
+        hasTopProducts: false,
+        hasLowStockProducts: false,
+        hasRecentSales: false,
+        // Real dashboard statistics
+        totalAset,
+        totalBhp,
+        totalMaintenance,
+        recentAssets,
+        recentMaintenance,
+        chartData: {
+          conditions,
+          expenses
+        },
+        lowStockBhp: {
+          count: lowStockBhpRows.length,
+          items: lowStockBhpRows
+        }
       });
     } catch (err) {
       console.error(err);

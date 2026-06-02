@@ -106,7 +106,8 @@
                   <th>Ruangan</th>
                   <th>Tanggal Terima</th>
                   <th>Kondisi</th>
-                  <th class="text-end px-4">QR Code / Barcode</th>
+                  <th class="text-center">QR Code / Barcode</th>
+                  <th class="text-end px-4">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -126,17 +127,25 @@
                           {{ str_replace('_', ' ', strtoupper($inv['kondisi'])) }}
                         </span>
                       </td>
-                      <td class="text-end px-4">
+                      <td class="text-center">
                         <div class="d-inline-flex align-items-center gap-3">
                           <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data={{ urlencode($inv['nomor_label']) }}" alt="QR Code" style="width: 40px; height: 40px; border: 1px solid #ddd; padding: 2px; border-radius: 4px;">
                           <span class="small text-muted font-monospace">{{ $inv['nomor_label'] }}</span>
                         </div>
                       </td>
+                      <td class="text-end px-4">
+                        <form action="/staf-admin/inventaris/delete/{{ $inv['id'] }}" method="POST" class="d-inline" data-confirm="Apakah Anda yakin ingin menghapus barang inventaris ini (soft delete)?">
+                          @csrf
+                          <button type="submit" class="btn btn-sm btn-light text-danger border btn-icon rounded-circle" style="width: 32px; height: 32px; padding: 0;" title="Soft Delete">
+                            <i class="ti ti-trash"></i>
+                          </button>
+                        </form>
+                      </td>
                     </tr>
                   @endforeach
                 @else
                   <tr>
-                    <td class="text-center py-4" colspan="7">Belum ada barang inventaris yang dilabeli.</td>
+                    <td class="text-center py-4" colspan="8">Belum ada barang inventaris yang dilabeli.</td>
                   </tr>
                 @endif
               </tbody>

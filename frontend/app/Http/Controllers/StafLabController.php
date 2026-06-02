@@ -18,11 +18,12 @@ class StafLabController extends Controller
     public function createBHP(Request $request)
     {
         $request->validate([
-            'nama_bhp'   => 'required|string|max:255',
-            'ruangan_id' => 'required|integer',
-            'stok'       => 'required|integer|min:0',
-            'satuan'     => 'required|string|max:50',
-            'kondisi'    => 'required|in:baik,rusak',
+            'nama_bhp'     => 'required|string|max:255',
+            'ruangan_id'   => 'required|integer',
+            'stok'         => 'required|integer|min:0',
+            'stok_minimum' => 'required|integer|min:0',
+            'satuan'       => 'required|string|max:50',
+            'kondisi'      => 'required|in:baik,rusak',
         ]);
         ApiService::post('/staf-lab/bhp/create', $request->all());
         return redirect('/staf-lab/bhp')->with('success', 'BHP berhasil ditambahkan.');
@@ -32,8 +33,9 @@ class StafLabController extends Controller
     public function updateBHPStock(Request $request, $id)
     {
         $request->validate([
-            'stok'   => 'required|integer|min:0',
-            'kondisi'=> 'required|in:baik,rusak',
+            'stok'         => 'required|integer|min:0',
+            'stok_minimum' => 'required|integer|min:0',
+            'kondisi'      => 'required|in:baik,rusak',
         ]);
         ApiService::post("/staf-lab/bhp/update-stock/{$id}", $request->all());
         return redirect('/staf-lab/bhp')->with('success', 'Stok BHP berhasil diperbarui.');
@@ -56,5 +58,12 @@ class StafLabController extends Controller
         ]);
         ApiService::post('/staf-lab/maintenance/create', $request->all());
         return redirect('/staf-lab/maintenance')->with('success', 'Log maintenance berhasil dicatat.');
+    }
+
+    // GET /staf-lab/bhp/mutasi
+    public function showBHPMutasi()
+    {
+        $data = ApiService::get('/staf-lab/bhp/mutasi');
+        return view('staf_lab.bhp_mutasi', $data);
     }
 }

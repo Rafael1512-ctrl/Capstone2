@@ -55,6 +55,10 @@ const migrations = [
     name: "012_add_catatan_to_detail_draft_table",
     file: "./migrations/012_add_catatan_to_detail_draft_table.js",
   },
+  {
+    name: "013_add_inventaris_digantikan_to_detail_draft_table",
+    file: "./migrations/013_add_inventaris_digantikan_to_detail_draft_table.js",
+  },
 ];
 
 const seeders = [

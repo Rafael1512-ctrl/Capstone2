@@ -4,11 +4,11 @@ class MaintenanceLog {
   // Get all logs
   static async getAll() {
     const [rows] = await db.query(
-      `SELECT m.*, i.nomor_label, u.nama AS petugas, b.nama_bhp
+      `SELECT m.*, m.jumlah_bhp_digunakan AS qty_bhp_used, i.nomor_label, u.nama AS petugas, b.nama_bhp
        FROM maintenance_log m
        JOIN inventaris i ON m.inventaris_id = i.id
-       JOIN users u ON m.user_id = u.id
-       LEFT JOIN bhp b ON m.bhp_id_used = b.id
+       JOIN users u ON m.staf_lab_id = u.id
+       LEFT JOIN bhp b ON m.bhp_digunakan_id = b.id
        ORDER BY m.id DESC`
     );
     return rows;
@@ -20,20 +20,36 @@ class MaintenanceLog {
     await connection.beginTransaction();
 
     try {
-      // 1. Simpan log maintenance
+      // 1. Dapatkan kondisi sebelum dari inventaris
+      const [inv] = await connection.query(
+        `SELECT kondisi FROM inventaris WHERE id = ?`,
+        [inventarisId]
+      );
+      const kondisiSebelum = inv.length > 0 ? inv[0].kondisi : 'baik';
+
+      // 2. Simpan log maintenance
       const [result] = await connection.query(
-        `INSERT INTO maintenance_log (inventaris_id, user_id, bhp_id_used, qty_bhp_used, deskripsi, tanggal_maintenance)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [inventarisId, userId, bhpIdUsed || null, bhpIdUsed ? (qtyBhpUsed || 0) : 0, deskripsi || '', new Date()]
+        `INSERT INTO maintenance_log (inventaris_id, staf_lab_id, tanggal_maintenance, deskripsi, kondisi_sebelum, kondisi_sesudah, bhp_digunakan_id, jumlah_bhp_digunakan)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          inventarisId,
+          userId,
+          new Date(),
+          deskripsi || '',
+          kondisiSebelum,
+          statusAkhir || 'baik',
+          bhpIdUsed || null,
+          bhpIdUsed ? (qtyBhpUsed || 0) : null
+        ]
       );
 
-      // 2. Update status kondisi barang
+      // 3. Update status kondisi barang di inventaris
       await connection.query(
         `UPDATE inventaris SET kondisi = ? WHERE id = ?`,
         [statusAkhir || 'baik', inventarisId]
       );
 
-      // 3. Potong stok BHP jika ada
+      // 4. Potong stok BHP jika ada
       if (bhpIdUsed && qtyBhpUsed > 0) {
         await connection.query(
           `UPDATE bhp SET stok = GREATEST(0, stok - ?) WHERE id = ?`,

@@ -84,8 +84,15 @@
                                     @foreach ($items as $item)
                                         <tr>
                                             <td class="px-4 py-3">
-                                                <div class="fw-semibold">{{ $item['nama_barang'] }}</div>
+                                                <div class="fw-semibold text-dark">{{ $item['nama_barang'] }}</div>
                                                 <div class="small text-muted mb-1">{{ $item['rasionalisasi'] }}</div>
+                                                @if (isset($item['inventaris_digantikan_id']) && $item['inventaris_digantikan_id'])
+                                                    <div class="mt-1 mb-2">
+                                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 px-2 py-1 fs-8 text-wrap text-start d-inline-flex align-items-center">
+                                                            <i class="ti ti-replace me-1.5 fs-6"></i>Menggantikan: {{ $item['label_digantikan'] }} - {{ $item['nama_digantikan'] }}
+                                                        </span>
+                                                    </div>
+                                                @endif
                                                 @if ($item['link_pembelian'])
                                                     <a class="small text-decoration-underline"
                                                         href="{{ $item['link_pembelian'] }}" target="_blank">Link

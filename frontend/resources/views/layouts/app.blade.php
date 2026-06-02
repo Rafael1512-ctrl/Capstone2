@@ -242,6 +242,13 @@
                         </a>
                     </li>
                     <li>
+                        <a class="nav-link {{ ($activePath ?? '') === '/staf-lab/bhp/mutasi' ? 'active' : '' }}"
+                            href="/staf-lab/bhp/mutasi">
+                            <i class="ti ti-history"></i>
+                            <span class="nav-text">Mutasi BHP</span>
+                        </a>
+                    </li>
+                    <li>
                         <a class="nav-link {{ ($activePath ?? '') === '/staf-lab/maintenance' ? 'active' : '' }}"
                             href="/staf-lab/maintenance">
                             <i class="ti ti-tool"></i>

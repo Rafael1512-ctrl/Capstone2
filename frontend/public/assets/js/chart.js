@@ -6,187 +6,155 @@ import ApexCharts from 'apexcharts';
 
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('salesPurchaseChart')) {
-         var options = {
-      series: [
-        {
-          name: 'Sales',
-          data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
-        },
-        {
-          name: 'Purchase',
-          data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
-        },
+      var years = ['2026'];
+      var values = [0];
 
-      ],
-      colors: ['#f7a085', '#E66239'],
-      chart: {
-        type: 'bar',
-        height: 350,
-        width: '100%',
-        parentHeightOffset: 0,
-        toolbar: {
-          show: false,
-        },
-      },
-      grid: {
-        show: true,
-        borderColor: "#e2e8f0",
+      if (window.dashboardChartData && window.dashboardChartData.procurementExpenses) {
+        if (window.dashboardChartData.procurementExpenses.years && window.dashboardChartData.procurementExpenses.years.length > 0) {
+          years = window.dashboardChartData.procurementExpenses.years;
+          values = window.dashboardChartData.procurementExpenses.values;
+        }
+      }
 
-      },
-      legend: {
-        show: true,
-        fontFamily: 'Poppins, serif',
-        fontWeight: 500,
-        markers: {
-          size: 5,
-          shape: 'square',
-          strokeWidth: 0,
-          fillColors: undefined,
-          customHTML: undefined,
-          onClick: undefined,
-          offsetX: -2,
-          offsetY: 0,
-        },
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: '85%',
-          borderRadius: 3,
-          borderRadiusApplication: 'end',
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        show: false,
-        width: 2,
-        colors: ['transparent'],
-      },
-      xaxis: {
-        categories: ['28 Jan', '29 Jan', '30 Jan', '31 Jan', '1 Feb', '2 Feb', '3 Feb', '4 Feb', '5 Feb'],
-        axisBorder: {
-          show: false,
-          color: "#e2e8f0",
-          height: 1,
+      var options = {
+        series: [
+          {
+            name: 'Pengeluaran Pengadaan',
+            data: values,
+          }
+        ],
+        colors: ['#E66239'],
+        chart: {
+          type: 'bar',
+          height: 350,
           width: '100%',
-          offsetX: 0,
-          offsetY: 0,
+          parentHeightOffset: 0,
+          toolbar: {
+            show: false,
+          },
         },
-        axisTicks: {
+        grid: {
+          show: true,
+          borderColor: "#e2e8f0",
+        },
+        legend: {
+          show: true,
+          fontFamily: 'Poppins, serif',
+          fontWeight: 500,
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '45%',
+            borderRadius: 3,
+            borderRadiusApplication: 'end',
+          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        stroke: {
           show: false,
-          borderType: 'solid',
-          color: "#e2e8f0",
-          height: 6,
-          offsetX: 0,
-          offsetY: 0,
+          width: 2,
+          colors: ['transparent'],
         },
-      },
-
-      yaxis: {
-        labels: {
-          formatter: function (e) {
-            return e + 'k';
+        xaxis: {
+          categories: years,
+          axisBorder: {
+            show: false,
+            color: "#e2e8f0",
+            height: 1,
+            width: '100%',
+            offsetX: 0,
+            offsetY: 0,
+          },
+          axisTicks: {
+            show: false,
+            borderType: 'solid',
+            color: "#e2e8f0",
+            height: 6,
+            offsetX: 0,
+            offsetY: 0,
           },
         },
-        title: {
-          text: '$ (thousands)' ,
+        yaxis: {
+          labels: {
+            formatter: function (e) {
+              if (e >= 1000000) {
+                return 'Rp ' + (e / 1000000).toFixed(1) + ' Jt';
+              } else if (e >= 1000) {
+                return 'Rp ' + (e / 1000).toFixed(0) + ' Rb';
+              }
+              return 'Rp ' + e;
+            },
+          },
+          title: {
+            text: 'Biaya Pengadaan (IDR)' ,
+          },
         },
-      },
-      fill: {
-        opacity: 1,
-      },
-     tooltip: {
-    			y: {
-    				formatter: function (val) {
-    					return "$ " + val + " thousands"
-    				}
-    			}
-    		},
-    };
+        fill: {
+          opacity: 1,
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return "Rp " + val.toLocaleString('id-ID');
+            }
+          }
+        },
+      };
 
-var chart = new ApexCharts(document.querySelector("#salesPurchaseChart"), options);
-
-chart.render();
+      var chart = new ApexCharts(document.querySelector("#salesPurchaseChart"), options);
+      chart.render();
     }
-      if (document.getElementById('customerChart')) {
-    var options = {
-      series: [44, 55],
-      chart: {
-        height: 200,
-        type: 'radialBar',
-      },
-      colors: ['#5BE49B', '#E66239'],
-      plotOptions: {
-        radialBar: {
-          dataLabels: {
-            name: {
-              fontSize: '22px',
-            },
-            value: {
-              fontSize: '16px',
-            },
-            total: {
-              show: false,
-            },
-          },
-          hollow: {
-            margin: 3,
-            size: '40%',
-            background: 'transparent',
-            image: undefined,
-            imageWidth: 150,
-            imageHeight: 150,
-            imageOffsetX: 0,
-            imageOffsetY: 0,
-            imageClipped: true,
-            position: 'front',
-            dropShadow: {
-              enabled: false,
-              top: 0,
-              left: 0,
-              blur: 3,
-              opacity: 0.5,
-            },
-          },
-          track: {
-            show: true,
-            startAngle: undefined,
-            endAngle: undefined,
-            background: "#f0f0f0",
-            strokeWidth: '45%',
-            opacity: 1,
-            margin: 5,
-            dropShadow: {
-              enabled: false,
-              top: 0,
-              left: 0,
-              blur: 3,
-              opacity: 0.5,
-            },
-          },
-        },
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: 'dark',
-          type: 'vertical',
-          gradientToColors: ['#007867', '#FFD666', '#FFAC82'],
-          stops: [0, 100],
-        },
-      },
-      stroke: {
-        lineCap: 'round',
-      },
- labels: ['First Time', 'Return' ],
 
-    };
+    if (document.getElementById('customerChart')) {
+      var labels = ['Baik', 'Rusak Ringan', 'Rusak Berat'];
+      var series = [0, 0, 0];
 
-    var chart = new ApexCharts(document.querySelector('#customerChart'), options);
-    chart.render();
-  }
+      if (window.dashboardChartData && window.dashboardChartData.conditions) {
+        series = window.dashboardChartData.conditions.values;
+      }
+
+      var options = {
+        series: series,
+        labels: labels,
+        chart: {
+          height: 240,
+          type: 'donut',
+        },
+        colors: ['#198754', '#ffc107', '#dc3545'],
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '70%',
+              labels: {
+                show: true,
+                total: {
+                  show: true,
+                  label: 'Total Aset',
+                  color: '#94a3b8',
+                  formatter: function (w) {
+                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                  }
+                }
+              }
+            }
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        legend: {
+          position: 'bottom',
+          fontFamily: 'Poppins, serif',
+          fontWeight: 500,
+        }
+      };
+
+      var chart = new ApexCharts(document.querySelector('#customerChart'), options);
+      chart.render();
+    }
    if (document.getElementById('salesChart')) {
    // --- Replace these arrays with your real monthly sales numbers (12 values each) ---
     const salesThisYear = [42000, 53000, 48000, 61000, 72000, 69000, 74000, 82000, 78000, 86000, 91000, 97000];

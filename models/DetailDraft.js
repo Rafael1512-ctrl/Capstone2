@@ -4,8 +4,11 @@ class DetailDraft {
   // Get items by draft ID
   static async getByDraftId(draftId) {
     const [rows] = await db.query(
-      `SELECT * FROM detail_draft WHERE draft_id = ?`,
-      [draftId],
+      `SELECT dd.*, i.nomor_label AS label_digantikan, i.nama_barang AS nama_digantikan 
+       FROM detail_draft dd
+       LEFT JOIN inventaris i ON dd.inventaris_digantikan_id = i.id
+       WHERE dd.draft_id = ?`,
+      [draftId]
     );
     return rows;
   }
@@ -40,10 +43,11 @@ class DetailDraft {
     jumlah,
     rasionalisasi = "",
     linkPembelian = "",
+    inventarisDigantikanId = null
   ) {
     const [result] = await db.query(
-      `INSERT INTO detail_draft (draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian, status_item)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`,
+      `INSERT INTO detail_draft (draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian, inventaris_digantikan_id, status_item)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
       [
         draftId,
         namaBarang,
@@ -52,6 +56,7 @@ class DetailDraft {
         jumlah,
         rasionalisasi,
         linkPembelian,
+        inventarisDigantikanId || null
       ],
     );
     return result.insertId;

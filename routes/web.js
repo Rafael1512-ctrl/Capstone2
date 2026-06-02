@@ -62,11 +62,13 @@ router.get('/ketua-prodi/history', authenticateToken, requireRole('ketua_prodi')
 router.get('/staf-admin/drafts', authenticateToken, requireRole('staf_admin'), stafAdminController.showDrafts);
 router.get('/staf-admin/inventaris', authenticateToken, requireRole('staf_admin'), stafAdminController.showInventaris);
 router.post('/staf-admin/inventaris/receive/:itemId', authenticateToken, requireRole('staf_admin'), stafAdminController.receiveItem);
+router.post('/staf-admin/inventaris/delete/:id', authenticateToken, requireRole('staf_admin'), stafAdminController.deleteInventaris);
 
 // ─── ROLE: STAF LABORATORIUM ───────────────────────────────────────────────────
 router.get('/staf-lab/bhp', authenticateToken, requireRole('staf_lab'), stafLabController.showBHP);
 router.post('/staf-lab/bhp/create', authenticateToken, requireRole('staf_lab'), stafLabController.createBHP);
 router.post('/staf-lab/bhp/update-stock/:id', authenticateToken, requireRole('staf_lab'), stafLabController.updateBHPStock);
+router.get('/staf-lab/bhp/mutasi', authenticateToken, requireRole('staf_lab'), stafLabController.showBHPMutasi);
 
 router.get('/staf-lab/maintenance', authenticateToken, requireRole('staf_lab'), stafLabController.showMaintenance);
 router.post('/staf-lab/maintenance/create', authenticateToken, requireRole('staf_lab'), stafLabController.createMaintenance);

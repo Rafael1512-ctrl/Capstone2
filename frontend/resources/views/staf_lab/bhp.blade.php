@@ -16,6 +16,32 @@
       </div>
     </div>
 
+    <!-- LOW STOCK BHP WARNINGS -->
+    @php
+      $lowStockBhps = array_filter($bhpList ?? [], function($item) {
+          return $item['stok'] <= $item['stok_minimum'];
+      });
+    @endphp
+
+    @if(count($lowStockBhps) > 0)
+      <div class="alert alert-warning border-start border-4 border-warning d-flex align-items-center mb-4 shadow-sm" role="alert">
+        <i class="ti ti-alert-triangle fs-3 me-3 text-warning"></i>
+        <div>
+          <h5 class="alert-heading mb-1 fw-bold text-dark">Peringatan Stok Minimum!</h5>
+          <p class="mb-2 text-dark">Terdapat {{ count($lowStockBhps) }} item BHP yang mendekati atau telah berada di bawah batas minimum ketersediaan:</p>
+          <ul class="mb-0 text-dark ps-4">
+            @foreach($lowStockBhps as $lowBhp)
+              <li>
+                <strong>{{ $lowBhp['nama_bhp'] }}</strong> di {{ $lowBhp['nama_ruangan'] ?? 'Gudang' }} — 
+                Stok saat ini: <span class="badge bg-danger">{{ $lowBhp['stok'] }} {{ $lowBhp['satuan'] }}</span> 
+                (Stok Minimum: {{ $lowBhp['stok_minimum'] }} {{ $lowBhp['satuan'] }})
+              </li>
+            @endforeach
+          </ul>
+        </div>
+      </div>
+    @endif
+
     <!-- COLLAPSIBLE FORM -->
     <div id="addBhpForm" class="collapse mb-4">
       <div class="card p-4 border border-opacity-25 rounded-2">
@@ -23,12 +49,12 @@
         <form action="/staf-lab/bhp/create" method="POST">
           @csrf
           <div class="row g-3">
-            <div class="col-md-3 col-12">
+            <div class="col-md-2 col-12">
               <label class="form-label">Nama BHP</label>
-              <input class="form-control" type="text" name="nama_bhp" placeholder="cth. Kertas A4, Spidol" required>
+              <input class="form-control" type="text" name="nama_bhp" placeholder="cth. Kertas A4" required>
             </div>
-            <div class="col-md-3 col-12">
-              <label class="form-label">Ruangan Penyimpanan</label>
+            <div class="col-md-2 col-12">
+              <label class="form-label">Ruangan</label>
               <select class="form-select" name="ruangan_id" required>
                 @foreach ($ruangan as $r)
                   <option value="{{ $r['id'] }}">{{ $r['kode_ruangan'] }} - {{ $r['nama_ruangan'] }}</option>
@@ -36,12 +62,16 @@
               </select>
             </div>
             <div class="col-md-2 col-12">
-              <label class="form-label">Jumlah Stok Awal</label>
+              <label class="form-label">Stok Awal</label>
               <input class="form-control" type="number" name="stok" placeholder="0" min="0" required>
             </div>
             <div class="col-md-2 col-12">
+              <label class="form-label">Stok Minimum</label>
+              <input class="form-control" type="number" name="stok_minimum" placeholder="0" min="0" required>
+            </div>
+            <div class="col-md-2 col-12">
               <label class="form-label">Satuan</label>
-              <input class="form-control" type="text" name="satuan" placeholder="cth. rim, box, pcs" required>
+              <input class="form-control" type="text" name="satuan" placeholder="cth. rim, box" required>
             </div>
             <div class="col-md-2 col-12">
               <label class="form-label">Kondisi</label>
@@ -76,6 +106,7 @@
                   <th>Satuan</th>
                   <th>Kondisi</th>
                   <th class="text-center">Jumlah Stok</th>
+                  <th class="text-center">Stok Minimum</th>
                   <th class="text-end px-4">Aksi Perbarui Stok</th>
                 </tr>
               </thead>
@@ -93,17 +124,29 @@
                         </span>
                       </td>
                       <td class="text-center fw-bold">
-                        <span class="{{ $bhp['stok'] <= 5 ? 'text-danger' : 'text-success' }}">{{ $bhp['stok'] }}</span>
+                        <span class="{{ $bhp['stok'] <= $bhp['stok_minimum'] ? 'text-danger' : 'text-success' }}">{{ $bhp['stok'] }}</span>
+                      </td>
+                      <td class="text-center text-muted fw-semibold">
+                        {{ $bhp['stok_minimum'] }}
                       </td>
                       <td class="text-end px-4">
                         <form class="d-inline-flex gap-2 align-items-center justify-content-end" action="/staf-lab/bhp/update-stock/{{ $bhp['id'] }}" method="POST">
                           @csrf
-                          <input class="form-control form-control-sm" type="number" name="stok" value="{{ $bhp['stok'] }}" min="0" style="max-width:80px;" required>
-                          <select class="form-select form-select-sm" name="kondisi" style="max-width:100px;">
+                          <div class="d-flex flex-column gap-1">
+                            <div class="d-inline-flex gap-1 align-items-center">
+                              <small class="text-muted" style="min-width: 35px;">Stok:</small>
+                              <input class="form-control form-control-sm px-1 py-0" type="number" name="stok" value="{{ $bhp['stok'] }}" min="0" style="max-width:70px; font-size: 0.8rem;" required>
+                            </div>
+                            <div class="d-inline-flex gap-1 align-items-center">
+                              <small class="text-muted" style="min-width: 35px;">Min:</small>
+                              <input class="form-control form-control-sm px-1 py-0" type="number" name="stok_minimum" value="{{ $bhp['stok_minimum'] }}" min="0" style="max-width:70px; font-size: 0.8rem;" required>
+                            </div>
+                          </div>
+                          <select class="form-select form-select-sm" name="kondisi" style="max-width:90px; font-size: 0.8rem;">
                             <option value="baik" {{ $bhp['kondisi'] === 'baik' ? 'selected' : '' }}>Baik</option>
                             <option value="rusak" {{ $bhp['kondisi'] === 'rusak' ? 'selected' : '' }}>Rusak</option>
                           </select>
-                          <button class="btn btn-sm btn-success" type="submit">
+                          <button class="btn btn-sm btn-success py-1" type="submit" style="padding-left: 8px; padding-right: 8px;">
                             <i class="ti ti-device-floppy"></i>
                           </button>
                         </form>
@@ -112,7 +155,7 @@
                   @endforeach
                 @else
                   <tr>
-                    <td class="text-center py-4" colspan="7">Belum ada data BHP terdaftar.</td>
+                    <td class="text-center py-4" colspan="8">Belum ada data BHP terdaftar.</td>
                   </tr>
                 @endif
               </tbody>

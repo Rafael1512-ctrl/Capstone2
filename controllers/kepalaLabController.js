@@ -1,6 +1,7 @@
 const DraftPengadaan = require("../models/DraftPengadaan");
 const DetailDraft = require("../models/DetailDraft");
 const User = require("../models/User");
+const Inventaris = require("../models/Inventaris");
 
 class KepalaLabController {
   // GET /api/kepala-lab/pengadaan
@@ -12,6 +13,7 @@ class KepalaLabController {
         items = await DetailDraft.getByDraftId(activeDraft.id);
       }
       const kaprodiList = await User.getKetuaProdiList();
+      const inventarisList = await Inventaris.getAllReceived();
 
       res.json({
         title: "Draf Pengadaan Baru",
@@ -19,6 +21,7 @@ class KepalaLabController {
         activeDraft,
         items,
         kaprodiList,
+        inventarisList,
         hasActiveDraft: !!activeDraft,
         hasItems: items.length > 0,
         itemCount: items.length,
@@ -89,6 +92,7 @@ class KepalaLabController {
         jumlah,
         rasionalisasi,
         link_pembelian,
+        inventaris_digantikan_id
       } = req.body;
       await DetailDraft.create(
         draft_id,
@@ -98,6 +102,7 @@ class KepalaLabController {
         jumlah,
         rasionalisasi,
         link_pembelian,
+        inventaris_digantikan_id ? parseInt(inventaris_digantikan_id) : null
       );
       res.json({ success: true, message: "Item added successfully" });
     } catch (err) {

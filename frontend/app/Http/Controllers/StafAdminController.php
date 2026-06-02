@@ -36,4 +36,11 @@ class StafAdminController extends Controller
         }
         return redirect('/staf-admin/inventaris')->with('success', 'Barang berhasil diterima dan dilabeli.');
     }
+
+    // POST /staf-admin/inventaris/delete/{id}
+    public function deleteInventaris($id)
+    {
+        ApiService::post("/staf-admin/inventaris/delete/{$id}");
+        return redirect('/staf-admin/inventaris')->with('success', 'Barang inventaris berhasil dihapus (soft delete).');
+    }
 }

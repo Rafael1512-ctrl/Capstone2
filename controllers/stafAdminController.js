@@ -65,6 +65,17 @@ class StafAdminController {
       res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
+
+  // POST /api/staf-admin/inventaris/delete/:id
+  static async deleteInventaris(req, res) {
+    try {
+      await Inventaris.softDelete(req.params.id);
+      res.json({ success: true, message: 'Inventaris soft-deleted successfully' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database error: ' + err.message });
+    }
+  }
 }
 
 module.exports = StafAdminController;

@@ -228,6 +228,13 @@
                                                         style="max-width: 400px; white-space: normal; line-height: 1.4;">
                                                         {{ $item['rasionalisasi'] }}
                                                     </div>
+                                                    @if (isset($item['inventaris_digantikan_id']) && $item['inventaris_digantikan_id'])
+                                                        <div class="mt-1 mb-2">
+                                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 px-2.5 py-1.5 fs-8 text-wrap text-start d-inline-flex align-items-center">
+                                                                <i class="ti ti-replace me-1.5 fs-6"></i>Menggantikan: {{ $item['label_digantikan'] }} - {{ $item['nama_digantikan'] }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
                                                     @if ($item['link_pembelian'])
                                                         <a class="small text-primary text-decoration-none d-inline-flex align-items-center"
                                                             href="{{ $item['link_pembelian'] }}" target="_blank">
@@ -349,6 +356,18 @@
                                 </select>
                             </div>
 
+                            <div class="mb-3" id="replaceAssetDiv">
+                                <label class="form-label small fw-semibold text-secondary">Menggantikan Aset Lama? (Opsional)</label>
+                                <select class="form-select" name="inventaris_digantikan_id">
+                                    <option value="">-- Tidak Menggantikan Aset --</option>
+                                    @if (isset($inventarisList) && count($inventarisList) > 0)
+                                        @foreach ($inventarisList as $inv)
+                                            <option value="{{ $inv['id'] }}">{{ $inv['nomor_label'] }} - {{ $inv['nama_barang'] }} ({{ ucfirst(str_replace('_', ' ', $inv['kondisi'])) }})</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+
                             <!-- Price and Qty in one row -->
                             <div class="row g-2 mb-3">
                                 <div class="col-7">
@@ -391,4 +410,28 @@
             </div>
         </div>
     @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipeSelect = document.querySelector('select[name="tipe_barang"]');
+            const replaceAssetDiv = document.getElementById('replaceAssetDiv');
+            const replaceAssetSelect = document.querySelector('select[name="inventaris_digantikan_id"]');
+
+            function toggleReplaceAsset() {
+                if (tipeSelect && replaceAssetDiv) {
+                    if (tipeSelect.value === 'inventaris') {
+                        replaceAssetDiv.style.display = 'block';
+                    } else {
+                        replaceAssetDiv.style.display = 'none';
+                        if (replaceAssetSelect) replaceAssetSelect.value = '';
+                    }
+                }
+            }
+
+            if (tipeSelect) {
+                tipeSelect.addEventListener('change', toggleReplaceAsset);
+                toggleReplaceAsset();
+            }
+        });
+    </script>
 @endsection
