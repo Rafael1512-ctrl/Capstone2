@@ -25,9 +25,8 @@
                   <th>Tahun</th>
                   <th>Pengaju (Kepala Lab)</th>
                   <th>Total Items</th>
-                  <th>Status Draf</th>
                   <th>Catatan Keputusan</th>
-                  <th class="text-end px-4">Aksi</th>
+                  <th class="">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -38,11 +37,6 @@
                       <td class="fw-semibold">{{ $d['tahun'] }}</td>
                       <td>{{ $d['pengaju'] }}</td>
                       <td>{{ $d['total_items'] }} items</td>
-                      <td>
-                        <span class="badge {{ $d['status'] === 'finalized' ? 'bg-success' : 'bg-danger' }}">
-                          {{ $d['status'] === 'finalized' ? 'DISETUJUI' : 'DITOLAK' }}
-                        </span>
-                      </td>
                       <td>
                         @if ($d['alasan_penolakan'])
                           <span class="text-muted small">{{ $d['alasan_penolakan'] }}</span>

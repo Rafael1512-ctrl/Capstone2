@@ -27,7 +27,7 @@
                   <th>Jumlah Item</th>
                   <th>Catatan Kaprodi</th>
                   <th>Status Draf</th>
-                  <th class="text-end px-4">Detail</th>
+                  <th class="text-center px-4">Detail Draft</th>
                 </tr>
               </thead>
               <tbody>
@@ -52,8 +52,15 @@
                           {{ strtoupper($d['status']) }}
                         </span>
                       </td>
-                      <td class="text-end px-4">
-                        <span class="small text-muted">Draf Terkunci</span>
+                      <td class="text-center px-4">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-info"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalDetailDraft{{ $d['id'] }}"
+                        >
+                          <i class="ti ti-eye me-1"></i>Lihat Detail
+                        </button>
                       </td>
                     </tr>
                   @endforeach
@@ -69,4 +76,104 @@
       </div>
     </div>
   </div>
+
+  {{-- MODAL DETAIL DRAFT (satu per draf) --}}
+  @if ($hasDrafts)
+    @foreach ($drafts as $d)
+      @php
+        $badgeClass = $d['status'] === 'submitted' ? 'bg-info' : ($d['status'] === 'reviewed' ? 'bg-primary' : ($d['status'] === 'finalized' ? 'bg-success' : ($d['status'] === 'rejected' ? 'bg-danger' : 'bg-secondary')));
+      @endphp
+      <div
+        class="modal fade"
+        id="modalDetailDraft{{ $d['id'] }}"
+        tabindex="-1"
+        aria-labelledby="modalDetailDraftLabel{{ $d['id'] }}"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalDetailDraftLabel{{ $d['id'] }}">
+                <i class="ti ti-file-description me-2"></i>
+                Detail Draf #{{ $d['id'] }} &mdash; Tahun {{ $d['tahun'] }}
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+              {{-- Info Draf --}}
+              <div class="row g-3 mb-4">
+                <div class="col-sm-4">
+                  <p class="text-muted small mb-1">Status Draf</p>
+                  <span class="badge {{ $badgeClass }} fs-6">{{ strtoupper($d['status']) }}</span>
+                </div>
+                <div class="col-sm-4">
+                  <p class="text-muted small mb-1">Tahun Anggaran</p>
+                  <p class="fw-semibold mb-0">{{ $d['tahun'] }}</p>
+                </div>
+                <div class="col-sm-4">
+                  <p class="text-muted small mb-1">Jumlah Item</p>
+                  <p class="fw-semibold mb-0">{{ $d['item_count'] }} item</p>
+                </div>
+                @if ($d['alasan_penolakan'])
+                  <div class="col-12">
+                    <p class="text-muted small mb-1">Catatan / Alasan Kaprodi</p>
+                    <div class="alert alert-danger py-2 mb-0">
+                      {{ $d['alasan_penolakan'] }}
+                    </div>
+                  </div>
+                @endif
+              </div>
+
+              <hr>
+
+              {{-- Tabel Items --}}
+              <h6 class="mb-3"><i class="ti ti-list me-1"></i>Daftar Item</h6>
+              @if (isset($d['items']) && count($d['items']) > 0)
+                <div class="table-responsive">
+                  <table class="table table-bordered table-sm align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th class="px-3">#</th>
+                        <th>Nama Item</th>
+                        <th class="text-center">Jumlah</th>
+                        <th class="text-center">Status Item</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach ($d['items'] as $i => $item)
+                        @php
+                          $itemStatus = $item['status_item'] ?? 'pending';
+                          $itemBadge  = $itemStatus === 'approved'
+                            ? 'bg-success'
+                            : ($itemStatus === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
+                          $itemLabel  = $itemStatus === 'approved'
+                            ? 'Approved'
+                            : ($itemStatus === 'rejected' ? 'Rejected' : 'Pending');
+                        @endphp
+                        <tr>
+                          <td class="px-3">{{ $i + 1 }}</td>
+                          <td>{{ $item['nama_barang'] }}</td>
+                          <td class="text-center">{{ $item['jumlah'] }}</td>
+                          <td class="text-center">
+                            <span class="badge {{ $itemBadge }}">{{ $itemLabel }}</span>
+                          </td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              @else
+                <p class="text-muted text-center py-3">Tidak ada item dalam draf ini.</p>
+              @endif
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    @endforeach
+  @endif
 @endsection

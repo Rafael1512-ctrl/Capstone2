@@ -221,33 +221,6 @@
                 @endif
             @endif
 
-            <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">General</small></li>
-            <li>
-                <a class="nav-link {{ ($activePath ?? '') === '/inventory' ? 'active' : '' }}" href="/inventory">
-                    <i class="ti ti-box-seam"></i>
-                    <span class="nav-text">Inventory</span>
-                </a>
-            </li>
-            <li>
-                <a class="nav-link {{ ($activePath ?? '') === '/create-product' ? 'active' : '' }}"
-                    href="/create-product">
-                    <i class="ti ti-plus"></i>
-                    <span class="nav-text">Add Product</span>
-                </a>
-            </li>
-            <li>
-                <a class="nav-link {{ ($activePath ?? '') === '/reports' ? 'active' : '' }}" href="/reports">
-                    <i class="ti ti-receipt"></i>
-                    <span class="nav-text">Reports</span>
-                </a>
-            </li>
-            <li>
-                <a class="nav-link {{ ($activePath ?? '') === '/docs' ? 'active' : '' }}" href="/docs">
-                    <i class="ti ti-file-text"></i>
-                    <span class="nav-text">Docs</span>
-                </a>
-            </li>
-
             <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">Account</small></li>
             @if (Session::has('user'))
                 <li>

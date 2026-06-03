@@ -138,22 +138,30 @@ class KepalaLabController {
     try {
       const drafts = await DraftPengadaan.getHistoryForKepalaLab(req.user.id);
       const activeDraft = await DraftPengadaan.getActiveDraft(req.user.id);
-      let items = [];
+      let activeItems = [];
       if (activeDraft) {
-        items = await DetailDraft.getByDraftId(activeDraft.id);
+        activeItems = await DetailDraft.getByDraftId(activeDraft.id);
       }
+
+      // Ambil items untuk setiap draft di history
+      const draftsWithItems = await Promise.all(
+        drafts.map(async (draft) => {
+          const draftItems = await DetailDraft.getByDraftId(draft.id);
+          return { ...draft, items: draftItems };
+        })
+      );
 
       res.json({
         title: "Riwayat Pengadaan",
         activePath: "/kepala-lab/history",
-        drafts,
+        drafts: draftsWithItems,
         activeDraft,
-        items,
+        items: activeItems,
         hasActiveDraft: !!activeDraft,
-        hasItems: items.length > 0,
-        itemCount: items.length,
-        hasDrafts: drafts.length > 0,
-        draftCount: drafts.length,
+        hasItems: activeItems.length > 0,
+        itemCount: activeItems.length,
+        hasDrafts: draftsWithItems.length > 0,
+        draftCount: draftsWithItems.length,
       });
     } catch (err) {
       console.error(err);
