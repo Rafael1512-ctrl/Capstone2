@@ -93,8 +93,12 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
-          <div class="card-header bg-transparent px-4 py-3 border-bottom">
+          <div class="card-header bg-transparent px-4 py-3 border-bottom d-flex justify-content-between align-items-center flex-column flex-md-row gap-2">
             <h5 class="mb-0">Inventori Barang Habis Pakai (BHP)</h5>
+            <div class="position-relative" style="min-width: 250px;">
+              <input type="text" id="bhpSearchInput" class="form-control form-control-sm ps-5" placeholder="Cari nama BHP atau ruangan...">
+              <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+            </div>
           </div>
           <div class="table-responsive p-0">
             <table class="table align-items-center mb-0">
@@ -165,4 +169,47 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('bhpSearchInput')?.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('table tbody tr');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+          // Exclude empty state row
+          if (row.cells.length === 1 && row.cells[0].colSpan === 8) return;
+
+          const nama = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+          const ruangan = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+          
+          if (nama.includes(query) || ruangan.includes(query)) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        // Handle empty search results dynamic notice
+        let emptySearchRow = document.getElementById('emptySearchRow');
+        if (visibleCount === 0 && query !== '') {
+          if (!emptySearchRow) {
+            emptySearchRow = document.createElement('tr');
+            emptySearchRow.id = 'emptySearchRow';
+            emptySearchRow.innerHTML = `<td colspan="8" class="text-center py-4 text-muted">Tidak ada BHP yang cocok dengan pencarian "${e.target.value}"</td>`;
+            document.querySelector('table tbody').appendChild(emptySearchRow);
+          } else {
+            emptySearchRow.style.display = '';
+            emptySearchRow.querySelector('td').textContent = `Tidak ada BHP yang cocok dengan pencarian "${e.target.value}"`;
+          }
+        } else {
+          if (emptySearchRow) {
+            emptySearchRow.style.display = 'none';
+          }
+        }
+      });
+    });
+  </script>
 @endsection

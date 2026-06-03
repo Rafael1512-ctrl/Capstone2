@@ -64,10 +64,12 @@ class KetuaProdiController {
 
       // Determine new draft status
       let newStatus = "reviewed";
-      if (!hasPending && hasApproved && !hasRejected) {
-        newStatus = "finalized";
-      } else if (!hasPending && !hasApproved && hasRejected) {
-        newStatus = "rejected";
+      if (!hasPending) {
+        if (hasApproved) {
+          newStatus = "finalized";
+        } else {
+          newStatus = "rejected";
+        }
       }
 
       await DraftPengadaan.updateStatus(

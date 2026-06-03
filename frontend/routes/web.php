@@ -24,6 +24,9 @@ Route::middleware('auth.jwt')->group(function () {
     Route::post('/create-product', [DashboardController::class, 'handleCreateProduct']);
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
     Route::get('/docs', [DashboardController::class, 'docs'])->name('docs');
+    Route::get('/api-notifications', [DashboardController::class, 'getNotifications'])->name('api-notifications');
+    Route::get('/profile', [DashboardController::class, 'showProfile'])->name('profile');
+    Route::post('/profile', [DashboardController::class, 'updateProfile'])->name('profile.update');
 
     // ── ADMIN ─────────────────────────────────────────────────────────────────
     Route::middleware('role.jwt:admin')->group(function () {

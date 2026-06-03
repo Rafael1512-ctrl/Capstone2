@@ -16,6 +16,8 @@ const { authenticateToken, requireRole } = require('../middleware/authMiddleware
 // ─── AUTHENTICATION ROUTES ────────────────────────────────────────────────────
 router.post('/auth/login', authController.handleSignIn);
 router.post('/auth/logout', authController.handleSignOut);
+router.get('/notifications', authenticateToken, dashboardController.showNotifications);
+router.post('/profile/update', authenticateToken, authController.updateProfile);
 
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────────
 router.get('/', authenticateToken, dashboardController.showDashboard);

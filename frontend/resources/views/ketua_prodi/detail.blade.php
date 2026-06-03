@@ -175,10 +175,26 @@
                 });
 
                 let allSelected = true;
+                let missingReason = false;
+
                 itemIds.forEach(itemId => {
                     const selected = document.querySelector(`input[name="decision[${itemId}]"]:checked`);
+                    const catatanInput = document.querySelector(`textarea[name="catatan_item[${itemId}]"]`);
+                    
                     if (!selected) {
                         allSelected = false;
+                    } else if (selected.value === 'rejected') {
+                        if (!catatanInput || !catatanInput.value.trim()) {
+                            missingReason = true;
+                            if (catatanInput) {
+                                catatanInput.classList.add('is-invalid');
+                                catatanInput.placeholder = 'Catatan wajib diisi untuk item yang ditolak!';
+                            }
+                        } else {
+                            if (catatanInput) catatanInput.classList.remove('is-invalid');
+                        }
+                    } else {
+                        if (catatanInput) catatanInput.classList.remove('is-invalid');
                     }
                 });
 
@@ -186,14 +202,22 @@
                     alert('Harap pilih status untuk semua item barang!');
                     return false;
                 }
+
+                if (missingReason) {
+                    alert('Harap isi catatan/alasan penolakan untuk semua item barang yang ditolak!');
+                    return false;
+                }
                 
                 return true;
             }
 
-            // Validate on form submit (for direct submission without modal, if any)
-            document.getElementById('itemsReviewForm')?.addEventListener('submit', function(e) {
-                // Validation will be called by modal confirm, so we don't need to prevent here
-                // Just ensure validation runs if form is somehow submitted directly
+            // Real-time invalid outline removal
+            document.addEventListener('input', function(e) {
+                if (e.target.tagName === 'TEXTAREA' && e.target.name.startsWith('catatan_item[')) {
+                    if (e.target.value.trim()) {
+                        e.target.classList.remove('is-invalid');
+                    }
+                }
             });
         </script>
 

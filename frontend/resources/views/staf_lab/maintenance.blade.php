@@ -110,4 +110,43 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bhpSelect = document.querySelector('select[name="bhp_id_used"]');
+        const qtyInput = document.querySelector('input[name="qty_bhp_used"]');
+        
+        function updateMaxQty() {
+            if (!bhpSelect || !qtyInput) return;
+            const selectedOption = bhpSelect.options[bhpSelect.selectedIndex];
+            const stockText = selectedOption.text.match(/Stok:\s*(\d+)/);
+            if (stockText) {
+                const stock = parseInt(stockText[1]);
+                qtyInput.max = stock;
+                qtyInput.placeholder = `Maksimal ${stock}`;
+                if (parseInt(qtyInput.value) > stock) {
+                    qtyInput.value = stock;
+                }
+            } else {
+                qtyInput.removeAttribute('max');
+                qtyInput.placeholder = '0';
+                qtyInput.value = '';
+            }
+        }
+        
+        if (bhpSelect) {
+            bhpSelect.addEventListener('change', updateMaxQty);
+            updateMaxQty();
+        }
+
+        // Real-time typing check
+        qtyInput?.addEventListener('input', function() {
+            const max = parseInt(qtyInput.max);
+            if (max && parseInt(qtyInput.value) > max) {
+                alert('Jumlah penggunaan melebihi stok yang tersedia!');
+                qtyInput.value = max;
+            }
+        });
+    });
+  </script>
 @endsection

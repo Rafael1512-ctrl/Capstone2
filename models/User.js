@@ -113,6 +113,23 @@ class User {
     );
     return rows.length > 0 ? rows[0] : null;
   }
+
+  // Update profile (name, email, optional password)
+  static async updateProfile(id, nama, email, password) {
+    if (password && password.trim() !== "") {
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      await db.query(
+        `UPDATE users SET nama = ?, email = ?, password = ? WHERE id = ?`,
+        [nama, email, hashedPassword, id],
+      );
+    } else {
+      await db.query(`UPDATE users SET nama = ?, email = ? WHERE id = ?`, [
+        nama,
+        email,
+        id,
+      ]);
+    }
+  }
 }
 
 module.exports = User;

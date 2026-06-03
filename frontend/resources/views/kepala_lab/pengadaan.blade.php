@@ -311,13 +311,9 @@
                                 <p class="text-muted small mb-0">Pastikan semua item barang dan estimasi anggaran sudah
                                     benar. Draf akan dikunci setelah dikirim.</p>
                             </div>
-                            <form action="/kepala-lab/pengadaan/submit/{{ $activeDraft['id'] }}" method="POST"
-                                data-confirm="Apakah Anda yakin ingin mengirim draf ini? Setelah dikirim draf akan dikunci dan tidak dapat diubah lagi.">
-                                @csrf
-                                <button class="btn btn-success px-4 py-2.5 fw-bold" type="submit">
-                                    <i class="ti ti-send me-1"></i> Kirim ke Kaprodi
-                                </button>
-                            </form>
+                            <button class="btn btn-success px-4 py-2.5 fw-bold" data-bs-toggle="modal" data-bs-target="#submitDraftModal">
+                                <i class="ti ti-send me-1"></i> Kirim ke Kaprodi
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -434,4 +430,63 @@
             }
         });
     </script>
+
+    <!-- SUBMIT DRAFT MODAL -->
+    @if ($hasActiveDraft)
+        <div class="modal fade" id="submitDraftModal" tabindex="-1" aria-labelledby="submitDraftModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+                    <div class="modal-header bg-light border-bottom px-4 py-3">
+                        <h5 class="modal-title fw-bold text-dark fs-5" id="submitDraftModalLabel">
+                            <i class="ti ti-send text-success me-1"></i> Konfirmasi Pengiriman Draf
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="icon-shape icon-xl bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-3"
+                                style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ti ti-send fs-2 text-success"></i>
+                            </div>
+                            <h5 class="fw-bold mb-1 text-dark">Kirim Draf Pengadaan?</h5>
+                            <p class="text-muted small px-3">Draf akan dikirim ke Ketua Program Studi untuk ditinjau. Setelah dikirim, draf akan **dikunci** dan tidak dapat diubah kembali.</p>
+                        </div>
+                        
+                        <!-- Draft Summary Card -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body p-3">
+                                <h6 class="fw-bold text-dark mb-3">Ringkasan Draf #{{ $activeDraft['id'] }}</h6>
+                                <div class="row g-2 small">
+                                    <div class="col-6 text-muted">Tahun Anggaran:</div>
+                                    <div class="col-6 fw-semibold text-dark text-end">{{ $activeDraft['tahun'] }}</div>
+                                    
+                                    <div class="col-6 text-muted">Jumlah Item:</div>
+                                    <div class="col-6 fw-semibold text-dark text-end">{{ $itemCount }} Barang</div>
+                                    
+                                    <div class="col-6 text-muted">Total Estimasi:</div>
+                                    <div class="col-6 fw-bold text-primary text-end">Rp {{ number_format($totalDraftPrice, 0, ',', '.') }}</div>
+                                    
+                                    <div class="col-6 text-muted border-top pt-2 mt-2">Penerima Review:</div>
+                                    <div class="col-6 fw-semibold text-dark text-end border-top pt-2 mt-2">
+                                        {{ $hasKaprodiList && isset($kaprodiList[0]) ? $kaprodiList[0]['nama'] : 'Ketua Program Studi' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form action="/kepala-lab/pengadaan/submit/{{ $activeDraft['id'] }}" method="POST">
+                            @csrf
+                            <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                                <button type="button" class="btn btn-light px-3" data-bs-dismiss="modal">Batal</button>
+                                <button class="btn btn-success px-4 fw-semibold" type="submit">
+                                    <i class="ti ti-send me-1"></i> Kirim Sekarang
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection

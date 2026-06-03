@@ -9,8 +9,12 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon_io/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon_io/favicon-16x16.png">
     <link rel="manifest" href="/assets/images/favicon_io/site.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/custom.css">
     <script type="importmap">
       {
         "imports": {
@@ -23,70 +27,27 @@
 
 <body>
     <!-- TOPBAR -->
-    <nav id="topbar" class="navbar bg-white border-bottom fixed-top topbar px-3">
+    <nav id="topbar" class="navbar bg-white border-bottom fixed-top topbar px-3 d-flex align-items-center justify-content-between">
         <!-- MOBILE ONLY TOGGLE -->
         <button id="mobileBtn" class="btn btn-light btn-icon btn-sm d-lg-none me-2">
             <i class="ti ti-menu-2"></i>
         </button>
-        <div>
+        <div class="ms-auto">
             <ul class="list-unstyled d-flex align-items-center mb-0 gap-1">
                 <!-- Bell icon -->
                 <li>
-                    <a class="position-relative btn-icon btn-sm btn-light btn rounded-circle" data-bs-toggle="dropdown"
-                        aria-expanded="false" href="#" role="button">
-                        <svg class="icon icon-tabler icons-tabler-outline icon-tabler-bell"
-                            xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path
-                                d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6">
-                            </path>
-                            <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
-                        </svg>
-                        <span
-                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger mt-2 ms-n2">2
-                            <span class="visually-hidden">unread messages</span>
+                    <a class="position-relative btn-icon btn-light btn rounded-circle d-flex align-items-center justify-content-center" data-bs-toggle="dropdown"
+                        aria-expanded="false" href="#" role="button" style="width: 38px; height: 38px; padding: 0 !important; color: #1e293b !important; background-color: #f1f5f9 !important; border: none !important;">
+                        <i class="ti ti-bell fs-5" style="font-size: 20px !important;"></i>
+                        <span id="notificationBadge"
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger mt-1 ms-n1 d-none" style="font-size: 9px; padding: 3px 6px;">
+                            0
                         </span>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-md p-0">
-                        <ul class="list-unstyled p-0 m-0">
-                            <li class="p-3 border-bottom">
-                                <div class="d-flex gap-3">
-                                    <img class="avatar avatar-sm rounded-circle"
-                                        src="/assets/images/avatar/avatar-1.jpg" alt="">
-                                    <div class="flex-grow-1 small">
-                                        <p class="mb-0">New order received</p>
-                                        <p class="mb-1">Order #12345 has been placed</p>
-                                        <div class="text-secondary">5 minutes ago</div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="p-3 border-bottom">
-                                <div class="d-flex gap-3">
-                                    <img class="avatar avatar-sm rounded-circle"
-                                        src="/assets/images/avatar/avatar-4.jpg" alt="">
-                                    <div class="flex-grow-1 small">
-                                        <p class="mb-0">New user registered</p>
-                                        <p class="mb-1">User @john_doe has signed up</p>
-                                        <div class="text-secondary">30 minutes ago</div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="p-3 border-bottom">
-                                <div class="d-flex gap-3">
-                                    <img class="avatar avatar-sm rounded-circle"
-                                        src="/assets/images/avatar/avatar-2.jpg" alt="">
-                                    <div class="flex-grow-1 small">
-                                        <p class="mb-0">Payment confirmed</p>
-                                        <p class="mb-1">Payment of $299 has been received</p>
-                                        <div class="text-secondary">1 hour ago</div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="px-4.py-3 text-center">
-                                <a class="text-primary" href="#">View all notifications</a>
-                            </li>
+                    <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border-0" style="min-width: 320px; border-radius: 12px;">
+                        <div class="px-3 py-2 border-bottom fw-bold text-dark small bg-light" style="border-top-left-radius: 12px; border-top-right-radius: 12px;">Notifikasi</div>
+                        <ul id="notificationList" class="list-unstyled p-0 m-0" style="max-height: 320px; overflow-y: auto;">
+                            <li class="p-4 text-center text-muted small"><i class="ti ti-loader-2" style="animation: spin 1s linear infinite;"></i> Loading...</li>
                         </ul>
                     </div>
                 </li>
@@ -109,14 +70,16 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="p-3 d-flex flex-column gap-1 small lh-lg">
-                                <a href="/">Dashboard</a>
+                            <div class="p-3 d-flex flex-column gap-2 small lh-lg">
+                                <a href="/" class="text-dark d-flex align-items-center gap-2"><i class="ti ti-home"></i> Dashboard</a>
+                                <a href="/profile" class="text-dark d-flex align-items-center gap-2"><i class="ti ti-user"></i> Profil Saya</a>
                                 @if (Session::has('user'))
-                                    <a class="text-danger fw-semibold" href="#"
-                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Sign
-                                        Out</a>
+                                    <a class="text-danger fw-semibold d-flex align-items-center gap-2" href="#"
+                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <i class="ti ti-logout"></i> Sign Out
+                                    </a>
                                 @else
-                                    <a href="{{ route('login') }}">Sign In</a>
+                                    <a href="{{ route('login') }}" class="d-flex align-items-center gap-2"><i class="ti ti-login"></i> Sign In</a>
                                 @endif
                             </div>
                         </div>
@@ -332,12 +295,8 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <footer class="text-center py-2 mt-6 text-secondary">
-                        <p class="mb-0">Copyright © 2026 InLab Inventory Dashboard. Developed by
-                            <a class="text-primary" href="https://codescandy.com/" target="_blank">CodesCandy</a>
-                            • Distributed by
-                            <a class="text-primary" href="https://themewagon.com/" target="_blank">ThemeWagon</a>
-                        </p>
+                    <footer class="text-center py-3 mt-6 text-secondary">
+                        <p class="mb-0 small">Copyright © 2026 InLab — Sistem Informasi Inventaris & Pengadaan Laboratorium.</p>
                     </footer>
                 </div>
             </div>
@@ -434,6 +393,77 @@
 
         // Override form submission for confirmation
         document.addEventListener('submit', handleFormSubmit, true);
+    </script>
+
+    <!-- FETCH NOTIFICATIONS AJAX -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function loadNotifications() {
+                fetch('/api-notifications')
+                    .then(response => response.json())
+                    .then(data => {
+                        const badge = document.getElementById('notificationBadge');
+                        const list = document.getElementById('notificationList');
+                        
+                        if (!badge || !list) return;
+
+                        if (data && data.notifications && data.notifications.length > 0) {
+                            const count = data.notifications.length;
+                            badge.textContent = count;
+                            badge.classList.remove('d-none');
+
+                            let html = '';
+                            data.notifications.forEach(n => {
+                                let icon = 'ti-info-circle';
+                                if (n.type === 'success') {
+                                    icon = 'ti-circle-check';
+                                } else if (n.type === 'danger') {
+                                    icon = 'ti-alert-circle';
+                                } else if (n.type === 'warning') {
+                                    icon = 'ti-alert-triangle';
+                                }
+                                const iconColor = 'text-dark bg-light';
+
+                                const dateStr = n.time ? new Date(n.time).toLocaleDateString('id-ID', {
+                                    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                                }) : '';
+
+                                html += `
+                                    <li class="p-3 border-bottom hover-bg-light" style="transition: background-color 0.2s;">
+                                        <div class="d-flex gap-3">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 ${iconColor}" style="width: 36px; height: 36px;">
+                                                <i class="ti ${icon} fs-5"></i>
+                                            </div>
+                                            <div class="flex-grow-1 small">
+                                                <p class="mb-0 fw-bold text-dark">${n.title}</p>
+                                                <p class="mb-1 text-secondary" style="line-height: 1.3;">${n.message}</p>
+                                                <div class="text-muted" style="font-size: 0.75rem;">${dateStr}</div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                `;
+                            });
+                            list.innerHTML = html;
+                        } else {
+                            badge.classList.add('d-none');
+                            list.innerHTML = '<li class="p-4 text-center text-muted small"><i class="ti ti-bell-off fs-4 d-block mb-1 opacity-50"></i>Tidak ada notifikasi baru</li>';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching notifications:', err);
+                        const list = document.getElementById('notificationList');
+                        if (list) {
+                            list.innerHTML = '<li class="p-3 text-center text-danger small">Gagal memuat notifikasi.</li>';
+                        }
+                    });
+            }
+
+            // Load on page load
+            loadNotifications();
+
+            // Refresh notifications every 60 seconds
+            setInterval(loadNotifications, 60000);
+        });
     </script>
 
     <!-- Bootstrap JS -->

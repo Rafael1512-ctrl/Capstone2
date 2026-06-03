@@ -183,6 +183,97 @@ class DashboardController {
       activePath: '/docs'
     });
   }
+
+  // GET /api/notifications
+  static async showNotifications(req, res) {
+    try {
+      const db = require('../config/db');
+      const notifications = [];
+
+      if (req.user.role === 'kepala_lab') {
+        const [drafts] = await db.query(
+          `SELECT d.*, u.nama AS kaprodi_nama
+           FROM draft_pengadaan d
+           LEFT JOIN users u ON d.ketua_prodi_id = u.id
+           WHERE d.user_id = ? AND d.status IN ('finalized', 'rejected')
+           ORDER BY d.id DESC LIMIT 10`,
+          [req.user.id]
+        );
+        drafts.forEach(d => {
+          if (d.status === 'finalized') {
+            notifications.push({
+              title: 'Draf Disetujui',
+              message: `Draf pengadaan tahun ${d.tahun} telah disetujui/difinalisasi oleh Kaprodi ${d.kaprodi_nama || ''}.`,
+              type: 'success',
+              time: d.created_at
+            });
+          } else {
+            notifications.push({
+              title: 'Draf Ditolak',
+              message: `Draf pengadaan tahun ${d.tahun} telah ditolak oleh Kaprodi ${d.kaprodi_nama || ''}.${d.alasan_penolakan ? ' Alasan: ' + d.alasan_penolakan : ''}`,
+              type: 'danger',
+              time: d.created_at
+            });
+          }
+        });
+      } else if (req.user.role === 'ketua_prodi') {
+        const [drafts] = await db.query(
+          `SELECT d.*, u.nama AS pengaju
+           FROM draft_pengadaan d
+           JOIN users u ON d.user_id = u.id
+           WHERE d.status = 'submitted' AND d.ketua_prodi_id = ?
+           ORDER BY d.id DESC LIMIT 10`,
+          [req.user.id]
+        );
+        drafts.forEach(d => {
+          notifications.push({
+            title: 'Draf Menunggu Review',
+            message: `Draf baru tahun ${d.tahun} telah diajukan oleh Kepala Lab ${d.pengaju} dan siap direview.`,
+            type: 'info',
+            time: d.created_at
+          });
+        });
+      } else if (req.user.role === 'staf_admin') {
+        const [drafts] = await db.query(
+          `SELECT d.*, u.nama AS pengaju
+           FROM draft_pengadaan d
+           JOIN users u ON d.user_id = u.id
+           WHERE d.status = 'finalized'
+           ORDER BY d.id DESC LIMIT 10`
+        );
+        drafts.forEach(d => {
+          notifications.push({
+            title: 'Draf Pengadaan Baru',
+            message: `Draf pengadaan tahun ${d.tahun} (diajukan oleh ${d.pengaju}) telah difinalisasi. Silakan proses penerimaan barang.`,
+            type: 'success',
+            time: d.created_at
+          });
+        });
+      } else if (req.user.role === 'staf_lab') {
+        const [bhps] = await db.query(
+          `SELECT b.*, r.nama_ruangan FROM bhp b
+           LEFT JOIN ruangan r ON b.ruangan_id = r.id
+           WHERE b.stok <= b.stok_minimum LIMIT 10`
+        );
+        bhps.forEach(b => {
+          notifications.push({
+            title: 'Peringatan Stok BHP',
+            message: `Stok ${b.nama_bhp} di ${b.nama_ruangan || 'Gudang'} tersisa ${b.stok} ${b.satuan} (Batas minimum: ${b.stok_minimum}).`,
+            type: 'warning',
+            time: b.created_at
+          });
+        });
+      }
+
+      res.json({
+        success: true,
+        notifications
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database error: ' + err.message });
+    }
+  }
 }
 
 module.exports = DashboardController;
