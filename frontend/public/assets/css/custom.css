@@ -331,6 +331,17 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     transition: all 0.2s ease !important;
 }
 
+/* Hide number input spin-buttons (steppers) for clean modern UI */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+input[type="number"] {
+    -moz-appearance: textfield !important; /* Firefox */
+}
+
+
 .form-control:focus, .form-select:focus {
     border-color: #6366f1 !important;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
@@ -370,13 +381,21 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 /* --- Search Input Enhancements --- */
-#bhpSearchInput {
-    padding-left: 45px !important;
+.position-relative input[id*="search"], 
+.position-relative input[id*="Search"] {
+    padding-left: 42px !important;
 }
 
 .position-relative i.ti-search {
     left: 15px !important;
+    margin-left: 0 !important;
     font-size: 1.1rem;
+    color: #94a3b8 !important;
+}
+
+.form-control-sm, .form-select-sm {
+    padding: 6px 12px !important;
+    font-size: 13.5px !important;
 }
 
 /* --- Dashboard Custom Card Overrides --- */

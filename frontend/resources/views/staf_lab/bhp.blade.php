@@ -16,12 +16,79 @@
       </div>
     </div>
 
-    <!-- LOW STOCK BHP WARNINGS -->
     @php
-      $lowStockBhps = array_filter($bhpList ?? [], function($item) {
+      $bhpList = $bhpList ?? [];
+      $totalItems = count($bhpList);
+      $lowStockBhps = array_filter($bhpList, function($item) {
           return $item['stok'] <= $item['stok_minimum'];
       });
+      $lowStockCount = count($lowStockBhps);
+      $damagedCount = count(array_filter($bhpList, function($item) {
+          return $item['kondisi'] === 'rusak';
+      }));
+      $totalRooms = count($ruangan ?? []);
     @endphp
+
+    <!-- BHP Stat Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-3 col-md-6 col-12">
+        <div class="card p-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-2">
+          <div class="d-flex gap-3">
+            <div class="icon-shape icon-md bg-primary text-white rounded-2" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+              <i class="ti ti-package fs-4"></i>
+            </div>
+            <div>
+              <h2 class="mb-2 fs-6 text-muted">Total Jenis BHP</h2>
+              <h3 class="fw-bold mb-0 text-dark">{{ $totalItems }} Item</h3>
+              <p class="text-primary mb-0 small" style="font-size: 0.75rem;">Terdaftar di inventori</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-12">
+        <div class="card p-4 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-2">
+          <div class="d-flex gap-3">
+            <div class="icon-shape icon-md bg-warning text-white rounded-2" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+              <i class="ti ti-alert-triangle fs-4"></i>
+            </div>
+            <div>
+              <h2 class="mb-2 fs-6 text-muted">Stok Kritis / Rendah</h2>
+              <h3 class="fw-bold mb-0 text-dark">{{ $lowStockCount }} Item</h3>
+              <p class="text-warning mb-0 small" style="font-size: 0.75rem;">Stok &le; batas minimum</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-12">
+        <div class="card p-4 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-2">
+          <div class="d-flex gap-3">
+            <div class="icon-shape icon-md bg-danger text-white rounded-2" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+              <i class="ti ti-package-off fs-4"></i>
+            </div>
+            <div>
+              <h2 class="mb-2 fs-6 text-muted">BHP Rusak</h2>
+              <h3 class="fw-bold mb-0 text-dark">{{ $damagedCount }} Item</h3>
+              <p class="text-danger mb-0 small" style="font-size: 0.75rem;">Butuh penggantian</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-12">
+        <div class="card p-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-2">
+          <div class="d-flex gap-3">
+            <div class="icon-shape icon-md bg-success text-white rounded-2" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+              <i class="ti ti-map-pin fs-4"></i>
+            </div>
+            <div>
+              <h2 class="mb-2 fs-6 text-muted">Total Ruangan</h2>
+              <h3 class="fw-bold mb-0 text-dark">{{ $totalRooms }} Ruangan</h3>
+              <p class="text-success mb-0 small" style="font-size: 0.75rem;">Penyimpanan terdistribusi</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     @if(count($lowStockBhps) > 0)
       <div class="alert alert-warning border-start border-4 border-warning d-flex align-items-center mb-4 shadow-sm" role="alert">
@@ -127,8 +194,22 @@
                           {{ strtoupper($bhp['kondisi']) }}
                         </span>
                       </td>
-                      <td class="text-center fw-bold">
-                        <span class="{{ $bhp['stok'] <= $bhp['stok_minimum'] ? 'text-danger' : 'text-success' }}">{{ $bhp['stok'] }}</span>
+                      <td class="text-center">
+                        @if ($bhp['stok'] <= $bhp['stok_minimum'])
+                          <div class="d-inline-flex flex-column align-items-center">
+                            <span class="fs-5 text-danger fw-bold">{{ $bhp['stok'] }}</span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger mt-1" style="font-size: 0.65rem; padding: 2px 6px !important; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                              <i class="ti ti-alert-triangle me-1"></i>Kritis
+                            </span>
+                          </div>
+                        @else
+                          <div class="d-inline-flex flex-column align-items-center">
+                            <span class="fs-5 text-success fw-bold">{{ $bhp['stok'] }}</span>
+                            <span class="badge bg-success bg-opacity-10 text-success mt-1" style="font-size: 0.65rem; padding: 2px 6px !important; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                              <i class="ti ti-circle-check me-1"></i>Aman
+                            </span>
+                          </div>
+                        @endif
                       </td>
                       <td class="text-center text-muted fw-semibold">
                         {{ $bhp['stok_minimum'] }}
@@ -139,11 +220,11 @@
                           <div class="d-flex flex-column gap-1">
                             <div class="d-inline-flex gap-1 align-items-center">
                               <small class="text-muted" style="min-width: 35px;">Stok:</small>
-                              <input class="form-control form-control-sm px-1 py-0" type="number" name="stok" value="{{ $bhp['stok'] }}" min="0" style="max-width:70px; font-size: 0.8rem;" required>
+                              <input class="form-control form-control-sm text-center px-2 py-1" type="number" name="stok" value="{{ $bhp['stok'] }}" min="0" style="max-width:85px; font-size: 0.8rem;" required>
                             </div>
                             <div class="d-inline-flex gap-1 align-items-center">
                               <small class="text-muted" style="min-width: 35px;">Min:</small>
-                              <input class="form-control form-control-sm px-1 py-0" type="number" name="stok_minimum" value="{{ $bhp['stok_minimum'] }}" min="0" style="max-width:70px; font-size: 0.8rem;" required>
+                              <input class="form-control form-control-sm text-center px-2 py-1" type="number" name="stok_minimum" value="{{ $bhp['stok_minimum'] }}" min="0" style="max-width:85px; font-size: 0.8rem;" required>
                             </div>
                           </div>
                           <select class="form-select form-select-sm" name="kondisi" style="max-width:90px; font-size: 0.8rem;">
