@@ -4,9 +4,9 @@ class Inventaris {
   // Get all received inventory
   static async getAllReceived() {
     const [rows] = await db.query(
-      `SELECT iv.*, dd.nama_barang, dd.harga_satuan, r.nama_ruangan
+      `SELECT iv.*, COALESCE(dd.harga_satuan, 0) as harga_satuan, r.nama_ruangan
        FROM inventaris iv
-       JOIN detail_draft dd ON iv.detail_draft_id = dd.id
+       LEFT JOIN detail_draft dd ON iv.detail_draft_id = dd.id
        LEFT JOIN ruangan r ON iv.ruangan_id = r.id
        WHERE iv.kondisi != 'dihapus'
        ORDER BY iv.id DESC`
@@ -32,8 +32,8 @@ class Inventaris {
     try {
       // 1. Insert new inventaris item
       const [result] = await connection.query(
-        `INSERT INTO inventaris (ruangan_id, detail_draft_id, nama_barang, nomor_label, kondisi, tanggal_terima, barcode_qr)
-         SELECT ?, ?, nama_barang, ?, ?, ?, ? FROM detail_draft WHERE id = ?`,
+        `INSERT INTO inventaris (ruangan_id, detail_draft_id, nama_barang, kategori, jenis, nomor_label, kondisi, tanggal_terima, barcode_qr)
+         SELECT ?, ?, nama_barang, kategori, jenis, ?, ?, ?, ? FROM detail_draft WHERE id = ?`,
         [ruanganId, detailDraftId, nomorLabel, kondisi || 'baik', tanggalTerima || new Date(), qrCode, detailDraftId]
       );
       

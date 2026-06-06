@@ -21,16 +21,22 @@ class StafAdminController {
     }
   }
 
-  // GET /api/staf-admin/inventaris
+  // GET /api/inventaris
   static async showInventaris(req, res) {
     try {
-      const pendingItems = await DetailDraft.getPendingInventaris();
       const receivedItems = await Inventaris.getAllReceived();
-      const ruangan = await Ruangan.getAll();
+      
+      let pendingItems = [];
+      let ruangan = [];
+      
+      if (req.user && req.user.role === 'staf_admin') {
+        pendingItems = await DetailDraft.getPendingInventaris();
+        ruangan = await Ruangan.getAll();
+      }
 
       res.json({
-        title: 'Update & Labeling Inventaris',
-        activePath: '/staf-admin/inventaris',
+        title: 'Daftar Inventaris',
+        activePath: '/inventaris',
         pendingItems,
         receivedItems,
         ruangan,

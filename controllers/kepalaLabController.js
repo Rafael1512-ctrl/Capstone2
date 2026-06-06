@@ -87,6 +87,8 @@ class KepalaLabController {
       const {
         draft_id,
         nama_barang,
+        kategori,
+        jenis,
         tipe_barang,
         harga_satuan,
         jumlah,
@@ -97,6 +99,8 @@ class KepalaLabController {
       await DetailDraft.create(
         draft_id,
         nama_barang,
+        kategori,
+        jenis,
         tipe_barang,
         harga_satuan,
         jumlah,

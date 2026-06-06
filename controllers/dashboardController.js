@@ -274,6 +274,24 @@ class DashboardController {
       res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
+
+  // GET /api/maintenance
+  static async showMaintenanceLogs(req, res) {
+    try {
+      const MaintenanceLog = require('../models/MaintenanceLog');
+      const logs = await MaintenanceLog.getAll();
+      res.json({
+        title: 'Riwayat Perawatan Aset',
+        activePath: '/maintenance',
+        logs,
+        hasLogs: logs.length > 0,
+        logCount: logs.length
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database error: ' + err.message });
+    }
+  }
 }
 
 module.exports = DashboardController;

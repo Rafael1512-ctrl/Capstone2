@@ -19,11 +19,13 @@ Route::middleware('auth.jwt')->group(function () {
 
     // ── DASHBOARD & GENERAL ───────────────────────────────────────────────────
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/inventaris', [StafAdminController::class, 'showInventaris'])->name('inventaris');
     Route::get('/inventory', [DashboardController::class, 'inventory'])->name('inventory');
     Route::get('/create-product', [DashboardController::class, 'showCreateProduct'])->name('create-product');
     Route::post('/create-product', [DashboardController::class, 'handleCreateProduct']);
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
     Route::get('/docs', [DashboardController::class, 'docs'])->name('docs');
+    Route::get('/maintenance', [DashboardController::class, 'showMaintenance'])->name('maintenance');
     Route::get('/api-notifications', [DashboardController::class, 'getNotifications'])->name('api-notifications');
     Route::get('/profile', [DashboardController::class, 'showProfile'])->name('profile');
     Route::post('/profile', [DashboardController::class, 'updateProfile'])->name('profile.update');
@@ -64,7 +66,6 @@ Route::middleware('auth.jwt')->group(function () {
     // ── STAF ADMINISTRASI ─────────────────────────────────────────────────────
     Route::middleware('role.jwt:staf_admin')->group(function () {
         Route::get('/staf-admin/drafts', [StafAdminController::class, 'showDrafts'])->name('staf-admin.drafts');
-        Route::get('/staf-admin/inventaris', [StafAdminController::class, 'showInventaris'])->name('staf-admin.inventaris');
         Route::post('/staf-admin/inventaris/receive/{itemId}', [StafAdminController::class, 'receiveItem'])->name('staf-admin.receive');
         Route::post('/staf-admin/inventaris/delete/{id}', [StafAdminController::class, 'deleteInventaris'])->name('staf-admin.delete-inventaris');
     });

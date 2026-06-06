@@ -71,12 +71,14 @@
                         <table class="table align-items-center mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="px-4 py-3" style="width: 30%;">Barang & Rasionalisasi</th>
-                                    <th style="width: 10%;">Tipe</th>
+                                    <th class="px-4 py-3" style="width: 25%;">Barang & Rasionalisasi</th>
+                                    <th style="width: 10%;">Kategori</th>
+                                    <th style="width: 10%;">Jenis</th>
+                                    <th style="width: 8%;">Tipe</th>
                                     <th style="width: 11%;">Harga</th>
-                                    <th style="width: 7%;">Qty</th>
+                                    <th style="width: 6%;">Qty</th>
                                     <th style="width: 11%;">Total</th>
-                                    <th style="width: 31%;">Keputusan & Catatan</th>
+                                    <th style="width: 19%;">Keputusan & Catatan</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -99,6 +101,8 @@
                                                         Pembelian</a>
                                                 @endif
                                             </td>
+                                            <td><span class="badge bg-light text-dark border px-2 py-1 fs-8">{{ $item['kategori'] ?? '-' }}</span></td>
+                                            <td>{{ $item['jenis'] ?? '-' }}</td>
                                             <td class="text-capitalize">{{ $item['tipe_barang'] }}</td>
                                             <td>Rp {{ number_format($item['harga_satuan'], 0, ',', '.') }}</td>
                                             <td>{{ $item['jumlah'] }}</td>

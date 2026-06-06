@@ -14,10 +14,10 @@ class StafAdminController extends Controller
         return view('staf_admin.drafts', $data);
     }
 
-    // GET /staf-admin/inventaris
+    // GET /inventaris
     public function showInventaris()
     {
-        $data = ApiService::get('/staf-admin/inventaris');
+        $data = ApiService::get('/inventaris');
         return view('staf_admin.inventaris', $data);
     }
 
@@ -32,15 +32,15 @@ class StafAdminController extends Controller
         ]);
         $res = ApiService::post("/staf-admin/inventaris/receive/{$itemId}", $request->all());
         if (isset($res['error'])) {
-            return redirect('/staf-admin/inventaris')->with('error', $res['error']);
+            return redirect('/inventaris')->with('error', $res['error']);
         }
-        return redirect('/staf-admin/inventaris')->with('success', 'Barang berhasil diterima dan dilabeli.');
+        return redirect('/inventaris')->with('success', 'Barang berhasil diterima dan dilabeli.');
     }
 
     // POST /staf-admin/inventaris/delete/{id}
     public function deleteInventaris($id)
     {
         ApiService::post("/staf-admin/inventaris/delete/{$id}");
-        return redirect('/staf-admin/inventaris')->with('success', 'Barang inventaris berhasil dihapus (soft delete).');
+        return redirect('/inventaris')->with('success', 'Barang inventaris berhasil dihapus (soft delete).');
     }
 }

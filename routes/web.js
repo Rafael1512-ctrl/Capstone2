@@ -32,6 +32,7 @@ router.get('/reports', authenticateToken, dashboardController.showReports);
 
 // ─── GENERAL DOCS ──────────────────────────────────────────────────────────────
 router.get('/docs', authenticateToken, dashboardController.showDocs);
+router.get('/maintenance', authenticateToken, dashboardController.showMaintenanceLogs);
 
 // ─── ROLE: ADMINISTRATOR ───────────────────────────────────────────────────────
 router.get('/admin/users', authenticateToken, requireRole('admin'), adminController.showUsers);
@@ -62,7 +63,7 @@ router.get('/ketua-prodi/history', authenticateToken, requireRole('ketua_prodi')
 
 // ─── ROLE: STAF ADMINISTRASI ──────────────────────────────────────────────────
 router.get('/staf-admin/drafts', authenticateToken, requireRole('staf_admin'), stafAdminController.showDrafts);
-router.get('/staf-admin/inventaris', authenticateToken, requireRole('staf_admin'), stafAdminController.showInventaris);
+router.get('/inventaris', authenticateToken, stafAdminController.showInventaris);
 router.post('/staf-admin/inventaris/receive/:itemId', authenticateToken, requireRole('staf_admin'), stafAdminController.receiveItem);
 router.post('/staf-admin/inventaris/delete/:id', authenticateToken, requireRole('staf_admin'), stafAdminController.deleteInventaris);
 

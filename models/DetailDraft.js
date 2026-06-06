@@ -38,6 +38,8 @@ class DetailDraft {
   static async create(
     draftId,
     namaBarang,
+    kategori,
+    jenis,
     tipeBarang,
     hargaSatuan,
     jumlah,
@@ -46,11 +48,13 @@ class DetailDraft {
     inventarisDigantikanId = null
   ) {
     const [result] = await db.query(
-      `INSERT INTO detail_draft (draft_id, nama_barang, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian, inventaris_digantikan_id, status_item)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+      `INSERT INTO detail_draft (draft_id, nama_barang, kategori, jenis, tipe_barang, harga_satuan, jumlah, rasionalisasi, link_pembelian, inventaris_digantikan_id, status_item)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
       [
         draftId,
         namaBarang,
+        kategori || null,
+        jenis || null,
         tipeBarang,
         hargaSatuan,
         jumlah,

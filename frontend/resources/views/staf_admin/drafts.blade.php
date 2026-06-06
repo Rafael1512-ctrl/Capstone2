@@ -41,7 +41,7 @@
                         <span class="badge bg-success">FINALIZED</span>
                       </td>
                       <td class="text-end px-4">
-                        <a class="btn btn-sm btn-primary" href="/staf-admin/inventaris">
+                        <a class="btn btn-sm btn-primary" href="/inventaris">
                           <i class="ti ti-edit me-1"></i>Input Penerimaan & Labeling
                         </a>
                       </td>

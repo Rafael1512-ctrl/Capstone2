@@ -136,6 +136,8 @@
                       <tr>
                         <th class="px-3">#</th>
                         <th>Nama Item</th>
+                        <th>Kategori</th>
+                        <th>Jenis</th>
                         <th class="text-center">Jumlah</th>
                         <th class="text-center">Status Item</th>
                       </tr>
@@ -154,6 +156,8 @@
                         <tr>
                           <td class="px-3">{{ $i + 1 }}</td>
                           <td>{{ $item['nama_barang'] }}</td>
+                          <td><span class="badge bg-light text-dark border px-2 py-1 fs-8">{{ $item['kategori'] ?? '-' }}</span></td>
+                          <td>{{ $item['jenis'] ?? '-' }}</td>
                           <td class="text-center">{{ $item['jumlah'] }}</td>
                           <td class="text-center">
                             <span class="badge {{ $itemBadge }}">{{ $itemLabel }}</span>

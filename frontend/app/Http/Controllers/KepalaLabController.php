@@ -55,12 +55,22 @@ class KepalaLabController extends Controller
             'draft_id'     => 'required|integer',
             'nama_barang'  => 'required|string|max:255',
             'tipe_barang'  => 'required|in:inventaris,bhp',
+            'kategori'     => 'required|string|max:100',
+            'kategori_manual' => 'nullable|string|max:100',
+            'jenis'        => 'required|string|max:100',
             'harga_satuan' => 'required|numeric|min:0',
             'jumlah'       => 'required|integer|min:1',
             'rasionalisasi'=> 'required|string',
             'inventaris_digantikan_id' => 'nullable|integer',
         ]);
-        $res = ApiService::post('/kepala-lab/pengadaan/add-item', $request->all());
+
+        $payload = $request->all();
+        if ($payload['kategori'] === 'Lainnya' && !empty($payload['kategori_manual'])) {
+            $payload['kategori'] = $payload['kategori_manual'];
+        }
+        unset($payload['kategori_manual']);
+
+        $res = ApiService::post('/kepala-lab/pengadaan/add-item', $payload);
         if (isset($res['error'])) {
             return redirect('/kepala-lab/pengadaan')->with('error', $res['error']);
         }

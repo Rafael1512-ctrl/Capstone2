@@ -97,4 +97,11 @@ class DashboardController extends Controller
 
         return redirect()->back()->with('success', 'Profil Anda berhasil diperbarui.');
     }
+
+    // GET /maintenance
+    public function showMaintenance()
+    {
+        $data = ApiService::get('/maintenance');
+        return view('dashboard.maintenance', $data);
+    }
 }

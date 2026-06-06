@@ -125,6 +125,18 @@
                     <span class="nav-text">Dashboard</span>
                 </a>
             </li>
+            <li>
+                <a class="nav-link {{ ($activePath ?? '') === '/inventaris' ? 'active' : '' }}" href="/inventaris">
+                    <i class="ti ti-clipboard-list"></i>
+                    <span class="nav-text">Daftar Inventaris</span>
+                </a>
+            </li>
+            <li>
+                <a class="nav-link {{ ($activePath ?? '') === '/maintenance' ? 'active' : '' }}" href="/maintenance">
+                    <i class="ti ti-tool"></i>
+                    <span class="nav-text">Log Perawatan</span>
+                </a>
+            </li>
 
             @if (Session::has('user'))
                 @php
@@ -188,13 +200,6 @@
                             <span class="nav-text">Draf Disetujui</span>
                         </a>
                     </li>
-                    <li>
-                        <a class="nav-link {{ ($activePath ?? '') === '/staf-admin/inventaris' ? 'active' : '' }}"
-                            href="/staf-admin/inventaris">
-                            <i class="ti ti-edit"></i>
-                            <span class="nav-text">Update Inventaris</span>
-                        </a>
-                    </li>
                 @elseif ($role === 'staf_lab')
                     <li class="px-4 pt-4 pb-2 nav-header"><small class="nav-text">Staf Laboratorium</small></li>
                     <li>
@@ -215,7 +220,7 @@
                         <a class="nav-link {{ ($activePath ?? '') === '/staf-lab/maintenance' ? 'active' : '' }}"
                             href="/staf-lab/maintenance">
                             <i class="ti ti-tool"></i>
-                            <span class="nav-text">Log Maintenance</span>
+                            <span class="nav-text">Kelola Perawatan</span>
                         </a>
                     </li>
                 @endif

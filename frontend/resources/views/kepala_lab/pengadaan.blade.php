@@ -195,27 +195,32 @@
                                     class="badge bg-light text-secondary border px-2.5 py-1.5 fs-8 fw-semibold">{{ $itemCount }}
                                     item</span>
                             </div>
-                            <button
-                                class="btn btn-primary btn-sm fw-semibold d-flex align-items-center gap-1 shadow-sm px-3"
-                                data-bs-toggle="modal" data-bs-target="#addItemModal">
-                                <i class="ti ti-plus fs-6"></i> Tambah Item
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button
+                                    class="btn btn-primary btn-sm fw-semibold d-flex align-items-center gap-1 shadow-sm px-3"
+                                    data-bs-toggle="modal" data-bs-target="#addItemModal">
+                                    <i class="ti ti-plus fs-6"></i> Tambah Item Baru
+                                </button>
+                                <button
+                                    class="btn btn-outline-primary btn-sm fw-semibold d-flex align-items-center gap-1 shadow-sm px-3"
+                                    data-bs-toggle="modal" data-bs-target="#replaceAssetModal">
+                                    <i class="ti ti-replace fs-6"></i> Ganti Aset Lama
+                                </button>
+                            </div>
                         </div>
 
                         <div class="table-responsive">
                             <table class="table align-items-center mb-0 table-hover">
                                 <thead class="table-light text-secondary">
                                     <tr>
-                                        <th class="px-4 py-3 small fw-bold text-uppercase" style="font-size: 11px;">Barang
-                                            & Rasionalisasi</th>
+                                        <th class="px-4 py-3 small fw-bold text-uppercase" style="font-size: 11px;">Barang & Rasionalisasi</th>
+                                        <th class="small fw-bold text-uppercase" style="font-size: 11px;">Kategori</th>
+                                        <th class="small fw-bold text-uppercase" style="font-size: 11px;">Jenis</th>
                                         <th class="small fw-bold text-uppercase" style="font-size: 11px;">Tipe</th>
-                                        <th class="small fw-bold text-uppercase" style="font-size: 11px;">Harga Satuan
-                                        </th>
-                                        <th class="small fw-bold text-uppercase text-center" style="font-size: 11px;">Qty
-                                        </th>
+                                        <th class="small fw-bold text-uppercase" style="font-size: 11px;">Harga Satuan</th>
+                                        <th class="small fw-bold text-uppercase text-center" style="font-size: 11px;">Qty</th>
                                         <th class="small fw-bold text-uppercase" style="font-size: 11px;">Total</th>
-                                        <th class="text-end px-4 small fw-bold text-uppercase"
-                                            style="font-size: 11px; width: 80px;">Aksi</th>
+                                        <th class="text-end px-4 small fw-bold text-uppercase" style="font-size: 11px; width: 80px;">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -242,6 +247,8 @@
                                                         </a>
                                                     @endif
                                                 </td>
+                                                <td><span class="badge bg-light text-dark border px-2 py-1 fs-8">{{ $item['kategori'] ?? '-' }}</span></td>
+                                                <td>{{ $item['jenis'] ?? '-' }}</td>
                                                 <td>
                                                     @if ($item['tipe_barang'] === 'inventaris')
                                                         <span
@@ -277,7 +284,7 @@
                                         @endforeach
                                     @else
                                         <tr>
-                                            <td class="text-center py-5 text-muted" colspan="6">
+                                            <td class="text-center py-5 text-muted" colspan="8">
                                                 <div class="py-4">
                                                     <i
                                                         class="ti ti-clipboard-x fs-1 mb-2 text-secondary opacity-50 d-block"></i>
@@ -291,7 +298,7 @@
                                 @if ($hasItems)
                                     <tfoot class="table-light border-top">
                                         <tr class="align-middle">
-                                            <td colspan="4" class="text-end fw-bold text-dark py-3">Total Anggaran
+                                            <td colspan="6" class="text-end fw-bold text-dark py-3">Total Anggaran
                                                 Draf:</td>
                                             <td colspan="2" class="fw-extrabold text-primary py-3 fs-5">Rp
                                                 {{ number_format($totalDraftPrice, 0, ',', '.') }}</td>
@@ -337,6 +344,7 @@
                         <form action="/kepala-lab/pengadaan/add-item" method="POST">
                             @csrf
                             <input type="hidden" name="draft_id" value="{{ $activeDraft['id'] }}">
+                            <input type="hidden" name="tipe_barang" id="addItemTypeHidden" value="inventaris">
 
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold text-secondary">Nama Barang</label>
@@ -344,23 +352,37 @@
                                     placeholder="cth. Monitor Dell 24 inch" required>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label small fw-semibold text-secondary">Tipe Barang</label>
-                                <select class="form-select" name="tipe_barang" required>
-                                    <option value="inventaris">Inventaris (Barang Tetap)</option>
-                                    <option value="bhp">BHP (Barang Habis Pakai)</option>
-                                </select>
+                            <div class="mb-3 row g-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold text-secondary">Kategori</label>
+                                    <select class="form-select" name="kategori" id="categorySelect" required>
+                                        <option value="" disabled selected>-- Pilih Kategori --</option>
+                                        <option value="Keyboard">Keyboard</option>
+                                        <option value="Mouse">Mouse</option>
+                                        <option value="Monitor">Monitor</option>
+                                        <option value="PC / Komputer">PC / Komputer</option>
+                                        <option value="Laptop">Laptop</option>
+                                        <option value="Printer">Printer</option>
+                                        <option value="Alat Jaringan">Alat Jaringan</option>
+                                        <option value="Kabel">Kabel / Konektor</option>
+                                        <option value="Kursi">Kursi</option>
+                                        <option value="Meja">Meja</option>
+                                        <option value="Komponen PC">Komponen PC</option>
+                                        <option value="Lainnya">Lainnya (Tulis Manual)</option>
+                                    </select>
+                                    <input type="text" class="form-control mt-2 d-none" name="kategori_manual" id="categoryManualInput" placeholder="Tulis Kategori Baru">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold text-secondary">Jenis / Model</label>
+                                    <input class="form-control" type="text" name="jenis" placeholder="cth. Mechanical, Wireless, dll." required>
+                                </div>
                             </div>
 
-                            <div class="mb-3" id="replaceAssetDiv">
-                                <label class="form-label small fw-semibold text-secondary">Menggantikan Aset Lama? (Opsional)</label>
-                                <select class="form-select" name="inventaris_digantikan_id">
-                                    <option value="">-- Tidak Menggantikan Aset --</option>
-                                    @if (isset($inventarisList) && count($inventarisList) > 0)
-                                        @foreach ($inventarisList as $inv)
-                                            <option value="{{ $inv['id'] }}">{{ $inv['nomor_label'] }} - {{ $inv['nama_barang'] }} ({{ ucfirst(str_replace('_', ' ', $inv['kondisi'])) }})</option>
-                                        @endforeach
-                                    @endif
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Tipe Barang</label>
+                                <select class="form-select" name="tipe_barang_select" id="tipeBarangSelect" required>
+                                    <option value="inventaris">Inventaris (Barang Tetap)</option>
+                                    <option value="bhp">BHP (Barang Habis Pakai)</option>
                                 </select>
                             </div>
 
@@ -405,28 +427,241 @@
                 </div>
             </div>
         </div>
+
+        <!-- REPLACE ASSET MODAL -->
+        <div class="modal fade" id="replaceAssetModal" tabindex="-1" aria-labelledby="replaceAssetModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+                    <div class="modal-header bg-light border-bottom px-4 py-3">
+                        <h5 class="modal-title fw-bold text-dark fs-5" id="replaceAssetModalLabel">
+                            <i class="ti ti-replace text-primary me-1"></i> Ganti Aset Lama
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form action="/kepala-lab/pengadaan/add-item" method="POST">
+                            @csrf
+                            <input type="hidden" name="draft_id" value="{{ $activeDraft['id'] }}">
+                            <input type="hidden" name="tipe_barang" value="inventaris">
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Pilih Kategori Aset</label>
+                                <select class="form-select" id="replaceCategoryFilter" required>
+                                    <option value="" disabled selected>-- Pilih Kategori --</option>
+                                    <option value="Keyboard">Keyboard</option>
+                                    <option value="Mouse">Mouse</option>
+                                    <option value="Monitor">Monitor</option>
+                                    <option value="PC / Komputer">PC / Komputer</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="Printer">Printer</option>
+                                    <option value="Alat Jaringan">Alat Jaringan</option>
+                                    <option value="Kabel">Kabel / Konektor</option>
+                                    <option value="Kursi">Kursi</option>
+                                    <option value="Meja">Meja</option>
+                                    <option value="Komponen PC">Komponen PC</option>
+                                    <option value="Lainnya">Lainnya (Tulis Manual)</option>
+                                </select>
+                                <input type="text" class="form-control mt-2 d-none" id="replaceCategoryFilterManual" placeholder="Tulis Kategori Baru">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Pilih Aset Lama Yang Digantikan</label>
+                                <select class="form-select" name="inventaris_digantikan_id" id="replaceAssetSelect" disabled required>
+                                    <option value="" disabled selected>-- Pilih Kategori Terlebih Dahulu --</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Nama Barang Baru</label>
+                                <input class="form-control" type="text" name="nama_barang" id="replaceAssetNameInput"
+                                    placeholder="Nama barang baru penganti" required>
+                            </div>
+
+                            <div class="mb-3 row g-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold text-secondary">Kategori Sebenarnya (Terkirim)</label>
+                                    <input type="text" class="form-control bg-light" name="kategori" id="replaceCategoryFinalInput" readonly required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold text-secondary">Jenis / Model Baru</label>
+                                    <input class="form-control" type="text" name="jenis" id="replaceAssetJenisInput" placeholder="cth. Mechanical, Wireless, dll." required>
+                                </div>
+                            </div>
+
+                            <!-- Price and Qty in one row -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-7">
+                                    <label class="form-label small fw-semibold text-secondary">Harga Satuan</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-muted">Rp</span>
+                                        <input class="form-control" type="number" name="harga_satuan"
+                                            placeholder="250000" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <label class="form-label small fw-semibold text-secondary">Jumlah (Qty)</label>
+                                    <input class="form-control text-center bg-light" type="number" name="jumlah" value="1" readonly required>
+                                    <span class="text-muted d-block text-center mt-1" style="font-size: 0.75rem;">Locked to 1 unit</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Rasionalisasi Item</label>
+                                <textarea class="form-control" name="rasionalisasi" rows="2" placeholder="Mengapa barang ini perlu diganti..."
+                                    required></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold text-secondary">Link Pembelian (Opsional)</label>
+                                <input class="form-control" type="url" name="link_pembelian"
+                                    placeholder="https://tokopedia.com/...">
+                            </div>
+
+                            <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                                <button type="button" class="btn btn-light px-3" data-bs-dismiss="modal">Batal</button>
+                                <button class="btn btn-primary px-4 fw-semibold" type="submit">
+                                    <i class="ti ti-plus me-1"></i> Tambahkan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const tipeSelect = document.querySelector('select[name="tipe_barang"]');
-            const replaceAssetDiv = document.getElementById('replaceAssetDiv');
-            const replaceAssetSelect = document.querySelector('select[name="inventaris_digantikan_id"]');
+            // --- ADD ITEM MODAL LOGIC ---
+            const tipeSelect = document.getElementById('tipeBarangSelect');
+            const typeHiddenInput = document.getElementById('addItemTypeHidden');
+            const categorySelect = document.getElementById('categorySelect');
+            const categoryManualInput = document.getElementById('categoryManualInput');
 
-            function toggleReplaceAsset() {
-                if (tipeSelect && replaceAssetDiv) {
-                    if (tipeSelect.value === 'inventaris') {
-                        replaceAssetDiv.style.display = 'block';
+            if (tipeSelect && typeHiddenInput) {
+                tipeSelect.addEventListener('change', function() {
+                    typeHiddenInput.value = this.value;
+                });
+            }
+
+            if (categorySelect && categoryManualInput) {
+                categorySelect.addEventListener('change', function() {
+                    if (this.value === 'Lainnya') {
+                        categoryManualInput.classList.remove('d-none');
+                        categoryManualInput.required = true;
+                        categoryManualInput.focus();
                     } else {
-                        replaceAssetDiv.style.display = 'none';
-                        if (replaceAssetSelect) replaceAssetSelect.value = '';
+                        categoryManualInput.classList.add('d-none');
+                        categoryManualInput.required = false;
+                        categoryManualInput.value = '';
                     }
+                });
+            }
+
+            // --- REPLACE ASSET MODAL LOGIC (Category-First Filter) ---
+            const allAssets = {!! json_encode($inventarisList ?? []) !!};
+            const replaceCategoryFilter = document.getElementById('replaceCategoryFilter');
+            const replaceCategoryFilterManual = document.getElementById('replaceCategoryFilterManual');
+            const replaceAssetSelect = document.getElementById('replaceAssetSelect');
+            const replaceCategoryFinalInput = document.getElementById('replaceCategoryFinalInput');
+            const replaceAssetNameInput = document.getElementById('replaceAssetNameInput');
+            const replaceAssetJenisInput = document.getElementById('replaceAssetJenisInput');
+
+            function getSelectedCategory() {
+                if (!replaceCategoryFilter) return '';
+                if (replaceCategoryFilter.value === 'Lainnya') {
+                    return replaceCategoryFilterManual ? replaceCategoryFilterManual.value : 'Lainnya';
+                }
+                return replaceCategoryFilter.value;
+            }
+
+            function updateCategoryFinal() {
+                if (replaceCategoryFinalInput) {
+                    replaceCategoryFinalInput.value = getSelectedCategory();
                 }
             }
 
-            if (tipeSelect) {
-                tipeSelect.addEventListener('change', toggleReplaceAsset);
-                toggleReplaceAsset();
+            if (replaceCategoryFilter) {
+                replaceCategoryFilter.addEventListener('change', function() {
+                    const val = this.value;
+                    if (val === 'Lainnya') {
+                        if (replaceCategoryFilterManual) {
+                            replaceCategoryFilterManual.classList.remove('d-none');
+                            replaceCategoryFilterManual.required = true;
+                            replaceCategoryFilterManual.value = '';
+                            replaceCategoryFilterManual.focus();
+                        }
+                    } else {
+                        if (replaceCategoryFilterManual) {
+                            replaceCategoryFilterManual.classList.add('d-none');
+                            replaceCategoryFilterManual.required = false;
+                            replaceCategoryFilterManual.value = '';
+                        }
+                    }
+                    updateCategoryFinal();
+                    filterAssets();
+                });
+            }
+
+            if (replaceCategoryFilterManual) {
+                replaceCategoryFilterManual.addEventListener('input', function() {
+                    updateCategoryFinal();
+                    filterAssets();
+                });
+            }
+
+            function filterAssets() {
+                if (!replaceAssetSelect) return;
+                const cat = getSelectedCategory().trim().toLowerCase();
+
+                // Clear current options
+                replaceAssetSelect.innerHTML = '';
+
+                if (cat === '') {
+                    replaceAssetSelect.disabled = true;
+                    replaceAssetSelect.innerHTML = '<option value="" disabled selected>-- Pilih Kategori Terlebih Dahulu --</option>';
+                    return;
+                }
+
+                // Filter assets by category
+                const filtered = allAssets.filter(item => {
+                    const itemCat = (item.kategori || '').trim().toLowerCase();
+                    return itemCat === cat;
+                });
+
+                if (filtered.length === 0) {
+                    replaceAssetSelect.disabled = true;
+                    replaceAssetSelect.innerHTML = '<option value="" disabled selected>-- Tidak ada aset lama dalam kategori ini --</option>';
+                } else {
+                    replaceAssetSelect.disabled = false;
+                    let html = '<option value="" disabled selected>-- Pilih Aset Lama --</option>';
+                    filtered.forEach(item => {
+                        const room = item.nama_ruangan || 'Gudang Utama';
+                        const kondisi = item.kondisi.replace('_', ' ').toUpperCase();
+                        html += `<option value="${item.id}" data-nama="${item.nama_barang}" data-jenis="${item.jenis}">` +
+                                `[${item.nomor_label}] ${item.nama_barang} - ${room} (${kondisi})` +
+                                `</option>`;
+                    });
+                    replaceAssetSelect.innerHTML = html;
+                }
+
+                // Clear downstream fields
+                if (replaceAssetNameInput) replaceAssetNameInput.value = '';
+                if (replaceAssetJenisInput) replaceAssetJenisInput.value = '';
+            }
+
+            if (replaceAssetSelect) {
+                replaceAssetSelect.addEventListener('change', function() {
+                    const opt = this.options[this.selectedIndex];
+                    if (!opt || opt.value === "") return;
+
+                    const nama = opt.getAttribute('data-nama');
+                    const jenis = opt.getAttribute('data-jenis');
+
+                    if (replaceAssetNameInput) replaceAssetNameInput.value = nama || '';
+                    if (replaceAssetJenisInput) replaceAssetJenisInput.value = jenis || '';
+                });
             }
         });
     </script>
