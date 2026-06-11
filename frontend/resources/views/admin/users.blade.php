@@ -98,6 +98,7 @@
                                     <th class="py-3">Nama Lengkap</th>
                                     <th class="py-3">Email</th>
                                     <th class="py-3">Peran (Role)</th>
+                                    <th class="py-3">Status Verifikasi</th>
                                     <th class="text-end px-4 py-3">Aksi</th>
                                 </tr>
                             </thead>
@@ -125,8 +126,33 @@
                                                     {{ strtoupper(str_replace('_', ' ', $u['role'])) }}
                                                 </span>
                                             </td>
+                                            <td class="py-3">
+                                                @if (!empty($u['email_verified_at']))
+                                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                                                        Terverifikasi
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">
+                                                        Belum Verifikasi
+                                                    </span>
+                                                @endif
+                                            </td>
                                             <td class="text-end px-4 py-3">
-                                                <div class="d-inline-flex gap-2">
+                                                <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                                    @if (empty($u['email_verified_at']))
+                                                        <form class="d-inline"
+                                                            action="/admin/users/resend-verification/{{ $u['id'] }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button
+                                                                class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1 px-3"
+                                                                type="submit"
+                                                                title="Kirim ulang email verifikasi">
+                                                                <i class="ti ti-mail-forward"></i>
+                                                                <span>Kirim Ulang Email</span>
+                                                            </button>
+                                                        </form>
+                                                    @endif
                                                     <button
                                                         class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 px-3"
                                                         data-bs-toggle="modal"
@@ -218,7 +244,7 @@
                                     @endforeach
                                 @else
                                     <tr>
-                                        <td class="text-center py-5 text-muted" colspan="5">
+                                        <td class="text-center py-5 text-muted" colspan="6">
                                             <i class="ti ti-user-off fs-1 d-block mb-2"></i>Tidak ada data pengguna.
                                         </td>
                                     </tr>

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\KepalaLabController;
@@ -13,6 +14,12 @@ use App\Http\Controllers\StafLabController;
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'handleLogin']);
 Route::post('/logout', [AuthController::class, 'handleLogout'])->name('logout');
+
+// ─── EMAIL VERIFICATION ───────────────────────────────────────────────────────
+Route::get('/email/verify', [VerifyEmailController::class, 'notice'])->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
 
 // ─── PROTECTED ROUTES ──────────────────────────────────────────────────────────
 Route::middleware('auth.jwt')->group(function () {
@@ -34,6 +41,7 @@ Route::middleware('auth.jwt')->group(function () {
     Route::middleware('role.jwt:admin')->group(function () {
         Route::get('/admin/users', [AdminController::class, 'showUsers'])->name('admin.users');
         Route::post('/admin/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');
+        Route::post('/admin/users/resend-verification/{id}', [AdminController::class, 'resendVerification'])->name('admin.users.resend-verification');
         Route::post('/admin/users/delete/{id}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
         Route::post('/admin/users/edit/{id}', [AdminController::class, 'editUser'])->name('admin.users.edit');
 

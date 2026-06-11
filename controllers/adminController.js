@@ -1,6 +1,9 @@
 const User = require('../models/User');
 const Ruangan = require('../models/Ruangan');
 
+const KETUA_PRODI_ERROR =
+  'Ketua Prodi aktif sudah ada. Hapus atau nonaktifkan yang lama terlebih dahulu.';
+
 class AdminController {
   // GET /api/admin/users
   static async showUsers(req, res) {
@@ -26,10 +29,25 @@ class AdminController {
   static async createUser(req, res) {
     try {
       const { nama, email, password, role_id } = req.body;
-      await User.create(nama, email, password, role_id);
-      res.json({ success: true, message: 'User created successfully' });
+
+      if (await User.isKetuaProdiRole(role_id)) {
+        const count = await User.countActiveKetuaProdi();
+        if (count > 0) {
+          return res.status(422).json({ error: KETUA_PRODI_ERROR });
+        }
+      }
+
+      const userId = await User.create(nama, email, password, role_id);
+      res.json({
+        success: true,
+        message: 'User created successfully',
+        user_id: userId,
+      });
     } catch (err) {
       console.error(err);
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(422).json({ error: 'Email sudah terdaftar.' });
+      }
       res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }
@@ -37,6 +55,11 @@ class AdminController {
   // POST /api/admin/users/delete/:id
   static async deleteUser(req, res) {
     try {
+      const user = await User.getActiveById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+      }
+
       await User.delete(req.params.id);
       res.json({ success: true, message: 'User deleted successfully' });
     } catch (err) {
@@ -49,10 +72,27 @@ class AdminController {
   static async editUser(req, res) {
     try {
       const { nama, email, password, role_id } = req.body;
-      await User.update(req.params.id, nama, email, password, role_id);
+      const userId = req.params.id;
+
+      const user = await User.getActiveById(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+      }
+
+      if (await User.isKetuaProdiRole(role_id)) {
+        const count = await User.countActiveKetuaProdi(userId);
+        if (count > 0) {
+          return res.status(422).json({ error: KETUA_PRODI_ERROR });
+        }
+      }
+
+      await User.update(userId, nama, email, password, role_id);
       res.json({ success: true, message: 'User updated successfully' });
     } catch (err) {
       console.error(err);
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(422).json({ error: 'Email sudah terdaftar.' });
+      }
       res.status(500).json({ error: 'Database error: ' + err.message });
     }
   }

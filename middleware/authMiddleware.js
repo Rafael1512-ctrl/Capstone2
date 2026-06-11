@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 const JWT_SECRET = 'super-secret-key-capstone-inventory-lab';
 
 function authenticateToken(req, res, next) {
@@ -19,12 +20,28 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, JWT_SECRET, async (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: 'Unauthorized: Invalid or expired token' });
     }
-    req.user = decoded; // decoded contains { id, nama, email, role }
-    next();
+
+    try {
+      const user = await User.getActiveById(decoded.id);
+      if (!user) {
+        return res.status(401).json({ error: 'Unauthorized: Akun tidak aktif.' });
+      }
+
+      req.user = {
+        id: user.id,
+        nama: user.nama,
+        email: user.email,
+        role: user.role,
+      };
+      next();
+    } catch (verifyErr) {
+      console.error(verifyErr);
+      return res.status(500).json({ error: 'Server error: ' + verifyErr.message });
+    }
   });
 }
 

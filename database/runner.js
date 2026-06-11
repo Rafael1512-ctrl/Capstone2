@@ -63,6 +63,10 @@ const migrations = [
     name: "014_add_kategori_and_jenis_to_tables",
     file: "./migrations/014_add_kategori_and_jenis_to_tables.js",
   },
+  {
+    name: "015_add_verification_and_soft_delete_to_users",
+    file: "./migrations/015_add_verification_and_soft_delete_to_users.js",
+  },
 ];
 
 const seeders = [

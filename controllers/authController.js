@@ -21,6 +21,13 @@ class AuthController {
         return res.status(401).json({ error: 'Password salah.' });
       }
 
+      if (!user.email_verified_at) {
+        return res.status(403).json({
+          error: 'Email belum diverifikasi. Silakan cek inbox Anda atau hubungi administrator untuk mengirim ulang email verifikasi.',
+          code: 'EMAIL_NOT_VERIFIED',
+        });
+      }
+
       const payload = {
         id: user.id,
         nama: user.nama,
@@ -63,7 +70,11 @@ class AuthController {
 
       await User.updateProfile(userId, nama, email, password);
 
-      const updatedUser = await User.getById(userId);
+      const updatedUser = await User.getActiveById(userId);
+      if (!updatedUser) {
+        return res.status(403).json({ error: 'Akun tidak aktif.' });
+      }
+
       const payload = {
         id: updatedUser.id,
         nama: updatedUser.nama,

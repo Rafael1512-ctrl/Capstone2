@@ -30,17 +30,54 @@
             <h1 class="card-title mb-5 h5">Sign in to your account</h1>
           </div>
           
-          @if (session('error') || isset($error))
-            <div class="alert alert-danger small py-2 text-center mb-3">
-              {{ session('error') ?? $error }}
+          @if (session('success'))
+            <div class="alert alert-success small py-2 text-center mb-3 d-flex align-items-center justify-content-center gap-2">
+              <i class="ti ti-circle-check"></i>
+              <span>{{ session('success') }}</span>
             </div>
+          @endif
+
+          @if (session('error') || isset($error))
+            @php $errorType = session('error_type', 'auth'); @endphp
+            @if ($errorType === 'unverified')
+              <div class="alert alert-warning border border-warning small py-3 mb-3" role="alert">
+                <div class="d-flex align-items-start gap-2">
+                  <i class="ti ti-mail-exclamation fs-5 mt-1 text-warning-emphasis"></i>
+                  <div class="text-start">
+                    <strong class="d-block mb-1">Email Belum Diverifikasi</strong>
+                    <span>{{ session('error') ?? $error }}</span>
+                    <p class="mb-0 mt-2 text-muted" style="font-size: 0.8rem;">
+                      Buka inbox email Anda dan klik tautan verifikasi. Jika tidak ada, minta admin mengirim ulang dari menu Kelola Pengguna.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            @elseif ($errorType === 'connection')
+              <div class="alert alert-danger border border-danger small py-3 mb-3" role="alert">
+                <div class="d-flex align-items-start gap-2">
+                  <i class="ti ti-plug-connected-x fs-5 mt-1"></i>
+                  <div class="text-start">
+                    <strong class="d-block mb-1">Backend Tidak Aktif</strong>
+                    <span>{{ session('error') ?? $error }}</span>
+                    <p class="mb-0 mt-2 text-muted" style="font-size: 0.8rem;">
+                      Jalankan <code>npm run dev</code> atau <code>npx nodemon index.js</code> di folder root proyek.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            @else
+              <div class="alert alert-danger small py-2 text-center mb-3 d-flex align-items-center justify-content-center gap-2">
+                <i class="ti ti-alert-circle"></i>
+                <span>{{ session('error') ?? $error }}</span>
+              </div>
+            @endif
           @endif
           
           <form class="needs-validation mt-3" action="{{ route('login') }}" method="POST">
             @csrf
             <div class="mb-3">
               <label class="form-label" for="email">Email address</label>
-              <input id="email" class="form-control" type="email" name="email" placeholder="name@example.com" required autofocus>
+              <input id="email" class="form-control" type="email" name="email" value="{{ old('email') }}" placeholder="name@example.com" required autofocus>
               <div class="invalid-feedback">Please enter a valid email.</div>
             </div>
             <div class="mb-3">
