@@ -27,9 +27,12 @@ class AdminController extends Controller
             'role_id' => 'required|integer',
         ]);
 
+        Log::info('CREATE USER - Request data:', $request->all());
         $response = ApiService::post('/admin/users/create', $request->all());
+        Log::info('CREATE USER - API Response:', $response);
 
         if (isset($response['error'])) {
+            Log::error('CREATE USER - Error:', ['error' => $response['error']]);
             return back()->withInput()->with('error', $response['error']);
         }
 

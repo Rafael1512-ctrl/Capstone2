@@ -118,9 +118,10 @@ class User {
     ]);
   }
 
-  // Soft delete user
+  // Hard delete user (removes from DB entirely so email can be re-registered)
   static async delete(id) {
-    await db.query(`UPDATE users SET deleted_at = NOW() WHERE id = ?`, [id]);
+    await db.query(`DELETE FROM user_roles WHERE user_id = ?`, [id]);
+    await db.query(`DELETE FROM users WHERE id = ?`, [id]);
   }
 
   // Verify password
