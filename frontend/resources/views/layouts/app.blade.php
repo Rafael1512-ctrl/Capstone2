@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/custom.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script type="importmap">
       {
         "imports": {
@@ -310,34 +311,53 @@
     <script>
         let pendingForm = null;
         let validationFunction = null;
+        let confirmModalInstance = null;
         
-        const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'), {
-            backdrop: 'static',
-            keyboard: false
-        });
+        function getConfirmModal() {
+            if (!confirmModalInstance && window.bootstrap) {
+                confirmModalInstance = new window.bootstrap.Modal(document.getElementById('confirmModal'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            }
+            return confirmModalInstance;
+        }
 
         function showConfirmDialog(message, form, validator = null) {
             document.getElementById('confirmMessage').textContent = message;
             pendingForm = form;
             validationFunction = validator;
-            confirmModal.show();
+            
+            const modal = getConfirmModal();
+            if (modal) {
+                modal.show();
+            } else {
+                // Fallback to native confirm if bootstrap isn't loaded yet
+                if (confirm(message)) {
+                    confirmAndSubmit(true);
+                }
+            }
             return false;
         }
 
-        function confirmAndSubmit() {
+        function confirmAndSubmit(bypassModal = false) {
             // Run validation if provided
             if (validationFunction && typeof validationFunction === 'function') {
                 if (!validationFunction()) {
-                    confirmModal.hide();
+                    const modal = getConfirmModal();
+                    if (modal && !bypassModal) modal.hide();
                     return false;
                 }
             }
             
-            confirmModal.hide();
+            const modal = getConfirmModal();
+            if (modal && !bypassModal) {
+                modal.hide();
+            }
+            
             if (pendingForm) {
                 // Show loading indicator
                 const submitBtn = pendingForm.querySelector('button[type="submit"]');
-                const originalHTML = submitBtn?.innerHTML;
                 if (submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="ti ti-loader-2" style="animation: spin 1s linear infinite;"></i> Menyimpan...';

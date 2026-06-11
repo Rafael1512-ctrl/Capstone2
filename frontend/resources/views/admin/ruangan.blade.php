@@ -109,71 +109,16 @@
                                                         <i class="ti ti-edit"></i>
                                                         <span>Edit</span>
                                                     </button>
-                                                    <form class="d-inline"
-                                                        action="/admin/ruangan/delete/{{ $r['id'] }}" method="POST"
-                                                        data-confirm="Apakah Anda yakin ingin menghapus ruangan ini?">
-                                                        @csrf
-                                                        <button
-                                                            class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 px-3"
-                                                            type="submit">
-                                                            <i class="ti ti-trash"></i>
-                                                            <span>Hapus</span>
-                                                        </button>
-                                                    </form>
+                                                    <button
+                                                        class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 px-3"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteRoomModal-{{ $r['id'] }}">
+                                                        <i class="ti ti-trash"></i>
+                                                        <span>Hapus</span>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
-
-                                        <!-- EDIT MODAL FOR THIS ROOM -->
-                                        <div class="modal fade" id="editRoomModal-{{ $r['id'] }}" tabindex="-1"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content border-0 shadow-lg rounded-3">
-                                                    <div class="modal-header border-bottom bg-light">
-                                                        <h5 class="modal-title fw-bold text-dark">
-                                                            <i class="ti ti-edit text-primary me-2"></i>Edit Data Ruangan
-                                                        </h5>
-                                                        <button class="btn-close" type="button" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <form action="/admin/ruangan/edit/{{ $r['id'] }}" method="POST">
-                                                        @csrf
-                                                        <div class="modal-body p-4">
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    class="form-label fw-semibold text-secondary small">Kode
-                                                                    Ruangan</label>
-                                                                <input class="form-control form-control-lg" type="text"
-                                                                    name="kode_ruangan" value="{{ $r['kode_ruangan'] }}"
-                                                                    required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    class="form-label fw-semibold text-secondary small">Nama
-                                                                    Ruangan</label>
-                                                                <input class="form-control form-control-lg" type="text"
-                                                                    name="nama_ruangan" value="{{ $r['nama_ruangan'] }}"
-                                                                    required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    class="form-label fw-semibold text-secondary small">Lokasi
-                                                                    / Gedung</label>
-                                                                <input class="form-control form-control-lg" type="text"
-                                                                    name="lokasi" value="{{ $r['lokasi'] }}" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer border-top bg-light">
-                                                            <button class="btn btn-light px-4" type="button"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#editRoomModal-{{ $r['id'] }}">Batal</button>
-                                                            <button class="btn btn-primary px-4" type="submit">Simpan
-                                                                Perubahan</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     @endforeach
                                 @else
                                     <tr>
@@ -188,6 +133,85 @@
                 </div>
             </div>
         </div>
+
+        <!-- EDIT MODALS (OUTSIDE TABLE FOR VALID HTML & PREVENT FLICKERING) -->
+        @if (isset($ruangan) && count($ruangan) > 0)
+            @foreach ($ruangan as $r)
+                <div class="modal fade" id="editRoomModal-{{ $r['id'] }}" tabindex="-1"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-3">
+                            <div class="modal-header border-bottom bg-light">
+                                <h5 class="modal-title fw-bold text-dark">
+                                    <i class="ti ti-edit text-primary me-2"></i>Edit Data Ruangan
+                                </h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form action="/admin/ruangan/edit/{{ $r['id'] }}" method="POST">
+                                @csrf
+                                <div class="modal-body p-4">
+                                    <div class="mb-3">
+                                        <label
+                                            class="form-label fw-semibold text-secondary small">Kode
+                                            Ruangan</label>
+                                        <input class="form-control form-control-lg" type="text"
+                                            name="kode_ruangan" value="{{ $r['kode_ruangan'] }}"
+                                            required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label
+                                            class="form-label fw-semibold text-secondary small">Nama
+                                            Ruangan</label>
+                                        <input class="form-control form-control-lg" type="text"
+                                            name="nama_ruangan" value="{{ $r['nama_ruangan'] }}"
+                                            required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label
+                                            class="form-label fw-semibold text-secondary small">Lokasi
+                                            / Gedung</label>
+                                        <input class="form-control form-control-lg" type="text"
+                                            name="lokasi" value="{{ $r['lokasi'] }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-top bg-light">
+                                    <button class="btn btn-light px-4" type="button"
+                                        data-bs-dismiss="modal">Batal</button>
+                                    <button class="btn btn-primary px-4" type="submit">Simpan
+                                        Perubahan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DELETE ROOM MODAL -->
+                <div class="modal fade" id="deleteRoomModal-{{ $r['id'] }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-3">
+                            <div class="modal-header border-bottom bg-light">
+                                <h5 class="modal-title fw-bold text-dark">
+                                    <i class="ti ti-alert-triangle text-danger me-2"></i>Konfirmasi Hapus
+                                </h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <p class="mb-0 text-dark">Apakah Anda yakin ingin menghapus ruangan <strong>{{ $r['nama_ruangan'] }}</strong> ({{ $r['kode_ruangan'] }})?<br><span class="text-danger small mt-2 d-block">*Tindakan ini akan menghapus data secara permanen dari database.</span></p>
+                            </div>
+                            <div class="modal-footer border-top bg-light">
+                                <button class="btn btn-light px-4" type="button" data-bs-dismiss="modal">Batal</button>
+                                <form action="/admin/ruangan/delete/{{ $r['id'] }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button class="btn btn-danger px-4" type="submit">Hapus</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @endif
+    </div>
     </div>
 
     <script>

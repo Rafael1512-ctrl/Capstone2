@@ -161,86 +161,19 @@
                                                         <span>Edit</span>
                                                     </button>
                                                     @if ($u['id'] !== Session::get('user')['id'])
-                                                        <form class="d-inline"
-                                                            action="/admin/users/delete/{{ $u['id'] }}" method="POST"
-                                                            data-confirm="Apakah Anda yakin ingin menghapus pengguna ini?">
-                                                            @csrf
-                                                            <button
-                                                                class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 px-3"
-                                                                type="submit">
-                                                                <i class="ti ti-trash"></i>
-                                                                <span>Hapus</span>
-                                                            </button>
-                                                        </form>
+                                                        <button
+                                                            class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 px-3"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#deleteUserModal-{{ $u['id'] }}">
+                                                            <i class="ti ti-trash"></i>
+                                                            <span>Hapus</span>
+                                                        </button>
                                                     @else
                                                         <span class="small text-muted px-2">(Akun Anda)</span>
                                                     @endif
                                                 </div>
                                             </td>
                                         </tr>
-
-                                        <!-- EDIT MODAL FOR THIS USER -->
-                                        <div class="modal fade" id="editUserModal-{{ $u['id'] }}" tabindex="-1"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content border-0 shadow-lg rounded-3">
-                                                    <div class="modal-header border-bottom bg-light">
-                                                        <h5 class="modal-title fw-bold text-dark">
-                                                            <i class="ti ti-edit text-primary me-2"></i>Edit Data Pengguna
-                                                        </h5>
-                                                        <button class="btn-close" type="button" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <form action="/admin/users/edit/{{ $u['id'] }}" method="POST">
-                                                        @csrf
-                                                        <div class="modal-body p-4">
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    class="form-label fw-semibold text-secondary small">Nama
-                                                                    Lengkap</label>
-                                                                <input class="form-control form-control-lg" type="text"
-                                                                    name="nama" value="{{ $u['nama'] }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    class="form-label fw-semibold text-secondary small">Email</label>
-                                                                <input class="form-control form-control-lg" type="email"
-                                                                    name="email" value="{{ $u['email'] }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    class="form-label fw-semibold text-secondary small">Password
-                                                                    Baru (Kosongkan jika tidak ingin diubah)</label>
-                                                                <input class="form-control form-control-lg"
-                                                                    type="password" name="password"
-                                                                    placeholder="Password baru (opsional)">
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    class="form-label fw-semibold text-secondary small">Peran
-                                                                    (Role)</label>
-                                                                <select class="form-select form-select-lg" name="role_id"
-                                                                    required>
-                                                                    @foreach ($roles as $r)
-                                                                        <option value="{{ $r['id'] }}"
-                                                                            {{ $r['id'] === $u['role_id'] ? 'selected' : '' }}>
-                                                                            {{ strtoupper(str_replace('_', ' ', $r['nama'])) }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer border-top bg-light">
-                                                            <button class="btn btn-light px-4" type="button"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#editUserModal-{{ $u['id'] }}">Batal</button>
-                                                            <button class="btn btn-primary px-4" type="submit">Simpan
-                                                                Perubahan</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     @endforeach
                                 @else
                                     <tr>
@@ -255,6 +188,98 @@
                 </div>
             </div>
         </div>
+
+        <!-- EDIT MODALS (OUTSIDE TABLE FOR VALID HTML & PREVENT FLICKERING) -->
+        @if ($hasUsers)
+            @foreach ($users as $u)
+                <div class="modal fade" id="editUserModal-{{ $u['id'] }}" tabindex="-1"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-3">
+                            <div class="modal-header border-bottom bg-light">
+                                <h5 class="modal-title fw-bold text-dark">
+                                    <i class="ti ti-edit text-primary me-2"></i>Edit Data Pengguna
+                                </h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form action="/admin/users/edit/{{ $u['id'] }}" method="POST">
+                                @csrf
+                                <div class="modal-body p-4">
+                                    <div class="mb-3">
+                                        <label
+                                            class="form-label fw-semibold text-secondary small">Nama
+                                            Lengkap</label>
+                                        <input class="form-control form-control-lg" type="text"
+                                            name="nama" value="{{ $u['nama'] }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label
+                                            class="form-label fw-semibold text-secondary small">Email</label>
+                                        <input class="form-control form-control-lg" type="email"
+                                            name="email" value="{{ $u['email'] }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label
+                                            class="form-label fw-semibold text-secondary small">Password
+                                            Baru (Kosongkan jika tidak ingin diubah)</label>
+                                        <input class="form-control form-control-lg"
+                                            type="password" name="password"
+                                            placeholder="Password baru (opsional)">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label
+                                            class="form-label fw-semibold text-secondary small">Peran
+                                            (Role)</label>
+                                        <select class="form-select form-select-lg" name="role_id"
+                                            required>
+                                            @foreach ($roles as $r)
+                                                <option value="{{ $r['id'] }}"
+                                                    {{ $r['id'] === $u['role_id'] ? 'selected' : '' }}>
+                                                    {{ strtoupper(str_replace('_', ' ', $r['nama'])) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-top bg-light">
+                                    <button class="btn btn-light px-4" type="button"
+                                        data-bs-dismiss="modal">Batal</button>
+                                    <button class="btn btn-primary px-4" type="submit">Simpan
+                                        Perubahan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DELETE USER MODAL -->
+                @if ($u['id'] !== Session::get('user')['id'])
+                    <div class="modal fade" id="deleteUserModal-{{ $u['id'] }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow-lg rounded-3">
+                                <div class="modal-header border-bottom bg-light">
+                                    <h5 class="modal-title fw-bold text-dark">
+                                        <i class="ti ti-alert-triangle text-danger me-2"></i>Konfirmasi Hapus
+                                    </h5>
+                                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <p class="mb-0 text-dark">Apakah Anda yakin ingin menghapus pengguna <strong>{{ $u['nama'] }}</strong> ({{ $u['email'] }})?<br><span class="text-danger small mt-2 d-block">*Tindakan ini akan menghapus data secara permanen dari database.</span></p>
+                                </div>
+                                <div class="modal-footer border-top bg-light">
+                                    <button class="btn btn-light px-4" type="button" data-bs-dismiss="modal">Batal</button>
+                                    <form action="/admin/users/delete/{{ $u['id'] }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button class="btn btn-danger px-4" type="submit">Hapus</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        @endif
     </div>
 
     <script>
