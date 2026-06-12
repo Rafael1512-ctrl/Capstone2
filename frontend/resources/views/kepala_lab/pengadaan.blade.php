@@ -268,17 +268,29 @@
                                                     {{ number_format($item['harga_satuan'] * $item['jumlah'], 0, ',', '.') }}
                                                 </td>
                                                 <td class="text-end px-4">
-                                                    <form action="/kepala-lab/pengadaan/delete-item/{{ $item['id'] }}"
-                                                        method="POST"
-                                                        data-confirm="Apakah Anda yakin ingin menghapus item ini?">
-                                                        @csrf
-                                                        <button
-                                                            class="btn btn-icon btn-sm btn-outline-danger border-0 rounded-circle"
-                                                            type="submit"
-                                                            style="width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center;">
-                                                            <i class="ti ti-trash fs-5"></i>
+                                                    <div class="d-inline-flex gap-1">
+                                                        <button class="btn btn-icon btn-sm btn-outline-warning border-0 rounded-circle"
+                                                            type="button"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#editItemModal{{ $item['id'] }}"
+                                                            style="width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center;"
+                                                            title="Edit Item">
+                                                            <i class="ti ti-edit fs-5"></i>
                                                         </button>
-                                                    </form>
+                                                        <form action="/kepala-lab/pengadaan/delete-item/{{ $item['id'] }}"
+                                                            method="POST"
+                                                            class="m-0"
+                                                            data-confirm="Apakah Anda yakin ingin menghapus item ini?">
+                                                            @csrf
+                                                            <button
+                                                                class="btn btn-icon btn-sm btn-outline-danger border-0 rounded-circle"
+                                                                type="submit"
+                                                                style="width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center;"
+                                                                title="Hapus Item">
+                                                                <i class="ti ti-trash fs-5"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -308,6 +320,141 @@
                             </table>
                         </div>
                     </div>
+
+                    @if ($hasActiveDraft && $hasItems)
+                        @foreach ($items as $item)
+                            <!-- EDIT ITEM MODAL -->
+                            <div class="modal fade" id="editItemModal{{ $item['id'] }}" tabindex="-1" aria-labelledby="editItemModalLabel{{ $item['id'] }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow-lg text-start" style="border-radius: 12px;">
+                                        <div class="modal-header bg-light border-bottom px-4 py-3">
+                                            <h5 class="modal-title fw-bold text-dark fs-5" id="editItemModalLabel{{ $item['id'] }}">
+                                                <i class="ti ti-edit text-warning me-1"></i> Edit Item
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body p-4 text-start">
+                                            <form action="/kepala-lab/pengadaan/update-item/{{ $item['id'] }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="tipe_barang" id="editItemTypeHidden{{ $item['id'] }}" value="{{ $item['tipe_barang'] }}">
+
+                                                <div class="mb-3">
+                                                    <label class="form-label small fw-semibold text-secondary">Nama Barang</label>
+                                                    <input class="form-control" type="text" name="nama_barang" value="{{ $item['nama_barang'] }}" placeholder="cth. Monitor Dell 24 inch" required>
+                                                </div>
+
+                                                @php
+                                                    $predefinedCategories = ['Keyboard', 'Mouse', 'Monitor', 'PC / Komputer', 'Laptop', 'Printer', 'Alat Jaringan', 'Kabel', 'Kursi', 'Meja', 'Komponen PC'];
+                                                    $isManualCategory = !in_array($item['kategori'] ?? '', $predefinedCategories);
+                                                @endphp
+
+                                                <div class="mb-3 row g-2">
+                                                    <div class="col-6">
+                                                        <label class="form-label small fw-semibold text-secondary">Kategori</label>
+                                                        <select class="form-select" name="kategori" id="editCategorySelect{{ $item['id'] }}" required>
+                                                            <option value="" disabled>-- Pilih Kategori --</option>
+                                                            @foreach ($predefinedCategories as $catOption)
+                                                                <option value="{{ $catOption }}" {{ ($item['kategori'] ?? '') === $catOption ? 'selected' : '' }}>{{ $catOption }}</option>
+                                                            @endforeach
+                                                            <option value="Lainnya" {{ $isManualCategory ? 'selected' : '' }}>Lainnya (Tulis Manual)</option>
+                                                        </select>
+                                                        <input type="text" class="form-control mt-2 {{ $isManualCategory ? '' : 'd-none' }}" name="kategori_manual" id="editCategoryManualInput{{ $item['id'] }}" value="{{ $isManualCategory ? ($item['kategori'] ?? '') : '' }}" placeholder="Tulis Kategori Baru" {{ $isManualCategory ? 'required' : '' }}>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label small fw-semibold text-secondary">Jenis / Model</label>
+                                                        <input class="form-control" type="text" name="jenis" value="{{ $item['jenis'] ?? '' }}" placeholder="cth. Mechanical, Wireless, dll." required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label small fw-semibold text-secondary">Tipe Barang</label>
+                                                    <select class="form-select" name="tipe_barang_select" id="editTipeBarangSelect{{ $item['id'] }}" required>
+                                                        <option value="inventaris" {{ ($item['tipe_barang'] ?? '') === 'inventaris' ? 'selected' : '' }}>Inventaris (Barang Tetap)</option>
+                                                        <option value="bhp" {{ ($item['tipe_barang'] ?? '') === 'bhp' ? 'selected' : '' }}>BHP (Barang Habis Pakai)</option>
+                                                    </select>
+                                                </div>
+
+                                                @if (isset($item['inventaris_digantikan_id']) && $item['inventaris_digantikan_id'])
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-semibold text-secondary">Aset Lama Yang Digantikan</label>
+                                                        <select class="form-select" name="inventaris_digantikan_id">
+                                                            <option value="">-- Tidak menggantikan aset --</option>
+                                                            @foreach ($inventarisList ?? [] as $inv)
+                                                                <option value="{{ $inv['id'] }}" {{ ($item['inventaris_digantikan_id'] ?? null) == $inv['id'] ? 'selected' : '' }}>
+                                                                    [{{ $inv['nomor_label'] }}] {{ $inv['nama_barang'] }} - {{ $inv['nama_ruangan'] ?? 'Gudang Utama' }} ({{ strtoupper(str_replace('_', ' ', $inv['kondisi'] ?? '')) }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                @endif
+
+                                                <!-- Price and Qty in one row -->
+                                                <div class="row g-2 mb-3">
+                                                    <div class="col-7">
+                                                        <label class="form-label small fw-semibold text-secondary">Harga Satuan</label>
+                                                        <div class="input-group">
+                                                            <span class="input-group-text bg-light text-muted">Rp</span>
+                                                            <input class="form-control" type="number" name="harga_satuan" value="{{ $item['harga_satuan'] }}" placeholder="250000" min="0" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <label class="form-label small fw-semibold text-secondary">Jumlah (Qty)</label>
+                                                        <input class="form-control text-center" type="number" name="jumlah" value="{{ $item['jumlah'] }}" placeholder="5" min="1" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label small fw-semibold text-secondary">Rasionalisasi Item</label>
+                                                    <textarea class="form-control" name="rasionalisasi" rows="2" placeholder="Mengapa barang ini dibutuhkan..." required>{{ $item['rasionalisasi'] }}</textarea>
+                                                </div>
+
+                                                <div class="mb-4">
+                                                    <label class="form-label small fw-semibold text-secondary">Link Pembelian (Opsional)</label>
+                                                    <input class="form-control" type="url" name="link_pembelian" value="{{ $item['link_pembelian'] }}" placeholder="https://tokopedia.com/...">
+                                                </div>
+
+                                                <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                                                    <button type="button" class="btn btn-light px-3" data-bs-dismiss="modal">Batal</button>
+                                                    <button class="btn btn-warning px-4 fw-semibold text-white" type="submit">
+                                                        <i class="ti ti-device-floppy me-1"></i> Simpan
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const editTipeSelect{{ $item['id'] }} = document.getElementById('editTipeBarangSelect{{ $item['id'] }}');
+                                    const editTypeHiddenInput{{ $item['id'] }} = document.getElementById('editItemTypeHidden{{ $item['id'] }}');
+                                    const editCategorySelect{{ $item['id'] }} = document.getElementById('editCategorySelect{{ $item['id'] }}');
+                                    const editCategoryManualInput{{ $item['id'] }} = document.getElementById('editCategoryManualInput{{ $item['id'] }}');
+
+                                    if (editTipeSelect{{ $item['id'] }} && editTypeHiddenInput{{ $item['id'] }}) {
+                                        editTipeSelect{{ $item['id'] }}.addEventListener('change', function() {
+                                            editTypeHiddenInput{{ $item['id'] }}.value = this.value;
+                                        });
+                                    }
+
+                                    if (editCategorySelect{{ $item['id'] }} && editCategoryManualInput{{ $item['id'] }}) {
+                                        editCategorySelect{{ $item['id'] }}.addEventListener('change', function() {
+                                            if (this.value === 'Lainnya') {
+                                                editCategoryManualInput{{ $item['id'] }}.classList.remove('d-none');
+                                                editCategoryManualInput{{ $item['id'] }}.required = true;
+                                                editCategoryManualInput{{ $item['id'] }}.focus();
+                                            } else {
+                                                editCategoryManualInput{{ $item['id'] }}.classList.add('d-none');
+                                                editCategoryManualInput{{ $item['id'] }}.required = false;
+                                                editCategoryManualInput{{ $item['id'] }}.value = '';
+                                            }
+                                        });
+                                    }
+                                });
+                            </script>
+                        @endforeach
+                    @endif
 
                     <!-- SUBMISSION CARD (Directly below the items review table) -->
                     <div class="card shadow-sm border-0 mt-4 bg-white">
@@ -501,8 +648,7 @@
                                 </div>
                                 <div class="col-5">
                                     <label class="form-label small fw-semibold text-secondary">Jumlah (Qty)</label>
-                                    <input class="form-control text-center bg-light" type="number" name="jumlah" value="1" readonly required>
-                                    <span class="text-muted d-block text-center mt-1" style="font-size: 0.75rem;">Locked to 1 unit</span>
+                                    <input class="form-control text-center" type="number" name="jumlah" value="1" min="1" required>
                                 </div>
                             </div>
 

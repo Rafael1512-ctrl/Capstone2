@@ -14,14 +14,22 @@ class VerifyEmailController extends Controller
             ->with('error', 'Silakan verifikasi email Anda melalui tautan yang dikirim ke inbox.');
     }
 
-    public function verify(EmailVerificationRequest $request)
+    public function verify(Request $request)
     {
-        if ($request->user()->hasVerifiedEmail()) {
+        $user = \App\Models\User::findOrFail($request->route('id'));
+
+        if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+            abort(403, 'Tautan verifikasi tidak valid.');
+        }
+
+        if ($user->hasVerifiedEmail()) {
             return redirect()->route('login')
                 ->with('success', 'Email sudah diverifikasi. Silakan login.');
         }
 
-        $request->fulfill();
+        if ($user->markEmailAsVerified()) {
+            event(new \Illuminate\Auth\Events\Verified($user));
+        }
 
         return redirect()->route('login')
             ->with('success', 'Email berhasil diverifikasi. Silakan login.');

@@ -15,9 +15,15 @@ class StafAdminController extends Controller
     }
 
     // GET /inventaris
-    public function showInventaris()
+    public function showInventaris(Request $request)
     {
-        $data = ApiService::get('/inventaris');
+        $draftId = $request->query('draft_id');
+        $params = [];
+        if ($draftId) {
+            $params['draft_id'] = $draftId;
+        }
+        $data = ApiService::get('/inventaris', $params);
+        $data['selectedDraftId'] = $draftId;
         return view('staf_admin.inventaris', $data);
     }
 
@@ -32,15 +38,15 @@ class StafAdminController extends Controller
         ]);
         $res = ApiService::post("/staf-admin/inventaris/receive/{$itemId}", $request->all());
         if (isset($res['error'])) {
-            return redirect('/inventaris')->with('error', $res['error']);
+            return redirect()->back()->with('error', $res['error']);
         }
-        return redirect('/inventaris')->with('success', 'Barang berhasil diterima dan dilabeli.');
+        return redirect()->back()->with('success', 'Barang berhasil diterima dan dilabeli.');
     }
 
     // POST /staf-admin/inventaris/delete/{id}
     public function deleteInventaris($id)
     {
         ApiService::post("/staf-admin/inventaris/delete/{$id}");
-        return redirect('/inventaris')->with('success', 'Barang inventaris berhasil dihapus (soft delete).');
+        return redirect()->back()->with('success', 'Barang inventaris berhasil dihapus (soft delete).');
     }
 }

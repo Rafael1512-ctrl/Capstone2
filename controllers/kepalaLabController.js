@@ -126,6 +126,39 @@ class KepalaLabController {
     }
   }
 
+  // POST /api/kepala-lab/pengadaan/update-item/:id
+  static async updateItem(req, res) {
+    try {
+      const {
+        nama_barang,
+        kategori,
+        jenis,
+        tipe_barang,
+        harga_satuan,
+        jumlah,
+        rasionalisasi,
+        link_pembelian,
+        inventaris_digantikan_id
+      } = req.body;
+      await DetailDraft.update(
+        req.params.id,
+        nama_barang,
+        kategori,
+        jenis,
+        tipe_barang,
+        harga_satuan,
+        jumlah,
+        rasionalisasi,
+        link_pembelian,
+        inventaris_digantikan_id ? parseInt(inventaris_digantikan_id) : null
+      );
+      res.json({ success: true, message: "Item updated successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error: " + err.message });
+    }
+  }
+
   // POST /api/kepala-lab/pengadaan/submit/:id
   static async submitDraft(req, res) {
     try {

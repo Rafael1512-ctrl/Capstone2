@@ -51,6 +51,7 @@ router.post('/kepala-lab/pengadaan/create-draft', authenticateToken, requireRole
 router.post('/kepala-lab/pengadaan/update-draft/:id', authenticateToken, requireRole('kepala_lab'), kepalaLabController.updateDraft);
 router.post('/kepala-lab/pengadaan/delete-draft/:id', authenticateToken, requireRole('kepala_lab'), kepalaLabController.deleteDraft);
 router.post('/kepala-lab/pengadaan/add-item', authenticateToken, requireRole('kepala_lab'), kepalaLabController.addItem);
+router.post('/kepala-lab/pengadaan/update-item/:id', authenticateToken, requireRole('kepala_lab'), kepalaLabController.updateItem);
 router.post('/kepala-lab/pengadaan/delete-item/:id', authenticateToken, requireRole('kepala_lab'), kepalaLabController.deleteItem);
 router.post('/kepala-lab/pengadaan/submit/:id', authenticateToken, requireRole('kepala_lab'), kepalaLabController.submitDraft);
 router.get('/kepala-lab/history', authenticateToken, requireRole('kepala_lab'), kepalaLabController.showHistory);

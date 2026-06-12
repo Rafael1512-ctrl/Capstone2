@@ -314,24 +314,41 @@
         let confirmModalInstance = null;
         
         function getConfirmModal() {
-            if (!confirmModalInstance && window.bootstrap) {
-                confirmModalInstance = new window.bootstrap.Modal(document.getElementById('confirmModal'), {
-                    backdrop: 'static',
-                    keyboard: false
-                });
+            if (!confirmModalInstance) {
+                try {
+                    let bs = window.bootstrap;
+                    if (bs && !bs.Modal && bs.default && bs.default.Modal) {
+                        bs = bs.default;
+                    }
+                    
+                    if (bs && typeof bs.Modal === 'function') {
+                        confirmModalInstance = new bs.Modal(document.getElementById('confirmModal'), {
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                    } else {
+                        console.warn('Bootstrap Modal constructor not found on window.bootstrap');
+                    }
+                } catch (e) {
+                    console.error('Failed to initialize bootstrap modal:', e);
+                }
             }
             return confirmModalInstance;
         }
 
         function showConfirmDialog(message, form, validator = null) {
+            console.log('showConfirmDialog called with message:', message, 'form:', form, 'validator:', validator);
             document.getElementById('confirmMessage').textContent = message;
             pendingForm = form;
             validationFunction = validator;
             
             const modal = getConfirmModal();
+            console.log('getConfirmModal returned:', modal);
             if (modal) {
+                console.log('Showing Bootstrap modal');
                 modal.show();
             } else {
+                console.log('Fallback to native confirm');
                 // Fallback to native confirm if bootstrap isn't loaded yet
                 if (confirm(message)) {
                     confirmAndSubmit(true);
@@ -341,13 +358,17 @@
         }
 
         function confirmAndSubmit(bypassModal = false) {
+            console.log('confirmAndSubmit called, bypassModal:', bypassModal);
             // Run validation if provided
             if (validationFunction && typeof validationFunction === 'function') {
+                console.log('Running validation function');
                 if (!validationFunction()) {
+                    console.log('Validation failed');
                     const modal = getConfirmModal();
                     if (modal && !bypassModal) modal.hide();
                     return false;
                 }
+                console.log('Validation passed');
             }
             
             const modal = getConfirmModal();
@@ -356,16 +377,20 @@
             }
             
             if (pendingForm) {
+                console.log('Submitting pending form:', pendingForm);
                 // Show loading indicator
                 const submitBtn = pendingForm.querySelector('button[type="submit"]');
                 if (submitBtn) {
-                    submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="ti ti-loader-2" style="animation: spin 1s linear infinite;"></i> Menyimpan...';
+                    setTimeout(() => {
+                        submitBtn.disabled = true;
+                    }, 10);
                 }
                 
-                // Bypass the submit event listener
                 pendingForm.removeEventListener('submit', handleFormSubmit);
                 pendingForm.submit();
+            } else {
+                console.log('No pending form to submit');
             }
             pendingForm = null;
             validationFunction = null;
@@ -373,6 +398,7 @@
 
         // Store submit handler in variable for later removal
         function handleFormSubmit(e) {
+            console.log('handleFormSubmit captured submit event on:', e.target);
             const form = e.target;
             const confirmMsg = form.getAttribute('data-confirm');
             const validatorName = form.getAttribute('data-validator');
@@ -381,6 +407,7 @@
             if (validatorName && typeof window[validatorName] === 'function') {
                 validator = window[validatorName];
             }
+            console.log('confirmMsg:', confirmMsg, 'validator:', validator);
             
             if (confirmMsg) {
                 e.preventDefault();

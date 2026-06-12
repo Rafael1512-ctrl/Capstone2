@@ -40,8 +40,8 @@
                       <td>
                         <span class="badge bg-success">FINALIZED</span>
                       </td>
-                      <td class="text-end px-4">
-                        <a class="btn btn-sm btn-primary" href="/inventaris">
+                       <td class="text-end px-4">
+                        <a class="btn btn-sm btn-primary" href="/inventaris?draft_id={{ $d['id'] }}">
                           <i class="ti ti-edit me-1"></i>Input Penerimaan & Labeling
                         </a>
                       </td>

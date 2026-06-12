@@ -28,10 +28,14 @@ class StafAdminController {
       
       let pendingItems = [];
       let ruangan = [];
+      let drafts = [];
       
       if (req.user && req.user.role === 'staf_admin') {
-        pendingItems = await DetailDraft.getPendingInventaris();
+        const rawDraftId = req.query.draft_id;
+        const draftId = (rawDraftId && !isNaN(rawDraftId)) ? parseInt(rawDraftId) : null;
+        pendingItems = await DetailDraft.getPendingInventaris(draftId);
         ruangan = await Ruangan.getAll();
+        drafts = await DraftPengadaan.getSubmittedDrafts();
       }
 
       res.json({
@@ -40,6 +44,7 @@ class StafAdminController {
         pendingItems,
         receivedItems,
         ruangan,
+        drafts,
         hasPendingItems: pendingItems.length > 0,
         pendingCount: pendingItems.length,
         hasReceivedItems: receivedItems.length > 0,

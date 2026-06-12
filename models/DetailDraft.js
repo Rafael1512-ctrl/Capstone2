@@ -14,9 +14,8 @@ class DetailDraft {
   }
 
   // Get pending items for inventaris
-  static async getPendingInventaris() {
-    const [rows] = await db.query(
-      `SELECT dd.*, dp.tahun, u.nama AS pengaju,
+  static async getPendingInventaris(draftId = null) {
+    let sql = `SELECT dd.*, dp.tahun, u.nama AS pengaju,
               COALESCE(iv_count.cnt, 0) AS received_count
        FROM detail_draft dd
        JOIN draft_pengadaan dp ON dd.draft_id = dp.id
@@ -29,8 +28,15 @@ class DetailDraft {
        WHERE dp.status = 'finalized' 
          AND dd.status_item = 'approved' 
          AND dd.tipe_barang = 'inventaris'
-         AND COALESCE(iv_count.cnt, 0) < dd.jumlah`,
-    );
+         AND COALESCE(iv_count.cnt, 0) < dd.jumlah`;
+
+    const params = [];
+    if (draftId) {
+      sql += ` AND dd.draft_id = ?`;
+      params.push(draftId);
+    }
+
+    const [rows] = await db.query(sql, params);
     return rows;
   }
 
@@ -64,6 +70,38 @@ class DetailDraft {
       ],
     );
     return result.insertId;
+  }
+
+  // Update item
+  static async update(
+    id,
+    namaBarang,
+    kategori,
+    jenis,
+    tipeBarang,
+    hargaSatuan,
+    jumlah,
+    rasionalisasi = "",
+    linkPembelian = "",
+    inventarisDigantikanId = null
+  ) {
+    await db.query(
+      `UPDATE detail_draft 
+       SET nama_barang = ?, kategori = ?, jenis = ?, tipe_barang = ?, harga_satuan = ?, jumlah = ?, rasionalisasi = ?, link_pembelian = ?, inventaris_digantikan_id = ?
+       WHERE id = ?`,
+      [
+        namaBarang,
+        kategori || null,
+        jenis || null,
+        tipeBarang,
+        hargaSatuan,
+        jumlah,
+        rasionalisasi,
+        linkPembelian,
+        inventarisDigantikanId || null,
+        id
+      ]
+    );
   }
 
   // Delete item

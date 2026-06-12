@@ -21,8 +21,26 @@
       <div class="row mb-4">
         <div class="col-12">
           <div class="card">
-            <div class="card-header bg-warning bg-opacity-10 border-bottom px-4 py-3 border-warning border-opacity-25">
-              <h5 class="mb-0 text-warning-emphasis">Menunggu Penerimaan & Penomoran Label (Barang Approved)</h5>
+            <div class="card-header bg-warning bg-opacity-10 border-bottom px-4 py-3 border-warning border-opacity-25 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <h5 class="mb-0 text-warning-emphasis">
+                Menunggu Penerimaan & Penomoran Label (Barang Approved)
+                @if (isset($selectedDraftId) && $selectedDraftId)
+                  <span class="badge bg-warning text-dark ms-2">Draf #{{ $selectedDraftId }}</span>
+                @endif
+              </h5>
+              <div class="d-flex align-items-center gap-2">
+                <form action="/inventaris" method="GET" class="d-flex align-items-center gap-2 m-0">
+                  <label class="small text-muted mb-0 text-nowrap">Filter Draf:</label>
+                  <select name="draft_id" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
+                    <option value="">-- Semua Draf --</option>
+                    @foreach ($drafts ?? [] as $d)
+                      <option value="{{ $d['id'] }}" {{ ($selectedDraftId ?? '') == $d['id'] ? 'selected' : '' }}>
+                        Draf #{{ $d['id'] }} - {{ $d['tahun'] }} ({{ $d['pengaju'] }})
+                      </option>
+                    @endforeach
+                  </select>
+                </form>
+              </div>
             </div>
             <div class="table-responsive p-0">
               <table class="table align-items-center mb-0">

@@ -58,6 +58,7 @@ Route::middleware('auth.jwt')->group(function () {
         Route::post('/kepala-lab/pengadaan/update-draft/{id}', [KepalaLabController::class, 'updateDraft'])->name('kepala-lab.update-draft');
         Route::post('/kepala-lab/pengadaan/delete-draft/{id}', [KepalaLabController::class, 'deleteDraft'])->name('kepala-lab.delete-draft');
         Route::post('/kepala-lab/pengadaan/add-item', [KepalaLabController::class, 'addItem'])->name('kepala-lab.add-item');
+        Route::post('/kepala-lab/pengadaan/update-item/{id}', [KepalaLabController::class, 'updateItem'])->name('kepala-lab.update-item');
         Route::post('/kepala-lab/pengadaan/delete-item/{id}', [KepalaLabController::class, 'deleteItem'])->name('kepala-lab.delete-item');
         Route::post('/kepala-lab/pengadaan/submit/{id}', [KepalaLabController::class, 'submitDraft'])->name('kepala-lab.submit');
         Route::get('/kepala-lab/history', [KepalaLabController::class, 'showHistory'])->name('kepala-lab.history');
