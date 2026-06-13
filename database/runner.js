@@ -67,6 +67,10 @@ const migrations = [
     name: "015_add_verification_and_soft_delete_to_users",
     file: "./migrations/015_add_verification_and_soft_delete_to_users.js",
   },
+  {
+    name: "016_add_university_qr_fields_to_inventaris_table",
+    file: "./migrations/016_add_university_qr_fields_to_inventaris_table.js",
+  },
 ];
 
 const seeders = [

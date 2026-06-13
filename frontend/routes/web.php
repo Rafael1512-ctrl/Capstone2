@@ -76,6 +76,7 @@ Route::middleware('auth.jwt')->group(function () {
     Route::middleware('role.jwt:staf_admin')->group(function () {
         Route::get('/staf-admin/drafts', [StafAdminController::class, 'showDrafts'])->name('staf-admin.drafts');
         Route::post('/staf-admin/inventaris/receive/{itemId}', [StafAdminController::class, 'receiveItem'])->name('staf-admin.receive');
+        Route::post('/staf-admin/inventaris/upload-qr-univ/{id}', [StafAdminController::class, 'uploadUniversityQr'])->name('staf-admin.upload-qr-univ');
         Route::post('/staf-admin/inventaris/delete/{id}', [StafAdminController::class, 'deleteInventaris'])->name('staf-admin.delete-inventaris');
     });
 

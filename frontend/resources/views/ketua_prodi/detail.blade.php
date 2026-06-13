@@ -23,7 +23,7 @@
                             <h5 class="mb-3">Keputusan Draf Pengadaan</h5>
                             @if ($draft['status'] !== 'finalized' && $draft['status'] !== 'rejected')
                                 <form id="itemsReviewForm" action="/ketua-prodi/review/{{ $draft['id'] }}/process"
-                                    method="POST" data-confirm="Apakah Anda yakin dengan keputusan ini?" data-validator="validateReviewForm">
+                                    method="POST">
                                     @csrf
                                     <div class="alert alert-info" role="alert">
                                         <i class="ti ti-info-circle me-2"></i>
@@ -37,7 +37,7 @@
                                             placeholder="Masukkan catatan umum untuk draft ini..."></textarea>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-success" type="submit">
+                                        <button class="btn btn-success" type="button" onclick="showConfirmDialog('Apakah Anda yakin dengan keputusan ini?', document.getElementById('itemsReviewForm'), validateReviewForm)">
                                             <i class="ti ti-check me-1"></i>Simpan Semua Keputusan
                                         </button>
                                         <a class="btn btn-outline-secondary" href="/ketua-prodi/review">Batal</a>
@@ -111,24 +111,24 @@
                                             </td>
                                             <td class="py-3">
                                                 @if ($draft['status'] !== 'finalized' && $draft['status'] !== 'rejected')
-                                                    <div class="btn-group btn-group-sm mb-2 d-flex" role="group"
-                                                        style="gap: 2px;">
+                                                    <div class="d-flex gap-2 mb-2">
                                                         <input type="radio" class="btn-check"
                                                             name="decision[{{ $item['id'] }}]"
                                                             id="approve_{{ $item['id'] }}" value="approved"
                                                             form="itemsReviewForm"
                                                             @if ($item['status_item'] === 'approved') checked @endif>
-                                                        <label class="btn btn-outline-success flex-grow-1"
-                                                            for="approve_{{ $item['id'] }}" style="font-size: 12px;">
+                                                        <label class="btn btn-sm btn-outline-success flex-fill rounded-3 d-flex justify-content-center align-items-center gap-1"
+                                                            for="approve_{{ $item['id'] }}" style="font-size: 12px; min-width: 82px;">
                                                             <i class="ti ti-check"></i> Acc
                                                         </label>
 
                                                         <input type="radio" class="btn-check"
                                                             name="decision[{{ $item['id'] }}]"
                                                             id="reject_{{ $item['id'] }}" value="rejected"
-                                                            form="itemsReviewForm">
-                                                        <label class="btn btn-outline-danger flex-grow-1"
-                                                            for="reject_{{ $item['id'] }}" style="font-size: 12px;">
+                                                            form="itemsReviewForm"
+                                                            @if ($item['status_item'] === 'rejected') checked @endif>
+                                                        <label class="btn btn-sm btn-outline-danger flex-fill rounded-3 d-flex justify-content-center align-items-center gap-1"
+                                                            for="reject_{{ $item['id'] }}" style="font-size: 12px; min-width: 82px;">
                                                             <i class="ti ti-x"></i> Tolak
                                                         </label>
 
@@ -137,8 +137,8 @@
                                                             id="pending_{{ $item['id'] }}" value="pending"
                                                             form="itemsReviewForm"
                                                             @if ($item['status_item'] === 'pending') checked @endif>
-                                                        <label class="btn btn-outline-warning flex-grow-1"
-                                                            for="pending_{{ $item['id'] }}" style="font-size: 12px;">
+                                                        <label class="btn btn-sm btn-outline-warning flex-fill rounded-3 d-flex justify-content-center align-items-center gap-1"
+                                                            for="pending_{{ $item['id'] }}" style="font-size: 12px; min-width: 82px;">
                                                             <i class="ti ti-help"></i> Pending
                                                         </label>
                                                     </div>

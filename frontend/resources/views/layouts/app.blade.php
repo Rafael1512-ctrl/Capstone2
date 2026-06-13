@@ -290,13 +290,13 @@
                 <div class="modal-header bg-light border-bottom px-4 py-3 d-flex align-items-center gap-2">
                     <i class="ti ti-alert-circle fs-4 text-warning"></i>
                     <h5 class="modal-title fw-bold text-dark fs-5" id="confirmModalLabel">Konfirmasi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hideFallbackConfirmModal()"></button>
                 </div>
                 <div class="modal-body px-4 py-3">
                     <p id="confirmMessage" class="mb-0 text-dark"></p>
                 </div>
                 <div class="modal-footer bg-light border-top px-4 py-3 d-flex gap-2 justify-content-end">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="hideFallbackConfirmModal()">
                         <i class="ti ti-x me-1"></i> Batal
                     </button>
                     <button type="button" class="btn btn-primary" onclick="confirmAndSubmit()">
@@ -312,73 +312,105 @@
         let pendingForm = null;
         let validationFunction = null;
         let confirmModalInstance = null;
-        
-        function getConfirmModal() {
-            if (!confirmModalInstance) {
-                try {
-                    let bs = window.bootstrap;
-                    if (bs && !bs.Modal && bs.default && bs.default.Modal) {
-                        bs = bs.default;
-                    }
-                    
-                    if (bs && typeof bs.Modal === 'function') {
-                        confirmModalInstance = new bs.Modal(document.getElementById('confirmModal'), {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                    } else {
-                        console.warn('Bootstrap Modal constructor not found on window.bootstrap');
-                    }
-                } catch (e) {
-                    console.error('Failed to initialize bootstrap modal:', e);
-                }
+        let fallbackBackdrop = null;
+
+        function getBootstrapModalInstance() {
+            if (confirmModalInstance) {
+                return confirmModalInstance;
             }
+
+            const el = document.getElementById('confirmModal');
+            if (!el) {
+                return null;
+            }
+
+            const bs = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
+            if (!bs || !bs.Modal) {
+                return null;
+            }
+
+            try {
+                if (typeof bs.Modal.getOrCreateInstance === 'function') {
+                    confirmModalInstance = bs.Modal.getOrCreateInstance(el, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                } else if (typeof bs.Modal === 'function') {
+                    confirmModalInstance = new bs.Modal(el, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                }
+            } catch (err) {
+                console.warn('Bootstrap modal initialization failed:', err);
+                confirmModalInstance = null;
+            }
+
             return confirmModalInstance;
         }
 
+        function showFallbackConfirmModal() {
+            const modalEl = document.getElementById('confirmModal');
+            if (!modalEl) return;
+            modalEl.classList.add('show');
+            modalEl.style.display = 'block';
+            modalEl.setAttribute('aria-modal', 'true');
+            modalEl.removeAttribute('aria-hidden');
+            modalEl.scrollTop = 0;
+
+            fallbackBackdrop = document.createElement('div');
+            fallbackBackdrop.className = 'modal-backdrop fade show';
+            document.body.appendChild(fallbackBackdrop);
+            document.body.classList.add('modal-open');
+        }
+
+        function hideFallbackConfirmModal() {
+            const modalEl = document.getElementById('confirmModal');
+            if (modalEl) {
+                modalEl.classList.remove('show');
+                modalEl.style.display = 'none';
+                modalEl.setAttribute('aria-hidden', 'true');
+                modalEl.removeAttribute('aria-modal');
+            }
+            if (fallbackBackdrop) {
+                fallbackBackdrop.remove();
+                fallbackBackdrop = null;
+            }
+            document.body.classList.remove('modal-open');
+        }
+
         function showConfirmDialog(message, form, validator = null) {
-            console.log('showConfirmDialog called with message:', message, 'form:', form, 'validator:', validator);
             document.getElementById('confirmMessage').textContent = message;
             pendingForm = form;
             validationFunction = validator;
-            
-            const modal = getConfirmModal();
-            console.log('getConfirmModal returned:', modal);
+            const modal = getBootstrapModalInstance();
             if (modal) {
-                console.log('Showing Bootstrap modal');
                 modal.show();
             } else {
-                console.log('Fallback to native confirm');
-                // Fallback to native confirm if bootstrap isn't loaded yet
-                if (confirm(message)) {
-                    confirmAndSubmit(true);
-                }
+                showFallbackConfirmModal();
             }
             return false;
         }
 
         function confirmAndSubmit(bypassModal = false) {
-            console.log('confirmAndSubmit called, bypassModal:', bypassModal);
             // Run validation if provided
             if (validationFunction && typeof validationFunction === 'function') {
-                console.log('Running validation function');
                 if (!validationFunction()) {
-                    console.log('Validation failed');
-                    const modal = getConfirmModal();
+                    const modal = getBootstrapModalInstance();
                     if (modal && !bypassModal) modal.hide();
+                    else if (!bypassModal) hideFallbackConfirmModal();
                     return false;
                 }
-                console.log('Validation passed');
             }
-            
-            const modal = getConfirmModal();
+
+            const modal = getBootstrapModalInstance();
             if (modal && !bypassModal) {
                 modal.hide();
+            } else if (!bypassModal) {
+                hideFallbackConfirmModal();
             }
-            
+
             if (pendingForm) {
-                console.log('Submitting pending form:', pendingForm);
-                // Show loading indicator
                 const submitBtn = pendingForm.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.innerHTML = '<i class="ti ti-loader-2" style="animation: spin 1s linear infinite;"></i> Menyimpan...';
@@ -386,11 +418,8 @@
                         submitBtn.disabled = true;
                     }, 10);
                 }
-                
                 pendingForm.removeEventListener('submit', handleFormSubmit);
                 pendingForm.submit();
-            } else {
-                console.log('No pending form to submit');
             }
             pendingForm = null;
             validationFunction = null;
