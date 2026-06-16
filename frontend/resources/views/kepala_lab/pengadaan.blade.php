@@ -400,7 +400,7 @@
                                                     </div>
                                                     <div class="col-5">
                                                         <label class="form-label small fw-semibold text-secondary">Jumlah (Qty)</label>
-                                                        <input class="form-control text-center" type="number" name="jumlah" value="{{ $item['jumlah'] }}" placeholder="5" min="1" required>
+                                                        <input class="form-control text-center {{ isset($item['inventaris_digantikan_id']) && $item['inventaris_digantikan_id'] ? 'bg-light' : '' }}" type="number" name="jumlah" value="{{ $item['jumlah'] }}" placeholder="5" min="1" {{ isset($item['inventaris_digantikan_id']) && $item['inventaris_digantikan_id'] ? 'readonly' : '' }} required>
                                                     </div>
                                                 </div>
 
@@ -649,7 +649,7 @@
                                 </div>
                                 <div class="col-5">
                                     <label class="form-label small fw-semibold text-secondary">Jumlah (Qty)</label>
-                                    <input class="form-control text-center" type="number" name="jumlah" value="1" min="1" required>
+                                    <input class="form-control text-center bg-light" type="number" name="jumlah" value="1" min="1" readonly required>
                                 </div>
                             </div>
 

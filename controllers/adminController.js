@@ -118,6 +118,15 @@ class AdminController {
   static async createRuangan(req, res) {
     try {
       const { nama_ruangan, kode_ruangan, lokasi } = req.body;
+      
+      // Validation
+      if (await Ruangan.checkKodeExists(kode_ruangan)) {
+        return res.status(422).json({ error: 'Kode ruangan sudah digunakan.' });
+      }
+      if (await Ruangan.checkNameAndLocationExists(nama_ruangan, lokasi)) {
+        return res.status(422).json({ error: 'Nama ruangan dengan gedung yang sama sudah ada.' });
+      }
+
       await Ruangan.create(nama_ruangan, kode_ruangan, lokasi);
       res.json({ success: true, message: 'Ruangan created successfully' });
     } catch (err) {
@@ -141,7 +150,17 @@ class AdminController {
   static async editRuangan(req, res) {
     try {
       const { nama_ruangan, kode_ruangan, lokasi } = req.body;
-      await Ruangan.update(req.params.id, nama_ruangan, kode_ruangan, lokasi);
+      const id = req.params.id;
+
+      // Validation
+      if (await Ruangan.checkKodeExists(kode_ruangan, id)) {
+        return res.status(422).json({ error: 'Kode ruangan sudah digunakan.' });
+      }
+      if (await Ruangan.checkNameAndLocationExists(nama_ruangan, lokasi, id)) {
+        return res.status(422).json({ error: 'Nama ruangan dengan gedung yang sama sudah ada.' });
+      }
+
+      await Ruangan.update(id, nama_ruangan, kode_ruangan, lokasi);
       res.json({ success: true, message: 'Ruangan updated successfully' });
     } catch (err) {
       console.error(err);

@@ -21,6 +21,9 @@ Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify']
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
 
+// ─── PUBLIC ROUTES ─────────────────────────────────────────────────────────────
+Route::get('/inventaris/detail/{id}', [StafAdminController::class, 'detail'])->name('inventaris.detail');
+
 // ─── PROTECTED ROUTES ──────────────────────────────────────────────────────────
 Route::middleware('auth.jwt')->group(function () {
 

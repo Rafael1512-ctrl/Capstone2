@@ -65,6 +65,7 @@ router.get('/ketua-prodi/history', authenticateToken, requireRole('ketua_prodi')
 // ─── ROLE: STAF ADMINISTRASI ──────────────────────────────────────────────────
 router.get('/staf-admin/drafts', authenticateToken, requireRole('staf_admin'), stafAdminController.showDrafts);
 router.get('/inventaris', authenticateToken, stafAdminController.showInventaris);
+router.get('/inventaris/detail/:id', stafAdminController.getInventarisDetail);
 router.post('/staf-admin/inventaris/receive/:itemId', authenticateToken, requireRole('staf_admin'), stafAdminController.receiveItem);
 router.post('/staf-admin/inventaris/upload-qr-univ/:id', authenticateToken, requireRole('staf_admin'), stafAdminController.uploadUniversityQr);
 router.post('/staf-admin/inventaris/delete/:id', authenticateToken, requireRole('staf_admin'), stafAdminController.deleteInventaris);

@@ -28,6 +28,16 @@ class StafAdminController extends Controller
         return view('staf_admin.inventaris', $data);
     }
 
+    // GET /inventaris/detail/{id}
+    public function detail($id)
+    {
+        $item = ApiService::get("/inventaris/detail/{$id}");
+        if (isset($item['error'])) {
+            return abort(404, 'Inventaris tidak ditemukan');
+        }
+        return view('inventaris.detail', ['item' => $item, 'title' => 'Detail Inventaris']);
+    }
+
     // POST /staf-admin/inventaris/receive/{itemId}
     public function receiveItem(Request $request, $itemId)
     {

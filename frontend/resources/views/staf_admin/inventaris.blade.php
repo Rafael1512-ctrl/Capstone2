@@ -146,10 +146,8 @@
                                     <th>Ruangan</th>
                                     <th>Tanggal Terima</th>
                                     <th>Kondisi</th>
-                                    <th class="text-center">QR Code / Barcode</th>
-                                    <th class="text-center">QR Univ</th>
                                     @if (Session::get('user')['role'] === 'staf_admin')
-                                        <th class="text-end px-4">Aksi</th>
+                                        <th class="text-center px-4">Aksi</th>
                                     @endif
                                 </tr>
                             </thead>
@@ -182,22 +180,6 @@
                                                     {{ str_replace('_', ' ', strtoupper($inv['kondisi'])) }}
                                                 </span>
                                             </td>
-                                            <td class="text-center">
-                                                <div class="d-inline-flex align-items-center gap-3">
-                                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data={{ urlencode($inv['nomor_label']) }}"
-                                                        alt="QR Code"
-                                                        style="width: 40px; height: 40px; border: 1px solid #ddd; padding: 2px; border-radius: 4px;">
-                                                    <span
-                                                        class="small text-muted font-monospace">{{ $inv['nomor_label'] }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                @if ($inv['qr_univ_path'])
-                                                    <span class="badge bg-success">Terunggah</span>
-                                                @else
-                                                    <span class="badge bg-secondary">Belum</span>
-                                                @endif
-                                            </td>
                                             @if (Session::get('user')['role'] === 'staf_admin')
                                                 <td class="text-end px-4">
                                                     <div class="d-flex align-items-center justify-content-end gap-2">
@@ -212,14 +194,14 @@
                                                         @if($inv['qr_univ_path'])
                                                         <button type="button"
                                                             class="btn btn-sm btn-outline-primary btn-icon"
-                                                            onclick="openUploadQrUnivModal({{ $inv['id'] }}, '{{ addslashes($inv['nomor_label'] ?? '') }}', '{{ addslashes($inv['kode_inventaris_univ'] ?? '') }}', '{{ addslashes($inv['tanggal_daftar_univ'] ?? '') }}', '{{ addslashes($inv['qr_univ_path'] ?? '') }}')"
+                                                            onclick="openUploadQrUnivModal({{ $inv['id'] }}, '{{ addslashes($inv['nomor_label'] ?? '') }}', '{{ addslashes($inv['qr_univ_path'] ?? '') }}')"
                                                             title="Edit Data Univ">
                                                             <i class="ti ti-edit"></i>
                                                         </button>
                                                         @else
                                                         <button type="button"
                                                             class="btn btn-sm btn-primary btn-icon"
-                                                            onclick="openUploadQrUnivModal({{ $inv['id'] }}, '{{ addslashes($inv['nomor_label'] ?? '') }}', '{{ addslashes($inv['kode_inventaris_univ'] ?? '') }}', '{{ addslashes($inv['tanggal_daftar_univ'] ?? '') }}', '{{ addslashes($inv['qr_univ_path'] ?? '') }}')"
+                                                            onclick="openUploadQrUnivModal({{ $inv['id'] }}, '{{ addslashes($inv['nomor_label'] ?? '') }}', '{{ addslashes($inv['qr_univ_path'] ?? '') }}')"
                                                             title="Unggah QR Univ">
                                                             <i class="ti ti-upload"></i>
                                                         </button>
@@ -243,7 +225,7 @@
                                 @else
                                     <tr>
                                         <td class="text-center py-4"
-                                            colspan="{{ Session::get('user')['role'] === 'staf_admin' ? 11 : 10 }}">Belum
+                                            colspan="{{ Session::get('user')['role'] === 'staf_admin' ? 9 : 8 }}">Belum
                                             ada barang inventaris yang dilabeli.</td>
                                     </tr>
                                 @endif
@@ -275,14 +257,7 @@
                             <input id="qr_univ_file" name="qr_univ_file" type="file" accept="image/png,image/jpeg,image/jpg" class="form-control form-control-sm">
                             <div class="form-text">Unggah file gambar QR code universitas (PNG / JPG). Biarkan kosong jika tidak ingin mengubah/mengunggah gambar baru.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small">Kode Inventaris Univ.</label>
-                            <input id="kode_inventaris_univ" name="kode_inventaris_univ" type="text" class="form-control form-control-sm" maxlength="100">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small">Tanggal Daftar Univ.</label>
-                            <input id="tanggal_daftar_univ" name="tanggal_daftar_univ" type="date" class="form-control form-control-sm">
-                        </div>
+
                         <div id="existingQrUnivInfo" class="small text-muted"></div>
                     </div>
                     <div class="modal-footer bg-light border-top px-4 py-3 d-flex gap-2 justify-content-end">
@@ -345,19 +320,7 @@
                                     <td class="text-muted">:</td>
                                     <td><span class="badge" id="det_kondisi"></span></td>
                                 </tr>
-                                <tr>
-                                    <td colspan="3"><hr class="my-2"></td>
-                                </tr>
-                                <tr>
-                                    <th class="text-muted fw-normal">Kode Univ.</th>
-                                    <td class="text-muted">:</td>
-                                    <td id="det_kode_univ" class="fw-medium text-secondary" style="word-break: break-all;"></td>
-                                </tr>
-                                <tr>
-                                    <th class="text-muted fw-normal">Tgl Daftar Univ.</th>
-                                    <td class="text-muted">:</td>
-                                    <td id="det_tgl_univ"></td>
-                                </tr>
+
                             </table>
                         </div>
                         <!-- QR Code Column -->
@@ -387,12 +350,10 @@
     </div>
 
     <script>
-        function openUploadQrUnivModal(itemId, label, kodeInventarisUniv, tanggalDaftarUniv, qrUnivPath) {
+        function openUploadQrUnivModal(itemId, label, qrUnivPath) {
             const form = document.getElementById('uploadQrUnivForm');
             form.action = `/staf-admin/inventaris/upload-qr-univ/${itemId}`;
             document.getElementById('uploadQrUnivLabel').value = label;
-            document.getElementById('kode_inventaris_univ').value = kodeInventarisUniv || '';
-            document.getElementById('tanggal_daftar_univ').value = tanggalDaftarUniv || '';
 
             const existingInfo = document.getElementById('existingQrUnivInfo');
             if (qrUnivPath) {
@@ -481,17 +442,12 @@
 
             // Univ info
             let isKodePath = item.kode_inventaris_univ && (item.kode_inventaris_univ.startsWith('/') || item.kode_inventaris_univ.includes('/'));
-            document.getElementById('det_kode_univ').textContent = isKodePath ? 'Tersimpan sebagai Gambar' : (item.kode_inventaris_univ || 'Belum Registrasi');
-            
-            let tglUniv = item.tanggal_daftar_univ ? new Date(item.tanggal_daftar_univ).toLocaleDateString('id-ID', {
-                day: '2-digit', month: 'long', year: 'numeric'
-            }) : '-';
-            document.getElementById('det_tgl_univ').textContent = tglUniv;
 
             // QR code local
             const qrLocalContainer = document.getElementById('det_qr_inventaris_container');
+            const detailUrl = `${window.location.origin}/inventaris/detail/${item.id}`;
             qrLocalContainer.innerHTML = `
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(item.nomor_label)}" 
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(detailUrl)}" 
                      alt="QR Local" 
                      class="img-thumbnail" 
                      style="width: 120px; height: 120px;">

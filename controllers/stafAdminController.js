@@ -59,6 +59,20 @@ class StafAdminController {
     }
   }
 
+  // GET /api/inventaris/detail/:id
+  static async getInventarisDetail(req, res) {
+    try {
+      const item = await Inventaris.getById(req.params.id);
+      if (!item) {
+        return res.status(404).json({ error: "Item not found" });
+      }
+      res.json(item);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error: " + err.message });
+    }
+  }
+
   // POST /api/staf-admin/inventaris/receive/:itemId
   static async receiveItem(req, res) {
     try {

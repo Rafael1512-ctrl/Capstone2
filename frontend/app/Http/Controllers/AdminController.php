@@ -141,21 +141,43 @@ class AdminController extends Controller
             'kode_ruangan'  => 'required|string|max:50',
             'lokasi'        => 'required|string|max:255',
         ]);
-        ApiService::post('/admin/ruangan/create', $request->all());
+        
+        $response = ApiService::post('/admin/ruangan/create', $request->all());
+        
+        if (isset($response['error'])) {
+            return back()->withInput()->with('error', $response['error']);
+        }
+
         return redirect('/admin/ruangan')->with('success', 'Ruangan berhasil ditambahkan.');
     }
 
     // POST /admin/ruangan/delete/{id}
     public function deleteRuangan($id)
     {
-        ApiService::post("/admin/ruangan/delete/{$id}");
+        $response = ApiService::post("/admin/ruangan/delete/{$id}");
+        
+        if (isset($response['error'])) {
+            return redirect('/admin/ruangan')->with('error', $response['error']);
+        }
+
         return redirect('/admin/ruangan')->with('success', 'Ruangan berhasil dihapus.');
     }
 
     // POST /admin/ruangan/edit/{id}
     public function editRuangan(Request $request, $id)
     {
-        ApiService::post("/admin/ruangan/edit/{$id}", $request->all());
+        $request->validate([
+            'nama_ruangan'  => 'required|string|max:255',
+            'kode_ruangan'  => 'required|string|max:50',
+            'lokasi'        => 'required|string|max:255',
+        ]);
+        
+        $response = ApiService::post("/admin/ruangan/edit/{$id}", $request->all());
+        
+        if (isset($response['error'])) {
+            return back()->withInput()->with('error', $response['error']);
+        }
+
         return redirect('/admin/ruangan')->with('success', 'Ruangan berhasil diperbarui.');
     }
 }

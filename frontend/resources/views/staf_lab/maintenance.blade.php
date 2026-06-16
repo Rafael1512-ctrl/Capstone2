@@ -37,7 +37,6 @@
                 <label class="form-label">Status Akhir Kondisi Barang</label>
                 <select class="form-select" name="status_akhir" required>
                   <option value="baik">Baik (Siap Digunakan)</option>
-                  <option value="perlu_perbaikan">Perlu Perbaikan</option>
                   <option value="rusak">Rusak (Tidak Dapat Digunakan)</option>
                 </select>
               </div>
@@ -113,12 +112,43 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const statusSelect = document.querySelector('select[name="status_akhir"]');
         const bhpSelect = document.querySelector('select[name="bhp_id_used"]');
         const qtyInput = document.querySelector('input[name="qty_bhp_used"]');
         
+        function handleStatusChange() {
+            if (!statusSelect || !bhpSelect || !qtyInput) return;
+            
+            if (statusSelect.value === 'rusak') {
+                bhpSelect.value = '';
+                qtyInput.value = '';
+                bhpSelect.disabled = true;
+                qtyInput.disabled = true;
+                qtyInput.placeholder = '0';
+                qtyInput.removeAttribute('max');
+            } else {
+                bhpSelect.disabled = false;
+                qtyInput.disabled = false;
+                updateMaxQty();
+            }
+        }
+
+        if (statusSelect) {
+            statusSelect.addEventListener('change', handleStatusChange);
+            // Inisialisasi awal
+            handleStatusChange();
+        }
+
         function updateMaxQty() {
-            if (!bhpSelect || !qtyInput) return;
+            if (!bhpSelect || !qtyInput || (statusSelect && statusSelect.value === 'rusak')) return;
             const selectedOption = bhpSelect.options[bhpSelect.selectedIndex];
+            if (!selectedOption.value) {
+                qtyInput.removeAttribute('max');
+                qtyInput.placeholder = '0';
+                qtyInput.value = '';
+                return;
+            }
+
             const stockText = selectedOption.text.match(/Stok:\s*(\d+)/);
             if (stockText) {
                 const stock = parseInt(stockText[1]);
@@ -136,14 +166,22 @@
         
         if (bhpSelect) {
             bhpSelect.addEventListener('change', updateMaxQty);
-            updateMaxQty();
         }
 
-        // Real-time typing check
+        // Real-time typing check dengan SweetAlert
         qtyInput?.addEventListener('input', function() {
             const max = parseInt(qtyInput.max);
             if (max && parseInt(qtyInput.value) > max) {
-                alert('Jumlah penggunaan melebihi stok yang tersedia!');
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: 'Jumlah melebihi stok BHP!',
+                    text: `Maksimal penggunaan adalah ${max} unit.`,
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true
+                });
                 qtyInput.value = max;
             }
         });

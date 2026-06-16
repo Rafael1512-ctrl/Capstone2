@@ -21,11 +21,8 @@ class MaintenanceLog {
 
     try {
       // 1. Dapatkan kondisi sebelum dari inventaris
-      const [inv] = await connection.query(
-        `SELECT kondisi FROM inventaris WHERE id = ?`,
-        [inventarisId]
-      );
-      const kondisiSebelum = inv.length > 0 ? inv[0].kondisi : 'baik';
+      // User request: "anggepla semua yang di mt kalo dimasukin ke log itu berarti dia rusak kondisi awalnya"
+      const kondisiSebelum = 'rusak';
 
       // 2. Simpan log maintenance
       const [result] = await connection.query(

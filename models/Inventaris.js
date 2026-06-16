@@ -14,6 +14,19 @@ class Inventaris {
     return rows;
   }
 
+  // Get single inventory item by ID
+  static async getById(id) {
+    const [rows] = await db.query(
+      `SELECT iv.*, COALESCE(dd.harga_satuan, 0) as harga_satuan, r.nama_ruangan
+       FROM inventaris iv
+       LEFT JOIN detail_draft dd ON iv.detail_draft_id = dd.id
+       LEFT JOIN ruangan r ON iv.ruangan_id = r.id
+       WHERE iv.id = ? AND iv.kondisi != 'dihapus'`,
+      [id]
+    );
+    return rows[0] || null;
+  }
+
   // Get inventaris for maintenance
   static async getForMaintenance() {
     const [rows] = await db.query(
