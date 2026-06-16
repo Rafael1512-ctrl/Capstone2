@@ -59,10 +59,24 @@ class StafAdminController extends Controller
 
         if ($request->hasFile('qr_univ_file')) {
             $file = $request->file('qr_univ_file');
-            $fileContents = File::get($file->getRealPath());
-            $fileData = base64_encode($fileContents);
-            $payload['qr_univ_file_name'] = $file->getClientOriginalName();
-            $payload['qr_univ_file_data'] = $fileData;
+            $extension = $file->getClientOriginalExtension();
+            $safeName = 'qr_univ_inventaris_' . $id . '_' . time() . '.' . $extension;
+            
+            // Ensure public/asset directory exists
+            $destinationPath = public_path('asset');
+            if (!File::exists($destinationPath)) {
+                File::makeDirectory($destinationPath, 0755, true, true);
+            }
+            
+            // Move file to public/asset
+            $file->move($destinationPath, $safeName);
+            
+            // Set the image path in the payload
+            $imagePath = '/asset/' . $safeName;
+            
+            // Store image path in both fields to satisfy database and UI requirements
+            $payload['kode_inventaris_univ'] = $imagePath;
+            $payload['qr_univ_path'] = $imagePath;
         }
 
         $res = ApiService::post("/staf-admin/inventaris/upload-qr-univ/{$id}", $payload);

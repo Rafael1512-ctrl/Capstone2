@@ -96,10 +96,10 @@ class StafAdminController {
   // POST /api/staf-admin/inventaris/upload-qr-univ/:id
   static async uploadUniversityQr(req, res) {
     try {
-      const { qr_univ_file_name, qr_univ_file_data, kode_inventaris_univ, tanggal_daftar_univ } = req.body;
+      const { qr_univ_file_name, qr_univ_file_data, kode_inventaris_univ, tanggal_daftar_univ, qr_univ_path } = req.body;
 
-      let fileUrl = null;
-      if (qr_univ_file_name && qr_univ_file_data) {
+      let fileUrl = qr_univ_path || null;
+      if (!fileUrl && qr_univ_file_name && qr_univ_file_data) {
         const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'inventaris');
         fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -115,7 +115,7 @@ class StafAdminController {
       await Inventaris.attachUniversityQr(
         req.params.id,
         fileUrl,
-        kode_inventaris_univ || null,
+        kode_inventaris_univ || fileUrl,
         tanggal_daftar_univ || null
       );
 
