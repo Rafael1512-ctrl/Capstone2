@@ -6,11 +6,14 @@
             <div class="col-12">
                 <div class="mb-6 d-flex justify-content-between align-items-center">
                     <div>
-                        <h1 class="fs-3 mb-1">Review Draf Pengadaan #{{ $draft['id'] }}</h1>
+                        <h1 class="fs-3 mb-1">Review Draf Pengadaan (Tahun {{ $draft['tahun'] }})</h1>
                         <p class="text-muted">Tinjau item pengadaan untuk Tahun Anggaran {{ $draft['tahun'] }}. Diajukan
                             oleh: {{ $draft['pengaju'] }}.</p>
                     </div>
-                    <a class="btn btn-outline-secondary" href="/ketua-prodi/review">Kembali</a>
+                    @php
+                        $backUrl = ($draft['status'] === 'finalized' || $draft['status'] === 'rejected') ? '/ketua-prodi/history' : '/ketua-prodi/review';
+                    @endphp
+                    <a class="btn btn-outline-secondary" href="{{ $backUrl }}">Kembali</a>
                 </div>
             </div>
         </div>
@@ -203,12 +206,22 @@
                 });
 
                 if (!allSelected) {
-                    alert('Harap pilih status untuk semua item barang!');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Harap pilih status untuk semua item barang!',
+                        confirmButtonText: 'OK'
+                    });
                     return false;
                 }
 
                 if (missingReason) {
-                    alert('Harap isi catatan/alasan penolakan untuk semua item barang yang ditolak!');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Harap isi catatan/alasan penolakan untuk semua item barang yang ditolak!',
+                        confirmButtonText: 'OK'
+                    });
                     return false;
                 }
                 

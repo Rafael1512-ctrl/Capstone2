@@ -38,7 +38,7 @@
                 @if (isset($mutasiList) && count($mutasiList) > 0)
                   @foreach ($mutasiList as $log)
                     <tr>
-                      <td class="px-4 py-3 text-secondary font-monospace">#{{ $log['id'] }}</td>
+                      <td class="px-4 py-3 text-secondary font-monospace">{{ $loop->remaining + 1 }}</td>
                       <td>
                         <div class="d-flex align-items-center gap-2">
                           <i class="ti ti-calendar text-secondary"></i>

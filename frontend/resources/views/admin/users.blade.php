@@ -106,7 +106,7 @@
                                 @if ($hasUsers)
                                     @foreach ($users as $u)
                                         <tr>
-                                            <td class="px-4 py-3 text-secondary">{{ $u['id'] }}</td>
+                                            <td class="px-4 py-3 text-secondary">{{ $loop->remaining + 1 }}</td>
                                             <td class="py-3 fw-semibold text-dark">{{ $u['nama'] }}</td>
                                             <td class="py-3 text-secondary">{{ $u['email'] }}</td>
                                             <td class="py-3">

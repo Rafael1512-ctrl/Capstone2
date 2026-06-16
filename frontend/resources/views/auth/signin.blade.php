@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/custom.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <div class="container d-flex align-items-center justify-content-center min-vh-100">
@@ -31,10 +32,19 @@
           </div>
           
           @if (session('success'))
-            <div class="alert alert-success small py-2 text-center mb-3 d-flex align-items-center justify-content-center gap-2">
-              <i class="ti ti-circle-check"></i>
-              <span>{{ session('success') }}</span>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: '{!! addslashes(session('success')) !!}',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
+                });
+            </script>
           @endif
 
           @if (session('error') || isset($error))
@@ -66,10 +76,19 @@
                 </div>
               </div>
             @else
-              <div class="alert alert-danger small py-2 text-center mb-3 d-flex align-items-center justify-content-center gap-2">
-                <i class="ti ti-alert-circle"></i>
-                <span>{{ session('error') ?? $error }}</span>
-              </div>
+              <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                      Swal.fire({
+                          toast: true,
+                          position: 'top-end',
+                          icon: 'error',
+                          title: '{!! addslashes(session('error') ?? $error) !!}',
+                          showConfirmButton: false,
+                          timer: 3000,
+                          timerProgressBar: true,
+                      });
+                  });
+              </script>
             @endif
           @endif
           

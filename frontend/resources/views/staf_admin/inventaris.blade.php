@@ -28,7 +28,7 @@
                             <h5 class="mb-0 text-warning-emphasis">
                                 Menunggu Penerimaan & Penomoran Label (Barang Approved)
                                 @if (isset($selectedDraftId) && $selectedDraftId)
-                                    <span class="badge bg-warning text-dark ms-2">Draf #{{ $selectedDraftId }}</span>
+                                    <span class="badge bg-warning text-dark ms-2">Draf Terpilih</span>
                                 @endif
                             </h5>
                             <div class="d-flex align-items-center gap-2">
@@ -40,7 +40,7 @@
                                         @foreach ($drafts ?? [] as $d)
                                             <option value="{{ $d['id'] }}"
                                                 {{ ($selectedDraftId ?? '') == $d['id'] ? 'selected' : '' }}>
-                                                Draf #{{ $d['id'] }} - {{ $d['tahun'] }} ({{ $d['pengaju'] }})
+                                                Draf ID: {{ $d['id'] }} - {{ $d['tahun'] }} ({{ $d['pengaju'] }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -140,7 +140,7 @@
                                 <tr>
                                     <th class="px-4 py-3">ID</th>
                                     <th>Kode/Label</th>
-                                    <th>Nama Barang</th>
+                                    <th style="min-width: 250px;">Nama Barang</th>
                                     <th>Kategori</th>
                                     <th>Jenis</th>
                                     <th>Ruangan</th>
@@ -157,7 +157,7 @@
                                 @if (isset($receivedItems) && count($receivedItems) > 0)
                                     @foreach ($receivedItems as $inv)
                                         <tr>
-                                            <td class="px-4 py-3">{{ $inv['id'] }}</td>
+                                            <td class="px-4 py-3">{{ $loop->remaining + 1 }}</td>
                                             <td><span class="badge bg-primary fs-7">{{ $inv['nomor_label'] }}</span></td>
                                             <td class="fw-semibold">{{ $inv['nama_barang'] }}</td>
                                             <td><span
@@ -200,24 +200,34 @@
                                             </td>
                                             @if (Session::get('user')['role'] === 'staf_admin')
                                                 <td class="text-end px-4">
-                                                    <button type="button"
-                                                        class="btn btn-sm btn-secondary me-2"
-                                                        onclick="openUploadQrUnivModal({{ $inv['id'] }}, {!! json_encode($inv['nomor_label']) !!}, {!! json_encode($inv['kode_inventaris_univ'] ?? '') !!}, {!! json_encode($inv['tanggal_daftar_univ'] ?? '') !!}, {!! json_encode($inv['qr_univ_path'] ?? '') !!})"
-                                                        title="Unggah QR Univ">
-                                                        <i class="ti ti-upload"></i>
-                                                    </button>
-
-                                                    <form action="/staf-admin/inventaris/delete/{{ $inv['id'] }}"
-                                                        method="POST" class="d-inline"
-                                                        data-confirm="Apakah Anda yakin ingin menghapus barang inventaris ini (soft delete)?">
-                                                        @csrf
-                                                        <button type="submit"
-                                                            class="btn btn-sm btn-light text-danger border btn-icon rounded-circle"
-                                                            style="width: 32px; height: 32px; padding: 0;"
-                                                            title="Soft Delete">
-                                                            <i class="ti ti-trash"></i>
+                                                    <div class="d-flex align-items-center justify-content-end gap-2">
+                                                        @if($inv['qr_univ_path'])
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-outline-primary btn-icon"
+                                                            onclick="openUploadQrUnivModal({{ $inv['id'] }}, '{{ addslashes($inv['nomor_label'] ?? '') }}', '{{ addslashes($inv['kode_inventaris_univ'] ?? '') }}', '{{ addslashes($inv['tanggal_daftar_univ'] ?? '') }}', '{{ addslashes($inv['qr_univ_path'] ?? '') }}')"
+                                                            title="Edit Data Univ">
+                                                            <i class="ti ti-edit"></i>
                                                         </button>
-                                                    </form>
+                                                        @else
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-primary btn-icon"
+                                                            onclick="openUploadQrUnivModal({{ $inv['id'] }}, '{{ addslashes($inv['nomor_label'] ?? '') }}', '{{ addslashes($inv['kode_inventaris_univ'] ?? '') }}', '{{ addslashes($inv['tanggal_daftar_univ'] ?? '') }}', '{{ addslashes($inv['qr_univ_path'] ?? '') }}')"
+                                                            title="Unggah QR Univ">
+                                                            <i class="ti ti-upload"></i>
+                                                        </button>
+                                                        @endif
+
+                                                        <form action="/staf-admin/inventaris/delete/{{ $inv['id'] }}"
+                                                            method="POST" class="m-0"
+                                                            data-confirm="Apakah Anda yakin ingin menghapus barang inventaris ini (soft delete)?">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                class="btn btn-sm btn-light text-danger border btn-icon"
+                                                                title="Soft Delete">
+                                                                <i class="ti ti-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </td>
                                             @endif
                                         </tr>
@@ -242,7 +252,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
                 <div class="modal-header bg-light border-bottom px-4 py-3 d-flex align-items-center gap-2">
-                    <h5 class="modal-title fw-bold text-dark" id="uploadQrUnivModalLabel">Unggah QR Universitas</h5>
+                    <h5 class="modal-title fw-bold text-dark" id="uploadQrUnivModalLabel">Kelola QR & Data Universitas</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="uploadQrUnivForm" method="POST" enctype="multipart/form-data">
@@ -254,8 +264,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="qr_univ_file" class="form-label small">File QR Universitas</label>
-                            <input id="qr_univ_file" name="qr_univ_file" type="file" accept="image/png,image/jpeg,image/jpg" class="form-control form-control-sm" required>
-                            <div class="form-text">Unggah file gambar QR code universitas (PNG / JPG).</div>
+                            <input id="qr_univ_file" name="qr_univ_file" type="file" accept="image/png,image/jpeg,image/jpg" class="form-control form-control-sm">
+                            <div class="form-text">Unggah file gambar QR code universitas (PNG / JPG). Biarkan kosong jika tidak ingin mengubah/mengunggah gambar baru.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">Kode Inventaris Univ.</label>
@@ -292,9 +302,13 @@
             }
 
             const modalEl = document.getElementById('uploadQrUnivModal');
-            const bsModal = window.bootstrap && window.bootstrap.Modal ? window.bootstrap.Modal.getOrCreateInstance(modalEl) : null;
-            if (bsModal) {
-                bsModal.show();
+            try {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.show();
+            } catch (e) {
+                console.error("Modal error:", e);
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
             }
         }
     </script>

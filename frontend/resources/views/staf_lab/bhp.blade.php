@@ -185,7 +185,7 @@
                 @if (isset($bhpList) && count($bhpList) > 0)
                   @foreach ($bhpList as $bhp)
                     <tr>
-                      <td class="px-4 py-3">{{ $bhp['id'] }}</td>
+                      <td class="px-4 py-3">{{ $loop->remaining + 1 }}</td>
                       <td class="fw-semibold">{{ $bhp['nama_bhp'] }}</td>
                       <td>{{ $bhp['nama_ruangan'] ?? 'Gudang Utama' }}</td>
                       <td>{{ $bhp['satuan'] }}</td>

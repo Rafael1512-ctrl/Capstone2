@@ -21,7 +21,7 @@
             <table class="table align-items-center mb-0 table-hover">
               <thead class="table-light">
                 <tr>
-                  <th class="px-4 py-3">ID Draf</th>
+                  <th class="px-4 py-3">No.</th>
                   <th>Tahun</th>
                   <th>Pengaju (Kepala Lab)</th>
                   <th>Total Items</th>
@@ -34,7 +34,7 @@
                 @if (isset($drafts) && count($drafts) > 0)
                   @foreach ($drafts as $d)
                     <tr>
-                      <td class="px-4 py-3">#{{ $d['id'] }}</td>
+                      <td class="px-4 py-3">{{ $loop->remaining + 1 }}</td>
                       <td class="fw-semibold">{{ $d['tahun'] }}</td>
                       <td>{{ $d['pengaju'] }}</td>
                       <td>{{ $d['total_items'] }} items</td>

@@ -98,20 +98,19 @@ class StafAdminController {
     try {
       const { qr_univ_file_name, qr_univ_file_data, kode_inventaris_univ, tanggal_daftar_univ } = req.body;
 
-      if (!qr_univ_file_name || !qr_univ_file_data) {
-        return res.status(400).json({ error: 'File QR universitas wajib diunggah.' });
+      let fileUrl = null;
+      if (qr_univ_file_name && qr_univ_file_data) {
+        const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'inventaris');
+        fs.mkdirSync(uploadDir, { recursive: true });
+
+        const extension = path.extname(qr_univ_file_name).toLowerCase() || '.png';
+        const safeName = `qr_univ_inventaris_${req.params.id}_${Date.now()}${extension}`;
+        const filePath = path.join(uploadDir, safeName);
+        const fileBuffer = Buffer.from(qr_univ_file_data, 'base64');
+
+        fs.writeFileSync(filePath, fileBuffer);
+        fileUrl = `${req.protocol}://${req.get('host')}/uploads/inventaris/${safeName}`;
       }
-
-      const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'inventaris');
-      fs.mkdirSync(uploadDir, { recursive: true });
-
-      const extension = path.extname(qr_univ_file_name).toLowerCase() || '.png';
-      const safeName = `qr_univ_inventaris_${req.params.id}_${Date.now()}${extension}`;
-      const filePath = path.join(uploadDir, safeName);
-      const fileBuffer = Buffer.from(qr_univ_file_data, 'base64');
-
-      fs.writeFileSync(filePath, fileBuffer);
-      const fileUrl = `${req.protocol}://${req.get('host')}/uploads/inventaris/${safeName}`;
 
       await Inventaris.attachUniversityQr(
         req.params.id,

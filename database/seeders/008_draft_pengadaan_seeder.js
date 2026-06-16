@@ -3,7 +3,7 @@ const db = require('../../config/db');
 async function run() {
   const drafts = [
     [1, 2, 3, 2026, 'finalized', null],
-    [2, 2, null, 2026, 'draft', null],
+    [2, 2, 3, 2026, 'draft', null],
     [3, 2, 3, 2026, 'finalized', null],
     [4, 2, 3, 2026, 'rejected', 'Anggaran tidak mencukupi dan barang tidak menunjang langsung kurikulum lab IT.'],
     [5, 2, 3, 2026, 'finalized', null],

@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/custom.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="importmap">
       {
         "imports": {
@@ -252,22 +253,49 @@
     <main id="content" class="content py-10">
         <div class="container-fluid">
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
-                    <div class="d-flex align-items-center">
-                        <i class="ti ti-circle-check fs-4 me-2"></i>
-                        <span>{{ session('success') }}</span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: '{!! addslashes(session('success')) !!}',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    });
+                </script>
             @endif
             @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
-                    <div class="d-flex align-items-center">
-                        <i class="ti ti-alert-triangle fs-4 me-2"></i>
-                        <span>{{ session('error') }}</span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: '{!! addslashes(session('error')) !!}',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    });
+                </script>
+            @endif
+            @if ($errors->any())
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: '{!! addslashes($errors->first()) !!}',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true,
+                        });
+                    });
+                </script>
             @endif
         </div>
         @yield('content')

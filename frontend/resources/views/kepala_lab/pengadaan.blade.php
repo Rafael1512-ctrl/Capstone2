@@ -176,7 +176,8 @@
                             <!-- Hidden delete draft form -->
                             <form id="delete-draft-form"
                                 action="/kepala-lab/pengadaan/delete-draft/{{ $activeDraft['id'] }}" method="POST"
-                                style="display: none;">
+                                style="display: none;"
+                                data-confirm="Apakah Anda yakin ingin menghapus seluruh draf ini? Semua item di dalamnya akan ikut terhapus dan tidak bisa dikembalikan.">
                                 @csrf
                             </form>
                         </div>

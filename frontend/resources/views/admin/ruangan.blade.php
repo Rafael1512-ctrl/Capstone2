@@ -93,7 +93,7 @@
                                 @if (isset($ruangan) && count($ruangan) > 0)
                                     @foreach ($ruangan as $r)
                                         <tr>
-                                            <td class="px-4 py-3 text-secondary">{{ $r['id'] }}</td>
+                                            <td class="px-4 py-3 text-secondary">{{ $loop->remaining + 1 }}</td>
                                             <td class="py-3">
                                                 <span
                                                     class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1 fw-bold">{{ $r['kode_ruangan'] }}</span>

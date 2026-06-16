@@ -69,10 +69,17 @@ class Inventaris {
   }
 
   static async attachUniversityQr(id, qrUnivPath, kodeInventarisUniv, tanggalDaftarUniv) {
-    await db.query(
-      `UPDATE inventaris SET qr_univ_path = ?, kode_inventaris_univ = ?, tanggal_daftar_univ = ? WHERE id = ?`,
-      [qrUnivPath, kodeInventarisUniv, tanggalDaftarUniv, id]
-    );
+    if (qrUnivPath) {
+      await db.query(
+        `UPDATE inventaris SET qr_univ_path = ?, kode_inventaris_univ = ?, tanggal_daftar_univ = ? WHERE id = ?`,
+        [qrUnivPath, kodeInventarisUniv, tanggalDaftarUniv, id]
+      );
+    } else {
+      await db.query(
+        `UPDATE inventaris SET kode_inventaris_univ = ?, tanggal_daftar_univ = ? WHERE id = ?`,
+        [kodeInventarisUniv, tanggalDaftarUniv, id]
+      );
+    }
   }
 
   // Soft delete inventaris

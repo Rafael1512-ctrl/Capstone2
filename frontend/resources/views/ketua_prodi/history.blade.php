@@ -36,10 +36,11 @@
             <table class="table align-items-center mb-0 table-hover">
               <thead class="table-light">
                 <tr>
-                  <th class="px-4 py-3">ID Draf</th>
+                  <th class="px-4 py-3">No.</th>
                   <th>Tahun</th>
                   <th>Pengaju (Kepala Lab)</th>
                   <th>Total Items</th>
+                  <th>Status Draf</th>
                   <th>Catatan Keputusan</th>
                   <th class="text-end px-4 py-3" style="width: 120px;">Aksi</th>
                 </tr>
@@ -48,10 +49,18 @@
                 @if (isset($drafts) && count($drafts) > 0)
                   @foreach ($drafts as $d)
                     <tr>
-                      <td class="px-4 py-3">#{{ $d['id'] }}</td>
+                      <td class="px-4 py-3">{{ $loop->remaining + 1 }}</td>
                       <td class="fw-semibold">{{ $d['tahun'] }}</td>
                       <td>{{ $d['pengaju'] }}</td>
                       <td>{{ $d['total_items'] }} items</td>
+                      <td>
+                        @php
+                          $badgeClass = $d['status'] === 'finalized' ? 'bg-success' : ($d['status'] === 'rejected' ? 'bg-danger' : 'bg-secondary');
+                        @endphp
+                        <span class="badge {{ $badgeClass }}">
+                          {{ strtoupper($d['status']) }}
+                        </span>
+                      </td>
                       <td>
                         @if ($d['alasan_penolakan'])
                           <span class="text-muted small">{{ $d['alasan_penolakan'] }}</span>

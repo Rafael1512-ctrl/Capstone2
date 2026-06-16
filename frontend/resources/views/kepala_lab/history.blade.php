@@ -22,7 +22,7 @@
             <table class="table align-items-center mb-0 table-hover">
               <thead class="table-light">
                 <tr>
-                  <th class="px-4 py-3">ID Draf</th>
+                  <th class="px-4 py-3">No.</th>
                   <th>Tahun Anggaran</th>
                   <th>Jumlah Item</th>
                   <th>Catatan Kaprodi</th>
@@ -34,7 +34,7 @@
                 @if ($hasDrafts)
                   @foreach ($drafts as $d)
                     <tr>
-                      <td class="px-4 py-3">#{{ $d['id'] }}</td>
+                      <td class="px-4 py-3">{{ $loop->remaining + 1 }}</td>
                       <td class="fw-semibold">{{ $d['tahun'] }}</td>
                       <td>{{ $d['item_count'] }} items</td>
                       <td style="max-width: 200px; white-space: normal;">
@@ -95,7 +95,7 @@
             <div class="modal-header">
               <h5 class="modal-title" id="modalDetailDraftLabel{{ $d['id'] }}">
                 <i class="ti ti-file-description me-2"></i>
-                Detail Draf #{{ $d['id'] }} &mdash; Tahun {{ $d['tahun'] }}
+                Detail Draf #{{ $loop->remaining + 1 }} &mdash; Tahun {{ $d['tahun'] }}
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

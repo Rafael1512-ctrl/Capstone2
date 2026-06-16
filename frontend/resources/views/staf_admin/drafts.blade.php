@@ -33,7 +33,7 @@
                 @if (isset($drafts) && count($drafts) > 0)
                   @foreach ($drafts as $d)
                     <tr>
-                      <td class="px-4 py-3">#{{ $d['id'] }}</td>
+                      <td class="px-4 py-3">{{ $d['id'] }}</td>
                       <td class="fw-semibold">{{ $d['tahun'] }}</td>
                       <td>{{ $d['pengaju'] }}</td>
                       <td>{{ $d['approved_items'] }} items disetujui</td>
