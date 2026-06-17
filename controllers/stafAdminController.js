@@ -26,10 +26,16 @@ class StafAdminController {
   // GET /api/inventaris
   static async showInventaris(req, res) {
     try {
-      const receivedItems = await Inventaris.getAllReceived();
+      const { ruangan_id, tahun } = req.query;
+      const filters = {};
+      if (ruangan_id) filters.ruangan_id = ruangan_id;
+      if (tahun) filters.tahun = tahun;
+
+      const receivedItems = await Inventaris.getAllReceived(filters);
+      const availableYears = await Inventaris.getUniqueYears();
+      const ruangan = await Ruangan.getAll();
 
       let pendingItems = [];
-      let ruangan = [];
       let drafts = [];
 
       if (req.user && req.user.role === "staf_admin") {
@@ -37,7 +43,6 @@ class StafAdminController {
         const draftId =
           rawDraftId && !isNaN(rawDraftId) ? parseInt(rawDraftId) : null;
         pendingItems = await DetailDraft.getPendingInventaris(draftId);
-        ruangan = await Ruangan.getAll();
         drafts = await DraftPengadaan.getSubmittedDrafts();
       }
 
@@ -48,6 +53,7 @@ class StafAdminController {
         receivedItems,
         ruangan,
         drafts,
+        availableYears,
         hasPendingItems: pendingItems.length > 0,
         pendingCount: pendingItems.length,
         hasReceivedItems: receivedItems.length > 0,

@@ -131,8 +131,39 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header bg-transparent px-4 py-3 border-bottom">
+                    <div class="card-header bg-transparent px-4 py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <h5 class="mb-0">Inventaris Terdaftar & QR-Labeled</h5>
+                        <form action="/inventaris" method="GET" class="d-flex align-items-center gap-2 m-0 flex-wrap">
+                            @if (request()->query('draft_id'))
+                                <input type="hidden" name="draft_id" value="{{ request()->query('draft_id') }}">
+                            @endif
+                            
+                            <label class="small text-muted mb-0 text-nowrap">Filter Ruangan:</label>
+                            <select name="ruangan_id" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto; min-width: 150px;">
+                                <option value="">-- Semua Ruangan --</option>
+                                @foreach ($ruangan ?? [] as $r)
+                                    <option value="{{ $r['id'] }}" {{ ($selectedRuanganId ?? '') == $r['id'] ? 'selected' : '' }}>
+                                        {{ $r['kode_ruangan'] }} - {{ $r['nama_ruangan'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <label class="small text-muted mb-0 text-nowrap ms-md-2">Filter Tahun:</label>
+                            <select name="tahun" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
+                                <option value="">-- Semua Tahun --</option>
+                                @foreach ($availableYears ?? [] as $yr)
+                                    <option value="{{ $yr }}" {{ ($selectedTahun ?? '') == $yr ? 'selected' : '' }}>
+                                        {{ $yr }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            
+                            @if (request()->query('ruangan_id') || request()->query('tahun'))
+                                <a href="/inventaris{{ request()->query('draft_id') ? '?draft_id=' . request()->query('draft_id') : '' }}" class="btn btn-sm btn-light border small ms-2">
+                                    <i class="ti ti-refresh"></i> Reset
+                                </a>
+                            @endif
+                        </form>
                     </div>
                     <div class="table-responsive p-0">
                         <table class="table align-items-center mb-0 table-hover">

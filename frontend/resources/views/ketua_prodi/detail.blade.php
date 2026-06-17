@@ -183,6 +183,7 @@
 
                 let allSelected = true;
                 let missingReason = false;
+                let hasPending = false;
 
                 itemIds.forEach(itemId => {
                     const selected = document.querySelector(`input[name="decision[${itemId}]"]:checked`);
@@ -190,6 +191,8 @@
                     
                     if (!selected) {
                         allSelected = false;
+                    } else if (selected.value === 'pending') {
+                        hasPending = true;
                     } else if (selected.value === 'rejected') {
                         if (!catatanInput || !catatanInput.value.trim()) {
                             missingReason = true;

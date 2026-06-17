@@ -15,8 +15,19 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
-          <div class="card-header bg-transparent px-4 py-3 border-bottom">
+          <div class="card-header bg-transparent px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
             <h5 class="mb-0">Riwayat Pengajuan (Draf Terkirim / Selesai)</h5>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <select id="filterYear" class="form-select form-select-sm" style="width: 160px;">
+                <option value="">Semua Tahun</option>
+                @php
+                  $years = isset($drafts) ? collect($drafts)->pluck('tahun')->unique()->sortDesc() : collect([]);
+                @endphp
+                @foreach ($years as $year)
+                  <option value="{{ $year }}">{{ $year }}</option>
+                @endforeach
+              </select>
+            </div>
           </div>
           <div class="table-responsive p-0">
             <table class="table align-items-center mb-0 table-hover">
@@ -140,6 +151,7 @@
                         <th>Jenis</th>
                         <th class="text-center">Jumlah</th>
                         <th class="text-center">Status Item</th>
+                        <th>Catatan</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -162,6 +174,7 @@
                           <td class="text-center">
                             <span class="badge {{ $itemBadge }}">{{ $itemLabel }}</span>
                           </td>
+                          <td class="small">{{ $item['catatan'] ?? '-' }}</td>
                         </tr>
                       @endforeach
                     </tbody>
@@ -180,4 +193,30 @@
       </div>
     @endforeach
   @endif
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterYear = document.getElementById('filterYear');
+      const tableRows = document.querySelectorAll('.table-responsive table tbody tr');
+
+      function filterHistoryTable() {
+        const selectedYear = filterYear.value;
+
+        tableRows.forEach(row => {
+          // Skip the "no data" row
+          if (row.cells.length === 1) {
+            return;
+          }
+
+          const yearCell = row.cells[1].textContent.trim();
+          const yearMatch = selectedYear === '' || yearCell === selectedYear;
+
+          row.style.display = yearMatch ? '' : 'none';
+        });
+      }
+
+      if (filterYear) {
+        filterYear.addEventListener('change', filterHistoryTable);
+      }
+    });
+  </script>
 @endsection

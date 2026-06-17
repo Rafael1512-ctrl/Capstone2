@@ -19,12 +19,24 @@ class StafAdminController extends Controller
     public function showInventaris(Request $request)
     {
         $draftId = $request->query('draft_id');
+        $ruanganId = $request->query('ruangan_id');
+        $tahun = $request->query('tahun');
+
         $params = [];
         if ($draftId) {
             $params['draft_id'] = $draftId;
         }
+        if ($ruanganId) {
+            $params['ruangan_id'] = $ruanganId;
+        }
+        if ($tahun) {
+            $params['tahun'] = $tahun;
+        }
+
         $data = ApiService::get('/inventaris', $params);
         $data['selectedDraftId'] = $draftId;
+        $data['selectedRuanganId'] = $ruanganId;
+        $data['selectedTahun'] = $tahun;
         return view('staf_admin.inventaris', $data);
     }
 

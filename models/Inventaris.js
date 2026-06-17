@@ -2,16 +2,40 @@ const db = require('../config/db');
 
 class Inventaris {
   // Get all received inventory
-  static async getAllReceived() {
-    const [rows] = await db.query(
-      `SELECT iv.*, COALESCE(dd.harga_satuan, 0) as harga_satuan, r.nama_ruangan
+  static async getAllReceived(filters = {}) {
+    let sql = `SELECT iv.*, COALESCE(dd.harga_satuan, 0) as harga_satuan, r.nama_ruangan
        FROM inventaris iv
        LEFT JOIN detail_draft dd ON iv.detail_draft_id = dd.id
+       LEFT JOIN draft_pengadaan dp ON dd.draft_id = dp.id
        LEFT JOIN ruangan r ON iv.ruangan_id = r.id
-       WHERE iv.kondisi != 'dihapus'
-       ORDER BY iv.id DESC`
-    );
+       WHERE iv.kondisi != 'dihapus'`;
+
+    const params = [];
+    if (filters.ruangan_id) {
+      sql += ` AND iv.ruangan_id = ?`;
+      params.push(filters.ruangan_id);
+    }
+    if (filters.tahun) {
+      sql += ` AND (dp.tahun = ? OR (dp.tahun IS NULL AND YEAR(iv.tanggal_terima) = ?))`;
+      params.push(filters.tahun, filters.tahun);
+    }
+
+    sql += ` ORDER BY iv.id DESC`;
+    const [rows] = await db.query(sql, params);
     return rows;
+  }
+
+  // Get all unique years of inventory (budget year or receipt year)
+  static async getUniqueYears() {
+    const [rows] = await db.query(
+      `SELECT DISTINCT COALESCE(dp.tahun, YEAR(iv.tanggal_terima)) as tahun
+       FROM inventaris iv
+       LEFT JOIN detail_draft dd ON iv.detail_draft_id = dd.id
+       LEFT JOIN draft_pengadaan dp ON dd.draft_id = dp.id
+       WHERE iv.kondisi != 'dihapus' AND (dp.tahun IS NOT NULL OR iv.tanggal_terima IS NOT NULL)
+       ORDER BY tahun DESC`
+    );
+    return rows.map(r => r.tahun);
   }
 
   // Get single inventory item by ID

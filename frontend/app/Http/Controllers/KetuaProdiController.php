@@ -47,7 +47,12 @@ class KetuaProdiController extends Controller
                 return redirect()->back()->with('error', 'API Error: ' . $response['error']);
             }
             
-            return redirect('/ketua-prodi/history')->with('success', 'Keputusan draf berhasil disimpan.');
+            $status = $response['status'] ?? 'reviewed';
+            if ($status === 'reviewed') {
+                return redirect('/ketua-prodi/review')->with('success', 'Progres keputusan draf berhasil disimpan.');
+            }
+            
+            return redirect('/ketua-prodi/history')->with('success', 'Keputusan draf berhasil difinalisasi.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }

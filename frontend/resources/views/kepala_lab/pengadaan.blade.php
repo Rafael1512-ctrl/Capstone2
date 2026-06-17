@@ -49,8 +49,11 @@
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold text-secondary">Tahun Anggaran</label>
-                                <input class="form-control text-center fw-bold" type="number" name="tahun"
-                                    value="{{ date('Y') }}" required>
+                                <select class="form-select text-center fw-bold" name="tahun" required>
+                                    @for ($y = date('Y') + 5; $y >= date('Y') - 1; $y--)
+                                        <option value="{{ $y }}" {{ $y == date('Y') ? 'selected' : '' }}>{{ $y }}</option>
+                                    @endfor
+                                </select>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label small fw-semibold text-secondary">Pengajuan akan dikirim
@@ -147,8 +150,11 @@
                                 @csrf
                                 <div class="mb-3">
                                     <label class="form-label small fw-semibold text-secondary">Tahun Anggaran</label>
-                                    <input class="form-control form-control-sm text-center fw-bold" type="number"
-                                        name="tahun" value="{{ $activeDraft['tahun'] }}" required>
+                                    <select class="form-select form-select-sm text-center fw-bold" name="tahun" required>
+                                        @for ($y = date('Y') + 5; $y >= date('Y') - 1; $y--)
+                                            <option value="{{ $y }}" {{ $y == $activeDraft['tahun'] ? 'selected' : '' }}>{{ $y }}</option>
+                                        @endfor
+                                    </select>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label small fw-semibold text-secondary">Ketua Prodi (Kaprodi)</label>

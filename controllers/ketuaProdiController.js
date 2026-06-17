@@ -60,7 +60,6 @@ class KetuaProdiController {
       const allItems = await DetailDraft.getByDraftId(draftId);
       const hasPending = allItems.some((i) => i.status_item === "pending");
       const hasApproved = allItems.some((i) => i.status_item === "approved");
-      const hasRejected = allItems.some((i) => i.status_item === "rejected");
 
       // Determine new draft status
       let newStatus = "reviewed";
