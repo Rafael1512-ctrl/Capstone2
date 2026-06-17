@@ -107,16 +107,9 @@
               <input id="password" class="form-control" type="password" name="password" placeholder="Password" required minlength="6">
               <div class="invalid-feedback">Please provide a password (min 6 characters).</div>
             </div>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div class="form-check">
-                <input id="remember" class="form-check-input" type="checkbox">
-                <label class="form-check-label small" for="remember">Remember me</label>
-              </div>
-            </div>
             <button class="btn class-btn btn-primary w-100" type="submit">Sign in</button>
           </form>
-          <div class="text-center mt-3 small text-muted">Don't have an account?&nbsp;
-            <a class="link-primary" href="#">Sign up</a>
+          <div class="text-center mt-3 small text-muted">
             <hr class="my-3">
             <div class="text-start">
               <span class="small text-secondary fw-semibold">Akun Dummy (Password: password):</span>
