@@ -14,6 +14,8 @@ use App\Http\Controllers\StafLabController;
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'handleLogin']);
 Route::post('/logout', [AuthController::class, 'handleLogout'])->name('logout');
+Route::get('/forgot-password', fn() => view('auth.forgot-password'))->name('forgot-password');
+Route::get('/reset-password', fn() => view('auth.reset-password'))->name('reset-password');
 
 // ─── EMAIL VERIFICATION ───────────────────────────────────────────────────────
 Route::get('/email/verify', [VerifyEmailController::class, 'notice'])->name('verification.notice');
@@ -37,8 +39,7 @@ Route::middleware('auth.jwt')->group(function () {
     Route::get('/docs', [DashboardController::class, 'docs'])->name('docs');
     Route::get('/maintenance', [DashboardController::class, 'showMaintenance'])->name('maintenance');
     Route::get('/api-notifications', [DashboardController::class, 'getNotifications'])->name('api-notifications');
-    Route::get('/profile', [DashboardController::class, 'showProfile'])->name('profile');
-    Route::post('/profile', [DashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/profile', fn() => view('profile.index'))->middleware('auth.check')->name('profile');
 
     // ── ADMIN ─────────────────────────────────────────────────────────────────
     Route::middleware('role.jwt:admin')->group(function () {

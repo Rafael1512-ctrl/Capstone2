@@ -71,6 +71,14 @@ const migrations = [
     name: "016_add_university_qr_fields_to_inventaris_table",
     file: "./migrations/016_add_university_qr_fields_to_inventaris_table.js",
   },
+  {
+    name: "017_add_profile_fields_to_users_table",
+    file: "./migrations/017_add_profile_fields_to_users_table.js",
+  },
+  {
+    name: "018_add_reset_password_token_to_users_table",
+    file: "./migrations/018_add_reset_password_token_to_users_table.js",
+  },
 ];
 
 const seeders = [

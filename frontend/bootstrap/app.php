@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'auth.jwt' => \App\Http\Middleware\Authenticate::class,
+            'auth.check' => \App\Http\Middleware\Authenticate::class,
             'role.jwt' => \App\Http\Middleware\CheckRole::class,
         ]);
     })

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path    = require('path');
 const cors    = require('cors');
@@ -6,9 +7,9 @@ const webRoutes = require('./routes/web');
 const app  = express();
 const port = 3000;
 
-// Enable CORS for Laravel frontend on http://localhost:8000
+// Enable CORS for Laravel frontend
 app.use(cors({
-  origin: 'http://localhost:8000',
+  origin: ['http://localhost:8000', 'http://127.0.0.1:8000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

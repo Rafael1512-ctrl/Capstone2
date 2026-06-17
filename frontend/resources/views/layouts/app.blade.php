@@ -25,6 +25,8 @@
         }
       }
     </script>
+    <meta name="jwt-token" content="{{ Session::get('jwt_token') }}">
+    <meta name="api-url" content="{{ env('NODE_API_URL', 'http://localhost:3000/api') }}">
 </head>
 
 <body>
@@ -55,19 +57,26 @@
                 </li>
                 <!-- Dropdown -->
                 <li class="ms-3 dropdown">
-                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img class="avatar avatar-sm rounded-circle" src="/assets/images/avatar/avatar-1.jpg"
-                            alt="">
+                    <a href="#" id="profileDropdownTrigger" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="d-flex align-items-center text-decoration-none">
+                        <img id="navAvatarImg" class="avatar avatar-sm rounded-circle d-none" src="" alt="Avatar">
+                        <div id="navAvatarInitials" class="avatar avatar-sm rounded-circle d-flex align-items-center justify-content-center text-white fw-bold bg-success fs-7" style="display: none !important; width: 32px; height: 32px;">
+                            -
+                        </div>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 200px;">
+                    <div class="dropdown-menu dropdown-menu-end p-0" id="profileDropdownMenu" style="min-width: 220px; border-radius: 12px; overflow: hidden; border: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.15); right: 0; left: auto; margin-top: 10px;">
                         <div>
-                            <div class="d-flex gap-3 align-items-center border-dashed border-bottom px-3 py-3">
-                                <img class="avatar avatar-md rounded-circle" src="/assets/images/avatar/avatar-1.jpg"
-                                    alt="">
+                            <div class="d-flex gap-3 align-items-center border-dashed border-bottom px-3 py-3 bg-light">
+                                <div class="d-flex align-items-center justify-content-center flex-shrink-0">
+                                    <img id="dropdownAvatarImg" class="avatar avatar-md rounded-circle d-none" src="" alt="Avatar">
+                                    <div id="dropdownAvatarInitials" class="avatar avatar-md rounded-circle d-flex align-items-center justify-content-center text-white fw-bold bg-success fs-4" style="display: none !important; width: 40px; height: 40px;">
+                                        -
+                                    </div>
+                                </div>
                                 <div>
-                                    <h4 class="mb-0 small">
-                                        {{ Session::has('user') ? Session::get('user')['nama'] : 'Guest' }}</h4>
-                                    <p class="mb-0 small text-capitalize">
+                                    <h4 class="mb-0 small fw-bold text-dark" id="navProfileName">
+                                        {{ Session::has('user') ? Session::get('user')['nama'] : 'Guest' }}
+                                    </h4>
+                                    <p class="mb-0 small text-capitalize text-secondary" id="navProfileRole" style="font-size: 0.75rem;">
                                         {{ Session::has('user') ? str_replace('_', ' ', Session::get('user')['role']) : 'Visitor' }}
                                     </p>
                                 </div>
@@ -77,7 +86,7 @@
                                 <a href="/profile" class="text-dark d-flex align-items-center gap-2"><i class="ti ti-user"></i> Profil Saya</a>
                                 @if (Session::has('user'))
                                     <a class="text-danger fw-semibold d-flex align-items-center gap-2" href="#"
-                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        onclick="event.preventDefault(); localStorage.clear(); document.getElementById('logout-form').submit();">
                                         <i class="ti ti-logout"></i> Sign Out
                                     </a>
                                 @else
@@ -232,7 +241,7 @@
             @if (Session::has('user'))
                 <li>
                     <a class="nav-link" href="#"
-                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        onclick="event.preventDefault(); localStorage.clear(); document.getElementById('logout-form').submit();">
                         <i class="ti ti-logout"></i>
                         <span class="nav-text">Sign Out</span>
                     </a>
@@ -546,6 +555,153 @@
             // Refresh notifications every 60 seconds
             setInterval(loadNotifications, 60000);
         });
+    </script>
+
+    <!-- PROFILE AND AVATAR SYNC SCRIPT -->
+    <script>
+        (function() {
+            const token = document.querySelector('meta[name="jwt-token"]')?.getAttribute('content');
+            const apiUrl = document.querySelector('meta[name="api-url"]')?.getAttribute('content') || 'http://localhost:3000/api';
+            // Use a segment of the token as a namespace to prevent caching issues when switching users
+            const cacheKey = token ? 'inlab_profile_cache_' + token.slice(-16) : 'inlab_profile_cache_guest';
+            const cacheDuration = 5 * 60 * 1000; // 5 minutes in ms
+
+            function updateAvatarUI(profile) {
+                const navImg = document.getElementById('navAvatarImg');
+                const navInitials = document.getElementById('navAvatarInitials');
+                const dropdownImg = document.getElementById('dropdownAvatarImg');
+                const dropdownInitials = document.getElementById('dropdownAvatarInitials');
+                const dropdownName = document.getElementById('navProfileName');
+
+                if (dropdownName) {
+                    dropdownName.textContent = profile.name;
+                }
+
+                // Helper to get initials
+                const initials = profile.name 
+                    ? profile.name.trim().split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase() 
+                    : 'U';
+
+                if (profile.avatar_url) {
+                    if (navImg) {
+                        navImg.src = profile.avatar_url;
+                        navImg.classList.remove('d-none');
+                    }
+                    if (navInitials) {
+                        navInitials.style.setProperty('display', 'none', 'important');
+                    }
+                    if (dropdownImg) {
+                        dropdownImg.src = profile.avatar_url;
+                        dropdownImg.classList.remove('d-none');
+                    }
+                    if (dropdownInitials) {
+                        dropdownInitials.style.setProperty('display', 'none', 'important');
+                    }
+                } else {
+                    if (navImg) {
+                        navImg.classList.add('d-none');
+                    }
+                    if (navInitials) {
+                        navInitials.textContent = initials;
+                        navInitials.style.setProperty('display', 'flex', 'important');
+                    }
+                    if (dropdownImg) {
+                        dropdownImg.classList.add('d-none');
+                    }
+                    if (dropdownInitials) {
+                        dropdownInitials.textContent = initials;
+                        dropdownInitials.style.setProperty('display', 'flex', 'important');
+                    }
+                }
+            }
+
+            window.fetchUserProfile = function(force = false) {
+                if (!token) return Promise.resolve(null);
+
+                if (!force) {
+                    const cached = localStorage.getItem(cacheKey);
+                    if (cached) {
+                        try {
+                            const parsed = JSON.parse(cached);
+                            if (parsed && parsed.expiresAt > Date.now()) {
+                                updateAvatarUI(parsed.profile);
+                                return Promise.resolve(parsed.profile);
+                            }
+                        } catch(e) {
+                            localStorage.removeItem(cacheKey);
+                        }
+                    }
+                }
+
+                return fetch(apiUrl + '/user/profile', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to fetch profile');
+                    return res.json();
+                })
+                .then(profile => {
+                    const cacheData = {
+                        profile: profile,
+                        expiresAt: Date.now() + cacheDuration
+                    };
+                    localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+                    updateAvatarUI(profile);
+                    
+                    // Dispatch custom event to notify listeners
+                    window.dispatchEvent(new CustomEvent('profile-synced', { detail: profile }));
+                    return profile;
+                })
+                .catch(err => {
+                    console.error('Error fetching user profile:', err);
+                });
+            };
+
+            // Load on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                window.fetchUserProfile();
+
+                // Initialize Bootstrap Dropdown programmatically to activate Popper.js positioning
+                const trigger = document.getElementById('profileDropdownTrigger');
+                const menu = document.getElementById('profileDropdownMenu');
+                if (trigger && menu) {
+                    const bs = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
+                    if (bs && bs.Dropdown) {
+                        const bsDropdown = new bs.Dropdown(trigger);
+                        trigger.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            bsDropdown.toggle();
+                        });
+                    } else {
+                        // Fallback manual toggle if bootstrap object is not found
+                        trigger.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const isShown = menu.classList.contains('show');
+                            if (isShown) {
+                                menu.classList.remove('show');
+                                trigger.setAttribute('aria-expanded', 'false');
+                            } else {
+                                document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+                                menu.classList.add('show');
+                                trigger.setAttribute('aria-expanded', 'true');
+                            }
+                        });
+                    }
+
+                    // Click outside handler
+                    document.addEventListener('click', function(e) {
+                        if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+                            menu.classList.remove('show');
+                            trigger.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                }
+            });
+        })();
     </script>
 
     <!-- Bootstrap JS -->

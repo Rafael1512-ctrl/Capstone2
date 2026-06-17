@@ -102,7 +102,7 @@
             <div class="mb-3">
               <label class="form-label d-flex justify-content-between" for="password">
                 <span>Password</span>
-                <a class="small link-primary" href="#">Forgot Password?</a>
+                <a class="small link-primary" href="/forgot-password">Forgot Password?</a>
               </label>
               <input id="password" class="form-control" type="password" name="password" placeholder="Password" required minlength="6">
               <div class="invalid-feedback">Please provide a password (min 6 characters).</div>

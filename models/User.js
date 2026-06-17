@@ -176,6 +176,47 @@ class User {
       ]);
     }
   }
+
+  // Update user profile details (nama, phone, position)
+  static async updateUserProfile(id, nama, phone, position) {
+    await db.query(
+      `UPDATE users SET nama = ?, phone = ?, position = ? WHERE id = ?`,
+      [nama, phone || null, position || null, id]
+    );
+  }
+
+  // Update user avatar filename
+  static async updateAvatar(id, avatar) {
+    await db.query(
+      `UPDATE users SET avatar = ? WHERE id = ?`,
+      [avatar, id]
+    );
+  }
+
+  // Save reset password token and expiry
+  static async saveResetToken(id, token, expires) {
+    await db.query(
+      `UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?`,
+      [token, expires, id]
+    );
+  }
+
+  // Get user by reset token and ensure it is not expired
+  static async getUserByResetToken(email, token) {
+    const [rows] = await db.query(
+      `SELECT * FROM users WHERE email = ? AND reset_token = ? AND reset_token_expires > NOW() AND deleted_at IS NULL`,
+      [email, token]
+    );
+    return rows.length > 0 ? rows[0] : null;
+  }
+
+  // Reset user password and clear token
+  static async resetUserPassword(id, hashedPassword) {
+    await db.query(
+      `UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?`,
+      [hashedPassword, id]
+    );
+  }
 }
 
 module.exports = User;
